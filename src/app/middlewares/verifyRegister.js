@@ -11,14 +11,14 @@ checkDuplicateEmail = (req, res, next) =>{
     })
     .exec((error, user) => {
         if (error) {
-            res.status(500).send({
+            res.status(500).json({
                 success: false,
                 message: error 
             });
             return;
         }
         if (user) {
-            res.status(403).send({
+            res.status(403).json({
                 success: false,
                 message: "Failed! email is already in use!" 
             });
@@ -62,7 +62,7 @@ checkValidatePassword = (req, res, next) =>{
         .then(valid =>{
             if(valid) next();
             else{
-                res.status(403).send({
+                res.status(403).json({
                     success: false,
                     message: "Password length min is 6 and max is 15" 
                 });
@@ -71,7 +71,7 @@ checkValidatePassword = (req, res, next) =>{
         })
         .catch(error =>{
             console.log(error)
-            res.status(500).send({
+            res.status(500).json({
                 success: false,
                 message: "Server is error",
                 error: error
