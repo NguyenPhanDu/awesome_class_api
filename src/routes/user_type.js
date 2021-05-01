@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 
-const AuthTypeAPIController = require('../app/api/controllers/AuthTypeAPIController');
+const UserTypeAPIController = require('../app/api/controllers/UserTypeAPIController');
 
-router.post('/create',AuthTypeAPIController.create)
+router.post('/create',UserTypeAPIController.create)
 
 module.exports = router
