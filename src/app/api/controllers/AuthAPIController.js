@@ -27,20 +27,24 @@ class UserController{
                     .then( newUser =>{
                         user2 = newUser
                     })
-                await res.status(200).json({
+                await res.json({
                     success: true,
                     message: "Sign up successfull!",
-                    data: user2
+                    data: user2,
+                    res_code: 200,
+                    res_status: "REGISTER_SUCCESSFULLY"
                 })
                 sendActiveMail(req,user2);
                 
             })
             .catch(error =>{
                 console.log(error);
-                res.status(500).json({
+                res.json({
                     success: false,
                     message: 'Server error. Please try again.',
                     error: error.message,
+                    res_code: 500,
+                    res_status: "SERVER_ERROR"
                 });
             })
     }
@@ -76,7 +80,6 @@ class UserController{
                 });
             })
             .catch(error =>{
-                console.log(error)
                 res.json({
                     success: false,
                     message: error,
