@@ -4,7 +4,8 @@ const UserType = require('../../models/UserType');
 const bcrypt = require('bcrypt');
 const secretKeyJwt = require('../../../config/auth')
 const jwt = require('jsonwebtoken');
-
+const sendActiveMail = require('../../mailers/sendEmailActivate/sendEmailActivate')
+const generateRandomCode = require('../../../helpers/index')
 
 class UserController{
     async signUp(req, res){
@@ -16,7 +17,8 @@ class UserController{
         const user = new User({
             email: req.body.email,
             password: bcrypt.hashSync(req.body.password, 8),
-            user_type:  mongoose.Types.ObjectId(user_type_id)
+            user_type:  mongoose.Types.ObjectId(user_type_id),
+            activated_code: generateRandomCode(8)
         });
         await user.save()
             .then(async user => {
@@ -30,6 +32,8 @@ class UserController{
                     message: "Sign up successfull!",
                     data: user2
                 })
+                sendActiveMail(req,user2);
+                
             })
             .catch(error =>{
                 console.log(error);
@@ -46,16 +50,20 @@ class UserController{
             .populate('user_type')
             .then(user => {
                 if(!user){
-                    return res.status(404).json({
+                    return res.json({
                         success: false,
-                        message: "User Not found."
+                        message: "Email Not found.",
+                        res_code: 403,
+                        res_status: "EMAIL_NOT_FOUND"
                     })
                 }
                 let passwordIsValid = bcrypt.compareSync(req.body.password,user.password)
                 if(!passwordIsValid){
-                    return res.status(403).json({
+                    return res.json({
                         success: false,
-                        message: "Wrong email"
+                        message: "Wrong email",
+                        res_code: 403,
+                        res_status: "WRONG_PASSWORD"
                     })
                 }
                 let token = jwt.sign({_id: user._id}, secretKeyJwt.secret,{expiresIn: 86400})
@@ -69,12 +77,15 @@ class UserController{
             })
             .catch(error =>{
                 console.log(error)
-                res.status(500).json({
+                res.json({
                     success: false,
-                    message: error
+                    message: error,
+                    res_code: 500,
+                    res_status: "SERVER_ERROR"
                 })
             })
     }
+    
 };
 
 module.exports = new UserController;

@@ -36,7 +36,7 @@ checkValidateEmail = (req, res, next) => {
         .then(valid =>{
             if(valid) next();
             else{
-                res.status(403).send({
+                res.status(403).json({
                     success: false,
                     message: "Email invalid" 
                 });
@@ -45,7 +45,7 @@ checkValidateEmail = (req, res, next) => {
         })
         .catch(error =>{
             console.log(error)
-            res.status(500).send({
+            res.status(500).json({
                 success: false,
                 message: "Server is error",
                 error: error
