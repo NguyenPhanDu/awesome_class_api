@@ -1,7 +1,7 @@
 const nodemailer =  require('nodemailer');
 const path = require('path');
 const hbs = require('nodemailer-express-handlebars');
-async function sendActiveMail(req,user){
+async function sendResetPasswordMail(req){
     try{
     let transport = await nodemailer.createTransport({
         host: 'smtp.gmail.com',
@@ -15,6 +15,7 @@ async function sendActiveMail(req,user){
             rejectUnauthorized: false
         }
     });
+
     transport.use('compile', hbs({
         viewEngine: {
             extName: ".hbs",
@@ -28,10 +29,9 @@ async function sendActiveMail(req,user){
         from: 'phandunguyen.work@gmail.com',
         to: req.body.email,
         subject: 'Test Nodemailer',
-        template: 'email_actived',
+        template: 'reset_password',
         context: {
-            userId: user.id_user,
-            activatedCode: user.activated_code,
+            name: 'ResetPassword rrrrr'
         } 
     }
     await transport.sendMail(mailOptions, (err, info) => {
@@ -44,10 +44,4 @@ async function sendActiveMail(req,user){
     }
 }
 
-module.exports = sendActiveMail
-
-
-
-
-
-
+module.exports = sendResetPasswordMail
