@@ -1,7 +1,7 @@
 const nodemailer =  require('nodemailer');
 const path = require('path');
 const hbs = require('nodemailer-express-handlebars');
-async function sendResetPasswordMail(req){
+async function sendResetPasswordMail(req,user){
     try{
     let transport = await nodemailer.createTransport({
         host: 'smtp.gmail.com',
@@ -31,7 +31,7 @@ async function sendResetPasswordMail(req){
         subject: 'Test Nodemailer',
         template: 'reset_password',
         context: {
-            name: 'ResetPassword rrrrr'
+            resetCode: user.reset_code
         } 
     }
     await transport.sendMail(mailOptions, (err, info) => {

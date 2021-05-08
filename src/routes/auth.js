@@ -4,12 +4,10 @@ const { checkDuplicateEmail, checkValidateEmail, checkValidatePassword } = requi
 const { checkDuplicateEmailFacebook, checkDuplicateEmailGoogle } =require('../app/middlewares/verifySocialLogin');
 const {verifyToken} = require('../app/middlewares/authJwt')
 const AuthAPIController = require('../app/api/controllers/AuthAPIController');
-const ResetPasswordController = require('../app/api/controllers/ResetPasswordController');
 const SocialLoginController = require('../app/api/controllers/SocialLoginController');
 
 router.post('/register',[checkDuplicateEmail ,checkValidateEmail, checkValidatePassword],AuthAPIController.signUp);
 router.post('/login', AuthAPIController.signIn);
-router.post('/reset-password', ResetPasswordController.sendReSetMail);
 router.post('/login-with-facebook', checkDuplicateEmailFacebook, SocialLoginController.loginWithFacebook);
 router.post('/login-with-google', checkDuplicateEmailGoogle, SocialLoginController.loginWithGoogle);
 

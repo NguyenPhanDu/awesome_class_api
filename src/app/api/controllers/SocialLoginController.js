@@ -19,6 +19,12 @@ class SocialLogin{
                     const user = new User({
                         email: req.body.email,
                         user_type:  mongoose.Types.ObjectId(user_type_id),
+                        profile: {
+                            name: {
+                                first_name: req.body.first_name,
+                                last_name: req.body.last_name
+                            },
+                        },
                         social: 'Facebook',
                         activated_code: generateRandomCode(8)
                     });
@@ -74,6 +80,12 @@ class SocialLogin{
                     const user = new User({
                         email: req.body.email,
                         user_type:  mongoose.Types.ObjectId(user_type_id),
+                        profile: {
+                            name: {
+                                first_name: req.body.first_name,
+                                last_name: req.body.last_name
+                            },
+                        },
                         social: 'Google',
                         activated_code: generateRandomCode(8)
                     });

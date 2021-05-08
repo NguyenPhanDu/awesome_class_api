@@ -8,7 +8,13 @@ const UserResetPassword = Schema(
             type: String,
             default: ''
         },
-        id_user: Number
+        id_user: Number,
+        email: {
+            type: String,
+            lowercase: true,
+            unique: true,
+            required: true
+        },
     },
     {
         timestamps :true,
