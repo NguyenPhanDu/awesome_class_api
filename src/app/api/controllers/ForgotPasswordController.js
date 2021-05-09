@@ -58,7 +58,7 @@ class forgotPassword{
     }
 
     async handleForgotPassword(req, res){
-        UserReset.findOne({ email: req.body.email, reset_code: req.body.resetCode })
+        UserReset.findOne({ email: req.body.email, reset_code: req.body.reset_code })
             .then(async result => {
                 if(!result){
                     return res.json({

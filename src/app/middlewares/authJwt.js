@@ -3,19 +3,35 @@ const jwt = require('jsonwebtoken');
 
 verifyToken = (req, res, next) => {
     let token = req.headers["x-access-token"];
-    console.log("token",token)
     if(token == null){
-        return res.status(403).json({
+        return res.json({
             success: false,
-            message: 'No token provided!'
+            message: 'No token provided!',
+            res_code: 401,
+            res_status: "NO_TOKEM_PROVIED"
         })
     }
     jwt.verify(token, secretKeyJwt.secret, (error, user)=>{
             if (error) {
-                return res.status(401).json({ message: "Unauthorized!" });
+                return res.json({
+                    success: false,
+                    message: "Unauthorized!" ,
+                    res_code: 401,
+                    res_status: "UNAUTHORIZED"
+                });
             }
-            req.userId = user._id;
-            next();
+            if(user.email == req.body.email){
+                next();
+            }
+            else{
+                return res.json({
+                    success: false,
+                    message: 'Unauthorized',
+                    res_code: 401,
+                    res_status: "UNAUTHORIZED"
+                })
+            }
+            
     })
 
 }
