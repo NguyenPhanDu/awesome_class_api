@@ -17,14 +17,6 @@ class forgotPassword{
                         res_status: "EMAIL_NOT_FOUND"
                     });
                 }
-                if (user.social == 'Facebook' ||user.social == 'Google'){
-                    return res.json({
-                        success: false,
-                        message: "Email Not found.",
-                        res_code: 403,
-                        res_status: "EMAIL_NOT_FOUND"
-                    })
-                }
                 userId = user.id_user;
             })
 
