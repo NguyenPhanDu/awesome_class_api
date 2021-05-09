@@ -8,7 +8,7 @@ async function sendResetPasswordMail(req,user){
         port: 465,
         secure: true,
         auth: {
-            user: 'phandunguyen.work@gmail.com',
+            user: 'awesomeclass.work@gmail.com',
             pass: 'du0169460307'
         },
         tls: {
@@ -26,9 +26,9 @@ async function sendResetPasswordMail(req,user){
         extName: '.hbs'
     }))
     var mailOptions = {
-        from: 'phandunguyen.work@gmail.com',
+        from: 'awesomeclass.work@gmail.com',
         to: req.body.email,
-        subject: 'Test Nodemailer',
+        subject: 'Awesome class',
         template: 'reset_password',
         context: {
             resetCode: user.reset_code
