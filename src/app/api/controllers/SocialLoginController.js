@@ -3,9 +3,9 @@ const User = require('../../models/User');
 const UserType = require('../../models/UserType');
 const secretKeyJwt = require('../../../config/auth')
 const jwt = require('jsonwebtoken');
-const sendActiveMail = require('../../mailers/sendEmailActivate/sendEmailActivate')
-const generateRandomCode = require('../../../helpers/index')
-
+const sendActiveMail = require('../../mailers/sendEmailActivate/sendEmailActivate');
+const generateRandomCode = require('../../../helpers/index');
+const imgur = require('../../imgur/service');
 class SocialLogin{
     async loginWithFacebook(req, res){
         let user_type_id;
@@ -16,6 +16,16 @@ class SocialLogin{
         await User.findOne({ email: req.body.email})
             .then(async result => {
                 if(!result){
+                    let avatar;
+                    await imgur
+                    .uploadUrl(req.body.avatar,"b4L0vU3")
+                    .then((json) => {
+                      avatar = json.link
+                    })
+                    .catch((err) => {
+                        console.error(err.message);
+                    });
+                    console.log({avatar})
                     const user = new User({
                         email: req.body.email,
                         user_type:  mongoose.Types.ObjectId(user_type_id),
@@ -24,6 +34,7 @@ class SocialLogin{
                                 first_name: req.body.first_name,
                                 last_name: req.body.last_name
                             },
+                            avatar: avatar
                         },
                         social: 'Facebook',
                         activated_code: generateRandomCode(8)
@@ -77,6 +88,15 @@ class SocialLogin{
         await User.findOne({ email: req.body.email})
             .then(async result => {
                 if(!result){
+                    let avatar;
+                    await imgur
+                    .uploadUrl(req.body.avatar,"b4L0vU3")
+                    .then((json) => {
+                      avatar = json.link
+                    })
+                    .catch((err) => {
+                        console.error(err.message);
+                    });
                     const user = new User({
                         email: req.body.email,
                         user_type:  mongoose.Types.ObjectId(user_type_id),
@@ -85,6 +105,7 @@ class SocialLogin{
                                 first_name: req.body.first_name,
                                 last_name: req.body.last_name
                             },
+                            avatar: avatar
                         },
                         social: 'Google',
                         activated_code: generateRandomCode(8)
