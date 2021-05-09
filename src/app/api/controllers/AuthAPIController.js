@@ -70,7 +70,7 @@ class UserController{
                         res_status: "WRONG_PASSWORD"
                     })
                 }
-                let token = jwt.sign({_id: user._id}, secretKeyJwt.secret,{expiresIn: 86400})
+                let token = jwt.sign({_id: user._id, email: user.email}, secretKeyJwt.secret,{expiresIn: 86400})
                 let userNew = JSON.parse(JSON.stringify(user));
                 userNew.access_token = token;
                 res.status(200).json({
@@ -81,6 +81,37 @@ class UserController{
             })
             .catch(error =>{
                 res.json({
+                    success: false,
+                    message: error,
+                    res_code: 500,
+                    res_status: "SERVER_ERROR"
+                })
+            })
+    };
+
+    getUser(req, res){
+        User.findOne({id_user: req.params.id})
+            .then(user =>{
+                if(!user){
+                    return res.json({
+                        success: true,
+                        message: "Cant't find this user",
+                        res_code: 403,
+                        res_status: "GET_PROFILE_FAILED"
+                    })
+                }
+                let userNew = JSON.parse(JSON.stringify(user));
+                delete userNew.password;
+                res.json({
+                    success: true,
+                    message: "get user successfull!",
+                    data: userNew,
+                    res_code: 200,
+                    res_status: "GET_USER_SUCCESSFULLY"
+                })
+            })
+            .catch(err => {
+                return res.json({
                     success: false,
                     message: error,
                     res_code: 500,
