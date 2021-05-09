@@ -8,7 +8,7 @@ async function sendActiveMail(req,user){
         port: 465,
         secure: true,
         auth: {
-            user: 'phandunguyen.work@gmail.com',
+            user: 'awesomeclass.work@gmail.com',
             pass: 'du0169460307'
         },
         tls: {
@@ -25,7 +25,7 @@ async function sendActiveMail(req,user){
         extName: '.hbs'
     }))
     var mailOptions = {
-        from: 'phandunguyen.work@gmail.com',
+        from: 'awesomeclass.work@gmail.com',
         to: req.body.email,
         subject: 'Test Nodemailer',
         template: 'email_actived',
