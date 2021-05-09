@@ -46,7 +46,7 @@ class UserProfile{
                     avatar: req.body.avatar,
                     phone: req.body.phone,
                     address: req.body.address,
-                    about: req.body.about
+                    dob: req.body.dob
                 }
             };
         let option = {new: true}
