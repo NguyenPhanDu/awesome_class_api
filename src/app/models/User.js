@@ -71,6 +71,10 @@ const userSchema = new Schema(
             about: {
                 type: String,
                 default: ""
+            },
+            dob:{
+                type: String,
+                default: ""
             }
         }
     },
