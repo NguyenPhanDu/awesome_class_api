@@ -4,8 +4,8 @@ const authRouter = require('./auth');
 const activeRouter = require('./active_mail');
 const forgotPasswordRouter = require('./forgot_password');
 const userProfileRouter = require('./user_profile');
-const AuthController = require('../app/api/controllers/AuthAPIController')
-
+const AuthController = require('../app/api/controllers/AuthAPIController');
+const ClassRouter = require('./class');
 function route(app){
     app.get('/api/user/:id',AuthController.getUser);
     app.use('/courses',coursesRouter);
@@ -14,6 +14,7 @@ function route(app){
     app.use('/auth/',activeRouter);
     app.use('/api/forgot-password',forgotPasswordRouter);
     app.use('/api/user-profile',userProfileRouter);
+    app.use('/api/class/',ClassRouter);
 }
 
 module.exports = route;
