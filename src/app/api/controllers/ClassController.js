@@ -9,7 +9,7 @@ class ClassController{
     async creteClass(req, res){
         let user_id;
         let class_role;
-        await User.findOne({email : req.headers["email-user"]})
+        await User.findOne({email : req.body.email})
             .then(user => {
                 user_id = user._id
             });
@@ -61,9 +61,10 @@ class ClassController{
                 });
             })
     };
+
     async editClass(req, res){
         let adminId;
-        await User.findOne({email : req.headers["email-user"]})
+        await User.findOne({email : req.body.email})
             .then(user => {
                 adminId = user.id_user
             });
@@ -105,10 +106,11 @@ class ClassController{
                     });
                 }
             });
-    }
+    };
+
     async deleteClass(req, res){
         let adminId;
-        await User.findOne({email : req.headers["email-user"]})
+        await User.findOne({email : req.body.email})
             .then(user => {
                 adminId = user.id_user
             });
@@ -149,10 +151,11 @@ class ClassController{
                     });
                 }
             });
-    }
+    };
+
     async getAllClass(req, res){
         let adminId;
-        await User.findOne({email : req.headers["email-user"]})
+        await User.findOne({email : req.body.email})
             .then(user => {
                 adminId = user._id
             });
@@ -189,10 +192,11 @@ class ClassController{
                     });
                 }
             })
-    }
+    };
+
     async getClass(req, res){
         let userId;
-        await User.findOne({email : req.headers["email-user"]})
+        await User.findOne({email : req.body.email})
             .then(user => {
                 userId = user._id
             });
@@ -230,7 +234,17 @@ class ClassController{
                 });
             }
         })
+    };
+
+    async joinClass(req, res){
+        let userId;
+        await User.findOne({email : req.body.email})
+            .then(user => {
+                userId = user._id
+            });
+        
     }
+
 }
 
 
