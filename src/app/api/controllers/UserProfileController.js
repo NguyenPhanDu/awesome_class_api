@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const User = require('../../models/User');
+const imgur = require('../../imgur/service');
 
 class UserProfile{
     getUserProfile(req, res){
@@ -27,7 +28,7 @@ class UserProfile{
                 return res.json({
                     success: false,
                     message: 'Server error. Please try again.',
-                    error: error.err,
+                    error: err,
                     res_code: 500,
                     res_status: "SERVER_ERROR"
                 });
@@ -43,7 +44,6 @@ class UserProfile{
                         first_name: req.body.first_name,
                         last_name: req.body.last_name
                     },
-                    avatar: req.body.avatar,
                     phone: req.body.phone,
                     address: req.body.address,
                     dob: req.body.dob
@@ -66,13 +66,74 @@ class UserProfile{
                 return res.json({
                     success: false,
                     message: 'Server error. Please try again.',
-                    error: error.err,
+                    error: err,
                     res_code: 500,
                     res_status: "SERVER_ERROR"
                 });
             }
         })
-    }
+    };
+
+    async updateAvatar(req, res){
+        await User.findOne({email: req.body.email})
+            .then(async user => {
+                if(!user){
+                    return res.json({
+                        success: false,
+                        message: "Email Not found.",
+                        res_code: 403,
+                        res_status: "EMAIL_NOT_FOUND"
+                    })
+                }
+                let avatar;
+                await imgur
+                    .uploadBase64(req.body.avatar,"b4L0vU3")
+                    .then((json) => {
+                        avatar = json.link
+                    })
+                    .catch((err) => {
+                        console.error(err.message);
+                        return;
+                    });
+                let query = {email: user.email};
+                let update = 
+                {
+                    profile: {
+                        avatar: avatar
+                    }
+                };
+                let option = {new: true};
+                await User.findOneAndUpdate(query, update, option)
+                    .then(user => {
+                        return res.status(200).json({
+                            success: true,
+                            message: "Update avatar successfull!",
+                            data: user,
+                            res_code: 200,
+                            res_status: "UPDATE_SUCCESSFULLY"
+                        })
+                    })
+                    .catch(error => {
+                        return res.json({
+                            success: false,
+                            message: 'Server error. Please try again.',
+                            error: error,
+                            res_code: 500,
+                            res_status: "SERVER_ERROR"
+                        });
+                    })
+            })
+            .catch(error => {
+                return res.json({
+                    success: false,
+                    message: 'Server error. Please try again.',
+                    error: error.err,
+                    res_code: 500,
+                    res_status: "SERVER_ERROR"
+                });
+            })
+    };
+    
 }
 
 module.exports = new UserProfile;

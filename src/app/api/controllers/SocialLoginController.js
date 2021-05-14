@@ -25,7 +25,6 @@ class SocialLogin{
                     .catch((err) => {
                         console.error(err.message);
                     });
-                    console.log({avatar})
                     const user = new User({
                         email: req.body.email,
                         user_type:  mongoose.Types.ObjectId(user_type_id),
