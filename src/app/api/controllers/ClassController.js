@@ -237,12 +237,66 @@ class ClassController{
     };
 
     async joinClass(req, res){
-        let userId;
+        let user_id;
+        let class_role;
         await User.findOne({email : req.body.email})
             .then(user => {
-                userId = user._id
+                user_id = user._id
             });
-        
+        await ClassRole.findOne({id_class_role: 2})
+            .then(classRole => {
+                class_role = classRole._id
+            });
+        await Class.findOne({class_code: req.body.class_code})
+            .then(async classs => {
+                if(!classs){
+                    return res.json({
+                        success: false,
+                        message: "Class not found.",
+                        res_code: 403,
+                        res_status: "NOT_FOUND"
+                    })
+                }
+                await ClassMember.findOne({class: classs._id})
+                    .then(classs => {
+                        return res.json({
+                            success: false,
+                            message: "You joined class.",
+                            res_code: 403,
+                            res_status: "NOT_FOUND"
+                        })
+                    });
+                const newClassMember = new ClassMember({
+                    user:  mongoose.Types.ObjectId(user_id),
+                    role: mongoose.Types.ObjectId(class_role),
+                    class: mongoose.Types.ObjectId(classs._id),
+                    status: 1
+                })
+                newClassMember.save()
+                .populate('admin')
+                .populate('user')
+                .populate('class')
+                .exec((err, classMember) =>{
+                    if(err){
+                        return res.json({
+                            success: false,
+                            message: 'Server error. Please try again.',
+                            error: error.err,
+                            res_code: 500,
+                            res_status: "SERVER_ERROR"
+                        });
+                    }
+                    if(classMember){
+                        return res.json({
+                            success: true,
+                            message: "Join into new class successfull!",
+                            data: classMember,
+                            res_code: 200,
+                            res_status: "JOIN_SUCCESSFULLY"
+                        })
+                    }
+                })
+            })
     }
 
 }
