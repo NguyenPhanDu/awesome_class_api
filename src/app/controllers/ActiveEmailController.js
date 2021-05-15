@@ -3,7 +3,6 @@ const User = require('../models/User');
 
 class ActiveEmail{
     ActiveAccount(req, res){
-        console.log(req.query.id)
         User.findOne({id_user: req.query.id})
             .then(user =>{
                 if(!user){
@@ -31,5 +30,7 @@ class ActiveEmail{
             })
     }
 }
+
+
 
 module.exports = new ActiveEmail
