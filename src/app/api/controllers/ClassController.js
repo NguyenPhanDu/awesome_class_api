@@ -247,7 +247,15 @@ class ClassController{
             select:['profile','email']
         })
         .populate('role')
-        .populate('class')
+        .populate(
+            {
+                path: 'class',
+                populate: {
+                    path: 'admin',
+                    select:['profile','email']
+                },
+            }
+        )
         .exec((err, result) => {
             if(result){
                 return res.json({
