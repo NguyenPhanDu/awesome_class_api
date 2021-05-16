@@ -236,6 +236,14 @@ class ClassController{
             .then(result =>{
                 classId = result._id
             });
+        let member;
+        await ClassMember.countDocuments({class: mongoose.Types.ObjectId(classId)})
+            .then(count =>{
+                member = count;
+            })
+            .catch(error => {
+                console.log(error);
+            })
         await ClassMember.findOne(
             {
                 user: mongoose.Types.ObjectId(userId),
@@ -258,10 +266,12 @@ class ClassController{
         )
         .exec((err, result) => {
             if(result){
+                let classes = JSON.parse(JSON.stringify(result));
+                classes.class.member = member
                 return res.json({
                     success: true,
                     message: "get class successfull!",
-                    data: result,
+                    data: classes,
                     res_code: 200,
                     res_status: "GET_SUCCESSFULLY"
                 })
