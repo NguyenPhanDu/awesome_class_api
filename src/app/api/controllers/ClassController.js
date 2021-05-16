@@ -39,7 +39,11 @@ class ClassController{
                         console.log(err);
                     });
                 let newClassPopulate;
-                await Class.findOne({_id : newClass._id}).populate('admin')
+                await Class.findOne({_id : newClass._id})
+                    .populate({
+                        path: 'admin',
+                        select:['profile','email']
+                    })
                     .then( result =>{
                         newClassPopulate = result
                     })
@@ -77,7 +81,12 @@ class ClassController{
             };
         let option = {new: true}
         await Class.findOneAndUpdate(query,update,option)
-            .populate('admin')
+            .populate(
+                {
+                    path: 'admin',
+                    select:['profile','email']
+                }
+            )
             .exec(function (err, classroom){
                 if(classroom){
                     if(classroom.admin.id_user == adminId){
@@ -157,55 +166,62 @@ class ClassController{
     // status: 0 = admin, 1= actived, 2= pending, 3= disable
     async getAllClass(req, res){
         let adminId;
-        await User.findOne({email : req.body.email, $or: [{ status: 0 }, {status : 1}]})
+        await User.findOne({email : req.body.email})
             .then(user => {
                 adminId = user._id
             });
-        await ClassMember.find({user: mongoose.Types.ObjectId(adminId)})
-            .populate('user')
+        await ClassMember.find({user: mongoose.Types.ObjectId(adminId), $or: [{ status: 0 }, {status : 1}]})
+            .populate({
+                path: 'user',
+                select:['profile','email']
+            })
             .populate('role')
             .populate(
                 {
                     path: 'class',
+                    populate: {
+                        path: 'admin',
+                        select:['profile','email']
+                    },
                     match: { is_deltete: { $eq: false} }
                 }
             )
-            .exec(async function (err, result){
-                if(result){
-                    let classArray = JSON.parse(JSON.stringify(result));
-                    let newClassArray = classArray.filter(classss => {
-                       return classss.class != null
-                    });
-                    for(let classs of newClassArray){
-                        await ClassMember.countDocuments({class: mongoose.Types.ObjectId(classs.class._id)},
-                        function (err, count) {
-                            if (err){
-                                console.log(err)
-                            }else{
-                                classs.class.count = count;
-                            }
-                        });
-                    }
-                    setTimeout(()=>{
-                        res.json({
-                            success: true,
-                            message: "get all class successfull!",
-                            data: newClassArray,
-                            res_code: 200,
-                            res_status: "GET_SUCCESSFULLY"
+            .then(async result => {
+                let classArray = JSON.parse(JSON.stringify(result));
+                let newClassArray = classArray.filter(classss => {
+                    return classss.class != null
+                });
+                for(let classs of newClassArray){
+                    await ClassMember.countDocuments({class: mongoose.Types.ObjectId(classs.class._id) ,$or: [{ status: 0 }, {status : 1}]})
+                        .then(count =>{
+                            console.log("forr lop")
+                            classs.class.member = count;
                         })
-                    },500);
-                    
+                        .catch(error => {
+                            console.log(error);
+                        })
                 }
-                if(err){
-                    return res.json({
-                        success: false,
-                        message: 'Server error. Please try again.',
-                        error: error.err,
-                        res_code: 500,
-                        res_status: "SERVER_ERROR"
-                    });
-                }
+                console.log("then1",newClassArray)
+                return newClassArray
+            })
+            .then(newClassArray => {
+                console.log("then2",newClassArray);
+                res.json({
+                    success: true,
+                    message: "get all class successfull!",
+                    data: newClassArray,
+                    res_code: 200,
+                    res_status: "GET_SUCCESSFULLY"
+                })
+            })
+            .catch(error => {
+                return res.json({
+                    success: false,
+                    message: 'Server error. Please try again.',
+                    error: error,
+                    res_code: 500,
+                    res_status: "SERVER_ERROR"
+                });
             })
     };
 
@@ -226,7 +242,10 @@ class ClassController{
                 class: mongoose.Types.ObjectId(classId),
             }
         )
-        .populate('user')
+        .populate({
+            path: 'user',
+            select:['profile','email']
+        })
         .populate('role')
         .populate('class')
         .exec((err, result) => {
