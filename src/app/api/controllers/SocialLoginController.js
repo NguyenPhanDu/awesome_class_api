@@ -41,7 +41,7 @@ class SocialLogin{
                     await user.save()
                         .then(async user => {
                             sendActiveMail(req,user);
-                            let token = jwt.sign({_id: user._id}, secretKeyJwt.secret,{expiresIn: 86400})
+                            let token = jwt.sign({_id: user._id, email: user.email}, secretKeyJwt.secret,{expiresIn: 86400})
                             let userNew = JSON.parse(JSON.stringify(user));
                             userNew.access_token = token;
                             res.status(200).json({
