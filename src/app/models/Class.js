@@ -23,6 +23,10 @@ const ClassSchema = new Schema({
     description: {
         type: String,
         default: ''
+    },
+    category: {
+        type: String,
+        default: ''
     }
 },
 {

@@ -21,6 +21,7 @@ class ClassController{
             admin:  mongoose.Types.ObjectId(user_id),
             name: req.body.name,
             description: req.body.description,
+            category: req.body.category,
             class_code: generateRandomCode(6)
         });
         await newClass.save()
