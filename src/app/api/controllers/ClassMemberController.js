@@ -40,13 +40,13 @@ class ClassMemberController{
     // status: 0 = admin, 1= actived, 2= pending, 3= disable
     async inviteMember(req, res){
         let class_role;
-        if(req.query.role == 1){
+        if(req.body.role == 1){
             await ClassRole.findOne({id_class_role: 1})
             .then(classRole => {
                 class_role = classRole._id
             })
         }
-        if(req.query.role == 2){
+        if(req.body.role == 2){
             await ClassRole.findOne({id_class_role: 2})
             .then(classRole => {
                 class_role = classRole._id
