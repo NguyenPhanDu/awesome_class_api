@@ -35,11 +35,17 @@ class UserProfile{
             })
     };
 
-    updateUserProfile(req, res){
+    async updateUserProfile(req, res){
+        let user;
+        await User.findOne({email: req.body.email})
+            .then(result => {
+                user = result
+            })
         let query = {email: req.body.email};
         let update = 
             {
                 profile: {
+                    avatar: user.profile.avatar,
                     name: {
                         first_name: req.body.first_name,
                         last_name: req.body.last_name
@@ -99,7 +105,14 @@ class UserProfile{
                 let update = 
                 {
                     profile: {
-                        avatar: avatar
+                        avatar: avatar,
+                        name: {
+                            first_name: user.profile.name.first_name,
+                            last_name: user.profile.name.last_name
+                        },
+                        phone: user.profile.phone,
+                        address: user.profile.address,
+                        dob: user.profile.dob
                     }
                 };
                 let option = {new: true};
