@@ -284,6 +284,7 @@ class ClassController{
             });
         await Class.findOne({class_code: req.body.class_code})
             .then(async classs => {
+                let classId = classs._id
                 if(!classs){
                     return res.json({
                         success: false,
@@ -292,35 +293,23 @@ class ClassController{
                         res_status: "NOT_FOUND"
                     })
                 }
-                await ClassMember.findOne({class: classs._id, user: mongoose.Types.ObjectId(user_id)})
+                await ClassMember.findOne({class: mongoose.Types.ObjectId(classId), user: mongoose.Types.ObjectId(user_id)})
                     .then(async classs => {
                         if(!classs){
                             let user = await ClassMember.create({
                                 user:  mongoose.Types.ObjectId(user_id),
                                 role: mongoose.Types.ObjectId(class_role),
-                                class: mongoose.Types.ObjectId(classs._id),
+                                class: mongoose.Types.ObjectId(classId),
                                 status: 1
                             });
-                            user = await user.populate('user').populate('class').populate('role')
-                                .then(user => {
-                                    return res.json({
-                                        success: true,
-                                        message: "Join class successfull!",
-                                        data: user,
-                                        res_code: 200,
-                                        res_status: "JOIN_SUCCESSFULLY"
-                                    })
-                                })
-                                .catch(err => {
-                                    res.json({
-                                        success: false,
-                                        message: 'Server error. Please try again.',
-                                        error: err,
-                                        res_code: 500,
-                                        res_status: "SERVER_ERROR"
-                                    });
-                                })
-                            
+                            user = await user.populate('user').populate('class').populate('role').execPopulate();
+                            return res.json({
+                                success: true,
+                                message: "Join Class successfull!",
+                                res_code: 200,
+                                data: user,
+                                res_status: "SUCCESSFULLY"
+                            })
                         }
                         return res.json({
                             success: false,
