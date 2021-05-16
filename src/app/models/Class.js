@@ -20,6 +20,10 @@ const ClassSchema = new Schema({
         type: Boolean,
         default: false
     },
+    description: {
+        type: String,
+        default: ''
+    }
 },
 {
     timestamps :true,

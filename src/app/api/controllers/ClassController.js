@@ -20,6 +20,7 @@ class ClassController{
         const newClass = new Class({
             admin:  mongoose.Types.ObjectId(user_id),
             name: req.body.name,
+            description: req.body.description,
             class_code: generateRandomCode(6)
         });
         await newClass.save()
@@ -71,7 +72,8 @@ class ClassController{
         let query = {id_class: Number(req.params.id)};
         let update = 
             {
-                name: req.body.name
+                name: req.body.name,
+                description: req.body.description
             };
         let option = {new: true}
         await Class.findOneAndUpdate(query,update,option)
@@ -152,10 +154,10 @@ class ClassController{
                 }
             });
     };
-
+    // status: 0 = admin, 1= actived, 2= pending, 3= disable
     async getAllClass(req, res){
         let adminId;
-        await User.findOne({email : req.body.email})
+        await User.findOne({email : req.body.email, $or: [{ status: 0 }, {status : 1}]})
             .then(user => {
                 adminId = user._id
             });
@@ -168,19 +170,32 @@ class ClassController{
                     match: { is_deltete: { $eq: false} }
                 }
             )
-            .exec(function (err, result){
+            .exec(async function (err, result){
                 if(result){
                     let classArray = JSON.parse(JSON.stringify(result));
                     let newClassArray = classArray.filter(classss => {
                        return classss.class != null
-                    })
-                    res.json({
-                        success: true,
-                        message: "get all class successfull!",
-                        data: newClassArray,
-                        res_code: 200,
-                        res_status: "GET_SUCCESSFULLY"
-                    })
+                    });
+                    for(let classs of newClassArray){
+                        await ClassMember.countDocuments({class: mongoose.Types.ObjectId(classs.class._id)},
+                        function (err, count) {
+                            if (err){
+                                console.log(err)
+                            }else{
+                                classs.class.count = count;
+                            }
+                        });
+                    }
+                    setTimeout(()=>{
+                        res.json({
+                            success: true,
+                            message: "get all class successfull!",
+                            data: newClassArray,
+                            res_code: 200,
+                            res_status: "GET_SUCCESSFULLY"
+                        })
+                    },500);
+                    
                 }
                 if(err){
                     return res.json({
