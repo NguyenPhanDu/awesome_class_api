@@ -292,14 +292,16 @@ class ClassController{
                         res_status: "NOT_FOUND"
                     })
                 }
-                await ClassMember.findOne({class: classs._id})
+                await ClassMember.findOne({class: classs._id, user: mongoose.Types.ObjectId(user_id)})
                     .then(classs => {
-                        return res.json({
-                            success: false,
-                            message: "You joined class.",
-                            res_code: 403,
-                            res_status: "NOT_FOUND"
-                        })
+                        if(classs){
+                            return res.json({
+                                success: false,
+                                message: "You joined class.",
+                                res_code: 403,
+                                res_status: "NOT_FOUND"
+                            })
+                        }    
                     });
                 const newClassMember = new ClassMember({
                     user:  mongoose.Types.ObjectId(user_id),
