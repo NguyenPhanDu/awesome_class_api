@@ -298,7 +298,8 @@ class ClassController{
                                 const newClassMember = ClassMember({
                                     user: mongoose.Types.ObjectId(user_id),
                                     class: mongoose.Types.ObjectId(classes._id),
-                                    role: mongoose.Types.ObjectId(role_id)
+                                    role: mongoose.Types.ObjectId(role_id),
+                                    status: 1
                                 })
                                 await newClassMember.save()
                                     .then( async newClassMemberSave => {
