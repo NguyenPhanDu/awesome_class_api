@@ -195,7 +195,6 @@ class ClassController{
                 for(let classs of newClassArray){
                     await ClassMember.countDocuments({class: mongoose.Types.ObjectId(classs.class._id) ,$or: [{ status: 0 }, {status : 1}]})
                         .then(count =>{
-                            console.log("forr lop")
                             classs.class.member = count;
                         })
                         .catch(error => {
@@ -273,60 +272,110 @@ class ClassController{
 
     async joinClass(req, res){
         let user_id;
-        let class_role;
+        let role_id;
         await User.findOne({email : req.body.email})
             .then(user => {
                 user_id = user._id
             });
         await ClassRole.findOne({id_class_role: 2})
             .then(classRole => {
-                class_role = classRole._id
+                role_id = classRole._id;
             });
-        await Class.findOne({class_code: req.body.class_code})
-            .then(async classs => {
-                let classId = classs._id
-                if(!classs){
+        await Class.findOne({ class_code: req.body.class_code })
+            .then(async classes => {
+                if(!classes){
                     return res.json({
                         success: false,
-                        message: "Class not found.",
+                        message: "Class not found",
                         res_code: 403,
                         res_status: "NOT_FOUND"
                     })
                 }
-                await ClassMember.findOne({class: mongoose.Types.ObjectId(classId), user: mongoose.Types.ObjectId(user_id)})
-                    .then(async classs => {
-                        if(!classs){
-                            let user = await ClassMember.create({
-                                user:  mongoose.Types.ObjectId(user_id),
-                                role: mongoose.Types.ObjectId(class_role),
-                                class: mongoose.Types.ObjectId(classId),
-                                status: 1
-                            });
-                            user = await user.populate('user').populate('class').populate('role').execPopulate();
+                if(classes){
+                    await ClassMember.findOne({ class: mongoose.Types.ObjectId(classes._id), user: mongoose.Types.ObjectId(user_id)})
+                        .then(async classMember => {
+                            if(!classMember){
+                                const newClassMember = ClassMember({
+                                    user: mongoose.Types.ObjectId(user_id),
+                                    class: mongoose.Types.ObjectId(classes._id),
+                                    role: mongoose.Types.ObjectId(role_id)
+                                })
+                                await newClassMember.save()
+                                    .then( async newClassMemberSave => {
+                                        await ClassMember.findOne({ class: mongoose.Types.ObjectId(newClassMemberSave.class), user: mongoose.Types.ObjectId(newClassMemberSave.user)})
+                                            .populate({
+                                                path: 'user',
+                                                select:['profile','email']
+                                            })
+                                            .populate('role')
+                                            .populate(
+                                                {
+                                                    path: 'class',
+                                                    populate: {
+                                                        path: 'admin',
+                                                        select:['profile','email']
+                                                    },
+                                                }
+                                            )
+                                            .then(result => {
+                                                return res.json({
+                                                    success: true,
+                                                    message: "Join class successfull!",
+                                                    data: result,
+                                                    res_code: 200,
+                                                    res_status: "GET_SUCCESSFULLY"
+                                                })
+                                            })
+                                            .catch(err => {
+                                                console.log('populate',err);
+                                                return res.json({
+                                                    success: false,
+                                                    message: 'Server error. Please try again.',
+                                                    error: err,
+                                                    res_code: 500,
+                                                    res_status: "SERVER_ERROR"
+                                                });
+                                            })
+                                    })
+                                    .catch(err => {
+                                        console.log("save member sai",err);
+                                        return res.json({
+                                            success: false,
+                                            message: 'Server error. Please try again.',
+                                            error: err,
+                                            res_code: 500,
+                                            res_status: "SERVER_ERROR"
+                                        });
+                                    })
+                            }
                             return res.json({
-                                success: true,
-                                message: "Join Class successfull!",
-                                res_code: 200,
-                                data: user,
-                                res_status: "SUCCESSFULLY"
+                                success: false,
+                                message: "You joined class",
+                                res_code: 403,
+                                res_status: "FAILT"
                             })
-                        }
-                        return res.json({
-                            success: false,
-                            message: "You joined class.",
-                            res_code: 403,
-                            res_status: "NOT_FOUND"
                         })
-                    })
-                    .catch(err => {
-                        res.json({
-                            success: false,
-                            message: 'Server error. Please try again.',
-                            error: err,
-                            res_code: 500,
-                            res_status: "SERVER_ERROR"
-                        });
-                    })
+                        .catch(err => {
+                            console.log("find member sai",err);
+                            return res.json({
+                                success: false,
+                                message: 'Server error. Please try again.',
+                                error: err,
+                                res_code: 500,
+                                res_status: "SERVER_ERROR"
+                            });
+                        })
+                }
+            })
+            .catch(err => {
+                console.log("find class sai", err)
+                return res.json({
+                    success: false,
+                    message: 'Server error. Please try again.',
+                    error: err,
+                    res_code: 500,
+                    res_status: "SERVER_ERROR"
+                });
             })
     }
 
