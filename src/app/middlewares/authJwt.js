@@ -20,7 +20,9 @@ verifyToken = (req, res, next) => {
                     res_status: "UNAUTHORIZED"
                 });
             }
-            if(user.email == req.body.email){
+            if(user.email){
+                res.locals.email = user.email;
+                res.locals._id = user._id;
                 next();
             }
             else{

@@ -81,43 +81,57 @@ class ClassController{
                 description: req.body.description
             };
         let option = {new: true}
-        await Class.findOneAndUpdate(query,update,option)
-            .populate(
-                {
+        await Class.findOne({id_class: req.body.id_class})
+                .populate({
                     path: 'admin',
                     select:['profile','email']
-                }
-            )
-            .exec(function (err, classroom){
-                if(classroom){
-                    if(classroom.admin.id_user == adminId){
-                        return res.status(200).json({
-                            success: true,
-                            message: "Update classroom successfull!",
-                            data: classroom,
-                            res_code: 200,
-                            res_status: "UPDATE_SUCCESSFULLY"
-                        })
+                })
+                .then(async classs => {
+                    if(classs){
+                        if(classs.admin.email == res.locals.email){
+                            await Class.findOneAndUpdate(query, update, option)
+                                .populate({
+                                    path: 'admin',
+                                    select:['profile','email']
+                                })
+                                .then(classs => {
+                                    return res.status(200).json({
+                                        success: true,
+                                        message: "Update classroom successfull!",
+                                        res_code: 200,
+                                        res_status: "UPDATE_SUCCESSFULLY"
+                                    })
+                                })
+                                .catch(err => {
+                                    console.log(err);
+                                    return res.json({
+                                        success: false,
+                                        message: 'Server error. Please try again.',
+                                        error: err,
+                                        res_code: 500,
+                                        res_status: "SERVER_ERROR"
+                                    });
+                                })
+                        }
+                        else{
+                            return res.json({
+                                success: false,
+                                message: "No access",
+                                res_code: 403,
+                                res_status: "NO_ACCESS"
+                            })
+                        }
                     }
-                    else{
-                        return res.json({
-                            success: false,
-                            message: "No access",
-                            res_code: 403,
-                            res_status: "NO_ACCESS"
-                        })
-                    }
-                }
-                if(err){
+                })
+                .catch(err=>{
                     return res.json({
                         success: false,
                         message: 'Server error. Please try again.',
-                        error: error.err,
+                        error: err,
                         res_code: 500,
                         res_status: "SERVER_ERROR"
                     });
-                }
-            });
+                })
     };
 
     async deleteClass(req, res){
@@ -132,37 +146,53 @@ class ClassController{
                 is_deltete: true
             };
         let option = {new: true}
-        await Class.findOneAndUpdate(query,update,option)
-            .populate('admin')
-            .exec(function (err, classroom){
-                if(classroom){
-                    if(classroom.admin.id_user == adminId){
-                        return res.status(200).json({
-                            success: true,
-                            message: "Delete classroom successfull!",
-                            res_code: 200,
-                            res_status: "DELETE_SUCCESSFULLY"
-                        })
+        await Class.findOne({id_class: req.body.id_class})
+                .populate({
+                    path: 'admin',
+                    select:['profile','email']
+                })
+                .then(async classs => {
+                    if(classs){
+                        if(classs.admin.email == res.locals.email){
+                            await Class.findOneAndUpdate(query, update, option)
+                                .then(classs => {
+                                    return res.status(200).json({
+                                        success: true,
+                                        message: "Delete classroom successfull!",
+                                        res_code: 200,
+                                        res_status: "DELETE_SUCCESSFULLY"
+                                    })
+                                })
+                                .catch(err => {
+                                    console.log(err);
+                                    return res.json({
+                                        success: false,
+                                        message: 'Server error. Please try again.',
+                                        error: err,
+                                        res_code: 500,
+                                        res_status: "SERVER_ERROR"
+                                    });
+                                })
+                        }
+                        else{
+                            return res.json({
+                                success: false,
+                                message: "No access",
+                                res_code: 403,
+                                res_status: "NO_ACCESS"
+                            })
+                        }
                     }
-                    else{
-                        return res.json({
-                            success: false,
-                            message: "No access",
-                            res_code: 403,
-                            res_status: "NO_ACCESS"
-                        })
-                    }
-                }
-                if(err){
+                })
+                .catch(err=>{
                     return res.json({
                         success: false,
                         message: 'Server error. Please try again.',
-                        error: error.err,
+                        error: err,
                         res_code: 500,
                         res_status: "SERVER_ERROR"
                     });
-                }
-            });
+                })
     };
     // status: 0 = admin, 1= actived, 2= pending, 3= disable
     async getAllClass(req, res){

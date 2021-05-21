@@ -8,7 +8,7 @@ const sendInviteMemberEmail = require('../../mailers/sendEmailActivate/sendEmail
 class ClassMemberController{
     async getMemberClass(req, res){
         let class_id;
-        await Class.findOne({ id_class: Number(req.body.id_class) })
+        await Class.findOne({ id_class: Number(req.body.id_class), is_deltete: false })
             .then(classs => {
                 class_id = classs._id
             });
@@ -122,7 +122,7 @@ class ClassMemberController{
                     res_status: "SERVER_ERROR"
                 });
             })
-    }
+    };
     async accpetInvited(req, res){
         await ClassMember.findOne({id_class_member: Number(req.query.idClass)})
             .then(classMember => {
@@ -145,6 +145,95 @@ class ClassMemberController{
         .then(result =>{
             res.redirect('http://localhost:3000')
         })
+    };
+    async deleteMember(req, res){
+        let id_user_deleted;
+        await User.findOne({id_user : req.body.id_user_deleted})
+            .then(user => {
+                id_user_deleted = user._id
+            });
+        let id_class;
+        await Class.findOne({id_class: req.body.id_class})
+            .then(classs => {
+                id_class = classs._id;
+            });
+        
+        let query = {class: mongoose.Types.ObjectId(id_class), user: mongoose.Types.ObjectId(id_user_deleted)};
+        let update = 
+            {
+                is_deltete: true
+            };
+        let option = {new: true};
+        await Class.findOne({id_class: req.body.id_class})
+                .populate({
+                    path: 'admin',
+                    select:['profile','email']
+                })
+                .then(async classs => {
+                    if(classs){
+                        if(classs.admin.email == res.locals.email){
+                            await ClassMember.findOneAndUpdate(query, update, option)
+                                .then(classMember => {
+                                    return res.status(200).json({
+                                        success: true,
+                                        message: "Delete member successfull!",
+                                        res_code: 200,
+                                        res_status: "DELETE_SUCCESSFULLY"
+                                    })
+                                })
+                                .catch(err => {
+                                    console.log(err);
+                                    return res.json({
+                                        success: false,
+                                        message: 'Server error. Please try again.',
+                                        error: err,
+                                        res_code: 500,
+                                        res_status: "SERVER_ERROR"
+                                    });
+                                })
+                        }
+                        else{
+                            return res.json({
+                                success: false,
+                                message: "No access",
+                                res_code: 403,
+                                res_status: "NO_ACCESS"
+                            })
+                        }
+                    }
+                })
+                .catch(err=>{
+                    return res.json({
+                        success: false,
+                        message: 'Server error. Please try again.',
+                        error: err,
+                        res_code: 500,
+                        res_status: "SERVER_ERROR"
+                    });
+                })
+    };
+    async getMemberProfile(req, res){
+        await User.findOne({id_user : req.body.id_user})
+            .then(user => {
+                let userNew = JSON.parse(JSON.stringify(user));
+                delete userNew.password;
+                return res.status(200).json({
+                    success: true,
+                    message: "successfull!",
+                    data: userNew,
+                    res_code: 200,
+                    res_status: "GET_PROFILE_SUCCESSFULLY"
+                })
+            })
+            .catch(err => {
+                return res.json({
+                    success: false,
+                    message: 'Server error. Please try again.',
+                    error: err,
+                    res_code: 500,
+                    res_status: "SERVER_ERROR"
+                });
+            })
     }
 };
 

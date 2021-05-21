@@ -1,12 +1,14 @@
-const userTypeRouter = require('./user_type');
-const authRouter = require('./auth');
-const activeRouter = require('./active_mail');
-const forgotPasswordRouter = require('./forgot_password');
-const userProfileRouter = require('./user_profile');
+const path = require('path');
+const express = require('express');
+const userTypeRouter = require('./modules/user_type');
+const authRouter = require('./modules/auth');
+const activeRouter = require('./modules/active_mail');
+const forgotPasswordRouter = require('./modules/forgot_password');
+const userProfileRouter = require('./modules/user_profile');
 const AuthController = require('../app/api/controllers/AuthAPIController');
-const ClassRouter = require('./class');
-const ClassMemberRouter = require('./class_member');
-const ChangePasswordRouter = require('./change_password');
+const ClassRouter = require('./modules/class');
+const ClassMemberRouter = require('./modules/class_member');
+const ChangePasswordRouter = require('./modules/change_password');
 
 function route(app){
     app.get('/api/user/:id',AuthController.getUser);
