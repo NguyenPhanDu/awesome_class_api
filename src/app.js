@@ -19,14 +19,17 @@ const app = express();
 app.use(cors())
 // HELMET
 app.use(helmet());
-app.use(express.static(path.join(__dirname,'public')))
+
 // BODY PARSER
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }));
 //MEDTHOD OVERRIDE
 app.use(methodOverride('_method'))
 //MORGAN
-app.use(morgan('tiny'))
+app.use(morgan('tiny'));
+
+app.use(express.static(path.join(__dirname,'public')));
+console.log(path.join(__dirname, 'public'))
 // VIEW ENGINE
 app.engine('hbs', handlebars({extname: '.hbs'}));
 app.set('view engine', 'hbs');

@@ -28,7 +28,7 @@ verifyToken = (req, res, next) => {
             else{
                 return res.json({
                     success: false,
-                    message: 'Unauthorized',
+                    message: 'Unauthorized, cant find you user',
                     res_code: 401,
                     res_status: "UNAUTHORIZED"
                 })
