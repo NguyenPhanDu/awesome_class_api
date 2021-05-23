@@ -130,9 +130,10 @@ class ClassMemberController{
             })
     };
     async accpetInvited(req, res){
+        let role;
         await ClassMember.findOne({id_class_member: Number(req.query.idClass)})
             .then(classMember => {
-                if(classMember.status == 1){
+                if(classMember.status == 1 || classMember.status == 3){
                     return res.json({
                         success: false,
                         message: "Email is activated.",
@@ -219,23 +220,70 @@ class ClassMemberController{
                 })
     };
     async getMemberProfile(req, res){
+        // await User.findOne({email : req.body.email})
+        //     .populate('user_type')
+        //     .then(user => {
+        //         let userNew = JSON.parse(JSON.stringify(user));
+        //         delete userNew.password;
+        //         return res.status(200).json({
+        //             success: true,
+        //             message: "successfull!",
+        //             data: userNew,
+        //             res_code: 200,
+        //             res_status: "GET_PROFILE_SUCCESSFULLY"
+        //         })
+        //     })
+        //     .catch(err => {
+        //         return res.json({
+        //             success: false,
+        //             message: 'Server error. Please try again.',
+        //             error: err,
+        //             res_code: 500,
+        //             res_status: "SERVER_ERROR"
+        //         });
+        //     })
+        let userId;
         await User.findOne({email : req.body.email})
-            .populate('user_type')
             .then(user => {
-                let userNew = JSON.parse(JSON.stringify(user));
-                delete userNew.password;
-                return res.status(200).json({
-                    success: true,
-                    message: "successfull!",
-                    data: userNew,
-                    res_code: 200,
-                    res_status: "GET_PROFILE_SUCCESSFULLY"
-                })
+                userId = user._id
+            });
+        let classId;
+        await Class.findOne({id_class: req.params.id})
+            .then(result =>{
+                classId = result._id
+            });
+        let role;
+        await ClassMember.findOne({ user : mongoose.Types.ObjectId(userId), class : mongoose.Types.ObjectId(classId) })
+            .then(async classMember => {
+                role = classMember.status;
+                await User.findOne({_id : mongoose.Types.ObjectId(userId)})
+                    .populate('user_type')
+                    .then(user => {
+                        let userNew = JSON.parse(JSON.stringify(user));
+                        delete userNew.password;
+                        userNew.role = role;
+                        return res.status(200).json({
+                            success: true,
+                            message: "successfull!",
+                            data: userNew,
+                            res_code: 200,
+                            res_status: "GET_PROFILE_SUCCESSFULLY"
+                        })
+                    })
+                    .catch(err => {
+                        return res.json({
+                            success: false,
+                            message: 'Server error. Please try again.',
+                            error: err,
+                            res_code: 500,
+                            res_status: "SERVER_ERROR"
+                        });
+                    })
             })
             .catch(err => {
                 return res.json({
                     success: false,
-                    message: 'Server error. Please try again.',
+                    message: 'Server error. Please try again. get class member fail',
                     error: err,
                     res_code: 500,
                     res_status: "SERVER_ERROR"
