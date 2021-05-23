@@ -403,7 +403,7 @@ class ClassController{
                                 let query = {class: mongoose.Types.ObjectId(classMember.class), user: mongoose.Types.ObjectId(classMember.user)};
                                 let update = 
                                     {
-                                        is_deltete: true
+                                        is_deltete: false
                                     };
                                 let option = {new: true};
                                 await ClassMember.findOneAndUpdate(query, update, option)
@@ -422,6 +422,7 @@ class ClassController{
                                         }
                                     )
                                     .then(result => {
+                                
                                         return res.json({
                                             success: true,
                                             message: "Join class successfull!",
