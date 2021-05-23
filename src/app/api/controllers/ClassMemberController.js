@@ -219,7 +219,8 @@ class ClassMemberController{
                 })
     };
     async getMemberProfile(req, res){
-        await User.findOne({id_user : req.body.id_user})
+        await User.findOne({email : req.body.email})
+            .populate('user_type')
             .then(user => {
                 let userNew = JSON.parse(JSON.stringify(user));
                 delete userNew.password;
