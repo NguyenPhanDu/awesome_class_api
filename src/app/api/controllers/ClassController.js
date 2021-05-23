@@ -201,7 +201,7 @@ class ClassController{
             .then(user => {
                 adminId = user._id
             });
-        await ClassMember.find({user: mongoose.Types.ObjectId(adminId), $or: [{ status: 0 }, {status : 1}]})
+        await ClassMember.find({user: mongoose.Types.ObjectId(adminId), is_deltete: false, $or: [{ status: 0 }, {status : 1}]})
             .populate({
                 path:'user',
                 select:['profile','email', 'user_type', 'id_user'], 

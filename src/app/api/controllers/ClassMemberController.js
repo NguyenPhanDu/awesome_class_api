@@ -12,7 +12,7 @@ class ClassMemberController{
             .then(classs => {
                 class_id = classs._id
             });
-        ClassMember.find({ class: mongoose.Types.ObjectId(class_id) })
+        ClassMember.find({ class: mongoose.Types.ObjectId(class_id), is_deltete: false })
             .populate('role')
             .populate({
                 path:'user',
@@ -164,7 +164,7 @@ class ClassMemberController{
                 id_class = classs._id;
             });
         
-        let query = {class: mongoose.Types.ObjectId(id_class), user: mongoose.Types.ObjectId(id_user_deleted)};
+        let query = {class: mongoose.Types.ObjectId(id_class), user: mongoose.Types.ObjectId(id_user_deleted), is_deltete: false};
         let update = 
             {
                 is_deltete: true
@@ -241,6 +241,42 @@ class ClassMemberController{
                     res_status: "SERVER_ERROR"
                 });
             })
+    };
+    async outClass(req, res){
+        let userId;
+        await User.findOne({email: res.locals.email})
+            .then(user => {
+                userId = user._id;
+            });
+        let id_class;
+        await Class.findOne({id_class: req.body.id_class})
+            .then(classs => {
+                id_class = classs._id;
+            });
+        let query = {class: mongoose.Types.ObjectId(id_class), user: mongoose.Types.ObjectId(userId), is_deltete: false};
+        let update = 
+            {
+                is_deltete: true
+            };
+        let option = {new: true};
+        await ClassMember.findOneAndUpdate(query, update, option)
+            .then(classMember => {
+                return res.status(200).json({
+                    success: true,
+                    message: "Out classroom successfull!",
+                    res_code: 200,
+                    res_status: "OUT_SUCCESSFULLY"
+                })
+            })
+            .catch(err=>{
+                    return res.json({
+                        success: false,
+                        message: 'Server error. Please try again.',
+                        error: err,
+                        res_code: 500,
+                        res_status: "SERVER_ERROR"
+                    });
+                });
     }
 };
 
