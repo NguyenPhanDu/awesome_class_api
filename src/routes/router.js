@@ -10,9 +10,11 @@ const ClassRouter = require('./modules/class');
 const ClassMemberRouter = require('./modules/class_member');
 const ChangePasswordRouter = require('./modules/change_password');
 
-const LoginController = require('../app/controllers/LoginController');
+const siteRouter = require('./mvc/site');
+const AuthMVCRouter = require('./mvc/auth');
 
 function route(app){
+    // API ROUTER
     app.get('/api/user/:id',AuthController.getUser);
     app.use('/api/user_type',userTypeRouter);
     app.use('/api/auth/',authRouter);
@@ -23,14 +25,9 @@ function route(app){
     app.use('/api/change-password', ChangePasswordRouter);
     app.use('/api/class-member/',ClassMemberRouter);
 
-    //MVC
-    app.get('/admin',(req, res)=>{
-        res.render('admin')
-    });
-    app.get('/news',(req, res)=>{
-        res.render('news')
-    });
-    app.get('/login', LoginController.getLogin)
+    //MVC ROUTER
+    app.use('/admin/',siteRouter);
+    app.use('/admin/',AuthMVCRouter);
 }
 
 module.exports = route;

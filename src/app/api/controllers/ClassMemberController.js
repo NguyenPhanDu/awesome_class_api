@@ -14,7 +14,13 @@ class ClassMemberController{
             });
         ClassMember.find({ class: mongoose.Types.ObjectId(class_id) })
             .populate('role')
-            .populate({path:'user',select:['profile','email']})
+            .populate({
+                path:'user',
+                select:['profile','email', 'user_type', 'id_user'], 
+                populate: {
+                    path: 'user_type'
+                }
+            })
             .exec((err, member)=>{
                 if(member){
                     res.json({

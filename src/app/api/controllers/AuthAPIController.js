@@ -65,7 +65,7 @@ class UserController{
                 if(!passwordIsValid){
                     return res.json({
                         success: false,
-                        message: "Wrong email",
+                        message: "Wrong password",
                         res_code: 403,
                         res_status: "WRONG_PASSWORD"
                     })

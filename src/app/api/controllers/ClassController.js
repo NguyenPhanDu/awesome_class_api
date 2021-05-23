@@ -203,8 +203,11 @@ class ClassController{
             });
         await ClassMember.find({user: mongoose.Types.ObjectId(adminId), $or: [{ status: 0 }, {status : 1}]})
             .populate({
-                path: 'user',
-                select:['profile','email']
+                path:'user',
+                select:['profile','email', 'user_type', 'id_user'], 
+                populate: {
+                    path: 'user_type'
+                }
             })
             .populate('role')
             .populate(

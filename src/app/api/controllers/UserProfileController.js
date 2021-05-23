@@ -5,6 +5,7 @@ const imgur = require('../../imgur/service');
 class UserProfile{
     getUserProfile(req, res){
         User.findOne({ email: req.body.email })
+            .populate('user_type')
             .then(user => {
                 if(!user){
                     return res.json({

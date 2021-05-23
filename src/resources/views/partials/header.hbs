@@ -3,8 +3,13 @@
                 <i class='bx bx-menu' id="header-toggle"></i>
             </div>
             <div class="ml-auto">
+              
               <a href="#">
                   <i class="header__user-icon now-ui-icons users_single-02"></i>
               </a>
+              {{#if user}}
+                  <span>{{user.email}}</span>
+              {{/if}}
+              
             </div>
 </header>
