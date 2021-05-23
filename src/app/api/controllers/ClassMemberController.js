@@ -130,8 +130,9 @@ class ClassMemberController{
             })
     };
     async accpetInvited(req, res){
-        let role;
+        let statusRole;
         await ClassMember.findOne({id_class_member: Number(req.query.idClass)})
+            .populate('role')
             .then(classMember => {
                 if(classMember.status == 1 || classMember.status == 3){
                     return res.json({
@@ -141,11 +142,17 @@ class ClassMemberController{
                         res_status: "EMAIL_IS_ACTIVATED"
                     })
                 }
+                if(classMember.role.id_class_role == 1){
+                    statusRole = 3;
+                }
+                if(classMember.role.id_class_role == 2){
+                    statusRole = 1;
+                }
             })
         let query = {id_class_member: Number(req.query.idClass)};
         let update = 
             {
-                status: 1
+                status: statusRole
             };
         let option = {new: true};
         await ClassMember.findOneAndUpdate(query, update, option)
@@ -220,28 +227,6 @@ class ClassMemberController{
                 })
     };
     async getMemberProfile(req, res){
-        // await User.findOne({email : req.body.email})
-        //     .populate('user_type')
-        //     .then(user => {
-        //         let userNew = JSON.parse(JSON.stringify(user));
-        //         delete userNew.password;
-        //         return res.status(200).json({
-        //             success: true,
-        //             message: "successfull!",
-        //             data: userNew,
-        //             res_code: 200,
-        //             res_status: "GET_PROFILE_SUCCESSFULLY"
-        //         })
-        //     })
-        //     .catch(err => {
-        //         return res.json({
-        //             success: false,
-        //             message: 'Server error. Please try again.',
-        //             error: err,
-        //             res_code: 500,
-        //             res_status: "SERVER_ERROR"
-        //         });
-        //     })
         let userId;
         await User.findOne({email : req.body.email})
             .then(user => {

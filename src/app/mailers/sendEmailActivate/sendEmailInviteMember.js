@@ -32,7 +32,6 @@ async function sendInviteMemberEmail(req,user,classObj,classMember){
         template: 'invite_member',
         context: {
             from: req.body.email,
-            memberInvited: req.body.email_invite,
             className: classObj.name,
             classMemberId: classMember.id_class_member
         } 
