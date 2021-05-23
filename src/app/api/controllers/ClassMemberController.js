@@ -154,7 +154,7 @@ class ClassMemberController{
     };
     async deleteMember(req, res){
         let id_user_deleted;
-        await User.findOne({id_user : req.body.id_user_deleted})
+        await User.findOne({email : req.body.email})
             .then(user => {
                 id_user_deleted = user._id
             });
