@@ -9,9 +9,12 @@ const AuthController = require('../app/api/controllers/AuthAPIController');
 const ClassRouter = require('./modules/class');
 const ClassMemberRouter = require('./modules/class_member');
 const ChangePasswordRouter = require('./modules/change_password');
+const HomeworkRouter = require('./modules/homework');
 
+// MVC
 const siteRouter = require('./mvc/site');
 const AuthMVCRouter = require('./mvc/auth');
+const HomeworkType = require('./mvc/homework_type');
 
 function route(app){
     // API ROUTER
@@ -24,10 +27,11 @@ function route(app){
     app.use('/api/class/',ClassRouter);
     app.use('/api/change-password', ChangePasswordRouter);
     app.use('/api/class-member/',ClassMemberRouter);
-
+    app.use('/api/homework/', HomeworkRouter);
     //MVC ROUTER
     app.use('/admin/',siteRouter);
     app.use('/admin/',AuthMVCRouter);
+    app.use('/homework-type', HomeworkType);
 }
 
 module.exports = route;

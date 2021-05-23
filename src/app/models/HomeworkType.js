@@ -8,10 +8,10 @@ const HomeworkTypeSchema = Schema(
     },
     {
         timestamps :true,
-        collection: 'exercise_types'
+        collection: 'homework_types'
     }
 );
 
 HomeworkTypeSchema.plugin(AutoIncrement, {inc_field: 'id_homework_type'});
 
-module.exports = mongoose.model('Homework',HomeworkTypeSchema);
+module.exports = mongoose.model('HomeworkType',HomeworkTypeSchema);

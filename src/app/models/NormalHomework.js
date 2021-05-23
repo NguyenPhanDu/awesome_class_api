@@ -14,13 +14,9 @@ const NormalHomeworkSchema = Schema(
         deadline: {
             type: String
         },
-        class: {
-            type: Schema.Types.ObjectId, 
-            ref:  'Class'
-        },
         homework_type: {
             type: Schema.Types.ObjectId, 
-            ref:  'Homework'
+            ref:  'HomeworkType'
         },
         document: [
             {
@@ -31,10 +27,17 @@ const NormalHomeworkSchema = Schema(
         create_by: {
             type: Schema.Types.ObjectId, 
             ref:  'User'
+        },
+        is_delete: {
+            type: Boolean,
+            default: false
         }
     },
     {
         timestamps :true,
-        collection: 'exercise_types'
+        collection: 'normal_homeworks'
     }
-)
+);
+
+NormalHomeworkSchema.plugin(AutoIncrement,{inc_field: 'id_normal_homework'});
+module.exports = mongoose.model('NormalHomework', NormalHomeworkSchema);
