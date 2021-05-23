@@ -390,7 +390,48 @@ class ClassController{
                                             })
                                     })
                                     .catch(err => {
-                                        console.log("save member sai",err);
+                                        return res.json({
+                                            success: false,
+                                            message: 'Server error. Please try again.',
+                                            error: err,
+                                            res_code: 500,
+                                            res_status: "SERVER_ERROR"
+                                        });
+                                    })
+                            }
+                            if(classMember.is_deltete == true){
+                                let query = {class: mongoose.Types.ObjectId(classMember.class), user: mongoose.Types.ObjectId(classMember.user)};
+                                let update = 
+                                    {
+                                        is_deltete: true
+                                    };
+                                let option = {new: true};
+                                await ClassMember.findOneAndUpdate(query, update, option)
+                                    .populate({
+                                        path: 'user',
+                                        select:['profile','email']
+                                    })
+                                    .populate('role')
+                                    .populate(
+                                        {
+                                            path: 'class',
+                                            populate: {
+                                                path: 'admin',
+                                                select:['profile','email']
+                                            },
+                                        }
+                                    )
+                                    .then(result => {
+                                        return res.json({
+                                            success: true,
+                                            message: "Join class successfull!",
+                                            data: result,
+                                            res_code: 200,
+                                            res_status: "GET_SUCCESSFULLY"
+                                        })
+                                    })
+                                    .catch(err => {
+                                        console.log('populate',err);
                                         return res.json({
                                             success: false,
                                             message: 'Server error. Please try again.',
