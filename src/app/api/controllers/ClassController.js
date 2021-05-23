@@ -226,7 +226,7 @@ class ClassController{
                     return classss.class != null
                 });
                 for(let classs of newClassArray){
-                    await ClassMember.countDocuments({class: mongoose.Types.ObjectId(classs.class._id) ,$or: [{ status: 0 }, {status : 1}]})
+                    await ClassMember.countDocuments({class: mongoose.Types.ObjectId(classs.class._id), is_deltete: false ,$or: [{ status: 0 }, {status : 1}, {status : 3}]})
                         .then(count =>{
                             classs.class.member = count;
                         })

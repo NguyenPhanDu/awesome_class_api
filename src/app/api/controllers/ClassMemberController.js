@@ -248,7 +248,7 @@ class ClassMemberController{
                 userId = user._id
             });
         let classId;
-        await Class.findOne({id_class: req.params.id})
+        await Class.findOne({id_class: req.body.id_class})
             .then(result =>{
                 classId = result._id
             });
