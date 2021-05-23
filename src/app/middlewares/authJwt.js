@@ -1,6 +1,8 @@
 const secretKeyJwt = require('../../config/auth')
 const jwt = require('jsonwebtoken');
+const passport = require('passport');
 
+// API JWT
 verifyToken = (req, res, next) => {
     let token = req.headers["x-access-token"];
     if(token == null){
@@ -36,5 +38,21 @@ verifyToken = (req, res, next) => {
             
     })
 
+};
+
+// PASSPORT AUTH MVC
+passportCheckAuthenticated = (req, res, next) => {
+    if(!req.isAuthenticated()){
+        return res.redirect('/admin/login');
+    }
+    next();
 }
-module.exports = {verifyToken}
+
+passportCheckNotAuthenticated = (req, res, next) => {
+    if(req.isAuthenticated()){
+        return res.redirect('/admin/');
+    }
+    next();
+}
+
+module.exports = {verifyToken, passportCheckAuthenticated , passportCheckNotAuthenticated}
