@@ -310,24 +310,44 @@ class ClassMemberController{
                 is_deltete: true
             };
         let option = {new: true};
-        await ClassMember.findOneAndUpdate(query, update, option)
-            .then(classMember => {
-                return res.status(200).json({
-                    success: true,
-                    message: "Out classroom successfull!",
-                    res_code: 200,
-                    res_status: "OUT_SUCCESSFULLY"
-                })
+
+        await ClassMember.findOne({ class : mongoose.Types.ObjectId(id_class), user : mongoose.Types.ObjectId(userId), is_deltete : false})
+            .populate('role')
+            .populate({
+                path:'user',
+                select:['profile','email', 'user_type', 'id_user'], 
+                populate: {
+                    path: 'user_type'
+                }
             })
-            .catch(err=>{
+            .then(async classMember => {
+                if(classMember.status == 0){
                     return res.json({
                         success: false,
-                        message: 'Server error. Please try again.',
-                        error: err,
-                        res_code: 500,
-                        res_status: "SERVER_ERROR"
-                    });
-                });
+                        message: "Admin cant out classroom!",
+                        res_code: 403,
+                        res_status: "FAILED"
+                    })
+                }
+                await ClassMember.findOneAndUpdate(query, update, option)
+                    .then(classMember => {
+                        return res.status(200).json({
+                            success: true,
+                            message: "Out classroom successfull!",
+                            res_code: 200,
+                            res_status: "OUT_SUCCESSFULLY"
+                        })
+                    })
+                    .catch(err=>{
+                            return res.json({
+                                success: false,
+                                message: 'Server error. Please try again.',
+                                error: err,
+                                res_code: 500,
+                                res_status: "SERVER_ERROR"
+                            });
+                        });
+            })
     }
 };
 
