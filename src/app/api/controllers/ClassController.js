@@ -3,6 +3,7 @@ const ClassRole = require('../../models/ClassRole');
 const Class = require('../../models/Class');
 const ClassMember = require('../../models/ClassMember');
 const User = require('../../models/User');
+const ClassPermission = require('../../models/ClassPermisstion');
 const generateRandomCode = require('../../../helpers/index');
 
 class ClassController{
@@ -16,13 +17,20 @@ class ClassController{
         await ClassRole.findOne({id_class_role: 1})
             .then(classRole => {
                 class_role = classRole._id
+            });
+        let permissionId;
+        const classPermission = new ClassPermission();
+        await classPermission.save()
+            .then(newClassPermission => {
+                permissionId = newClassPermission._id;
             })
         const newClass = new Class({
             admin:  mongoose.Types.ObjectId(user_id),
             name: req.body.name,
             description: req.body.description,
             category: req.body.category,
-            class_code: generateRandomCode(6)
+            class_code: generateRandomCode(6),
+            permission: mongoose.Types.ObjectId(permissionId)
         });
         await newClass.save()
             .then(async newClass => {
@@ -34,17 +42,17 @@ class ClassController{
                 })
                 await classMember.save()
                     .then(newClassMember => {
-                        console.log(newClassMember);
                     })
                     .catch(err => {
                         console.log(err);
                     });
                 let newClassPopulate;
-                await Class.findOne({_id : newClass._id})
+                await Class.findOne({_id : newClass._id, is_deltete: false})
                     .populate({
                         path: 'admin',
                         select:['profile','email']
                     })
+                    .populate('permission')
                     .then( result =>{
                         newClassPopulate = result
                     })
@@ -68,36 +76,66 @@ class ClassController{
             })
     };
 
-    async editClass(req, res){
-        let adminId;
-        await User.findOne({email : req.body.email})
-            .then(user => {
-                adminId = user.id_user
-            });
-        let query = {id_class: Number(req.params.id)};
-        let update = 
+    async editClassInforClass(req, res){
+        let joinEnable = true;
+        if(req.body.joinable_by_code){
+            joinEnable = req.body.joinable_by_code
+        }
+        let ableStudentInvite = true;
+        if(req.body.able_invite_by_student){
+            ableStudentInvite = false;
+        }
+        // findOneAndUpdate class
+        let queryClass = {id_class: Number(req.params.id)};
+        let updateClass = 
             {
                 name: req.body.name,
-                description: req.body.description
+                description: req.body.description,
+                description: req.body.category
             };
-        let option = {new: true}
+        let optionClass = {new: true}
         await Class.findOne({id_class: req.body.id_class})
                 .populate({
                     path: 'admin',
                     select:['profile','email']
                 })
+                .populate('permission')
                 .then(async classs => {
                     if(classs){
                         if(classs.admin.email == res.locals.email){
-                            await Class.findOneAndUpdate(query, update, option)
+                            await ClassPermission.findOneAndUpdate(
+                                {
+                                    _id : mongoose.Types.ObjectId(classs.permission._id)
+                                },
+                                {
+                                    joinable_by_code : joinEnable,
+                                    able_invite_by_student : ableStudentInvite
+                                },
+                                {new: true}
+                            ).then(classPermission => {
+
+                            })
+                            .catch(err => {
+                                console.log(err);
+                                return res.json({
+                                    success: false,
+                                    message: 'Server error. Please try again. Update class permission sai',
+                                    error: err,
+                                    res_code: 500,
+                                    res_status: "SERVER_ERROR"
+                                });
+                            })
+                            await Class.findOneAndUpdate(queryClass, updateClass, optionClass)
                                 .populate({
                                     path: 'admin',
                                     select:['profile','email']
                                 })
+                                .populate('permission')
                                 .then(classs => {
-                                    return res.status(200).json({
+                                        return res.status(200).json({
                                         success: true,
                                         message: "Update classroom successfull!",
+                                        data: classs,
                                         res_code: 200,
                                         res_status: "UPDATE_SUCCESSFULLY"
                                     })
@@ -106,7 +144,7 @@ class ClassController{
                                     console.log(err);
                                     return res.json({
                                         success: false,
-                                        message: 'Server error. Please try again.',
+                                        message: 'Server error. Please try again. Update class failed',
                                         error: err,
                                         res_code: 500,
                                         res_status: "SERVER_ERROR"
@@ -135,18 +173,13 @@ class ClassController{
     };
 
     async deleteClass(req, res){
-        let adminId;
-        await User.findOne({email : req.body.email})
-            .then(user => {
-                adminId = user.id_user
-            });
-        let query = {id_class: Number(req.params.id)};
+        let query = {id_class: Number(req.params.id), is_deltete : false};
         let update = 
             {
                 is_deltete: true
             };
         let option = {new: true}
-        await Class.findOne({id_class: req.body.id_class})
+        await Class.findOne({id_class: req.body.id_class, is_deltete: false})
                 .populate({
                     path: 'admin',
                     select:['profile','email']
@@ -154,6 +187,21 @@ class ClassController{
                 .then(async classs => {
                     if(classs){
                         if(classs.admin.email == res.locals.email){
+                            await ClassMember.updateMany(
+                                { class: mongoose.Types.ObjectId(classs._id) },
+                                { id_delete: true }
+                            )
+                            .then( result => {})
+                            .catch(err => {
+                                console.log(err);
+                                return res.json({
+                                    success: false,
+                                    message: 'Server error. Please try again. delete class member failed ',
+                                    error: err,
+                                    res_code: 500,
+                                    res_status: "SERVER_ERROR"
+                                });
+                            })
                             await Class.findOneAndUpdate(query, update, option)
                                 .then(classs => {
                                     return res.status(200).json({
@@ -217,6 +265,9 @@ class ClassController{
                         path: 'admin',
                         select:['profile','email']
                     },
+                    populate: {
+                        path: 'permission',
+                    },
                     match: { is_deltete: { $eq: false} }
                 }
             )
@@ -234,11 +285,9 @@ class ClassController{
                             console.log(error);
                         })
                 }
-                console.log("then1",newClassArray)
                 return newClassArray
             })
             .then(newClassArray => {
-                console.log("then2",newClassArray);
                 res.json({
                     success: true,
                     message: "get all class successfull!",
@@ -295,6 +344,9 @@ class ClassController{
                     path: 'admin',
                     select:['profile','email']
                 },
+                populate: {
+                    path: 'permission',
+                },
             }
         )
         .exec((err, result) => {
@@ -333,6 +385,7 @@ class ClassController{
                 role_id = classRole._id;
             });
         await Class.findOne({ class_code: req.body.class_code })
+            .populate('permission')
             .then(async classes => {
                 if(!classes){
                     return res.json({
@@ -342,7 +395,7 @@ class ClassController{
                         res_status: "NOT_FOUND"
                     })
                 }
-                if(classes){
+                if(classes.permission.joinable_by_code == true){
                     await ClassMember.findOne({ class: mongoose.Types.ObjectId(classes._id), user: mongoose.Types.ObjectId(user_id)})
                         .then(async classMember => {
                             if(!classMember){
@@ -367,6 +420,9 @@ class ClassController{
                                                         path: 'admin',
                                                         select:['profile','email']
                                                     },
+                                                    populate: {
+                                                        path: 'permission',
+                                                    },
                                                 }
                                             )
                                             .then(result => {
@@ -379,7 +435,6 @@ class ClassController{
                                                 })
                                             })
                                             .catch(err => {
-                                                console.log('populate',err);
                                                 return res.json({
                                                     success: false,
                                                     message: 'Server error. Please try again.',
@@ -419,6 +474,9 @@ class ClassController{
                                                 path: 'admin',
                                                 select:['profile','email']
                                             },
+                                            populate: {
+                                                path: 'permission',
+                                            },
                                         }
                                     )
                                     .then(result => {
@@ -432,7 +490,6 @@ class ClassController{
                                         })
                                     })
                                     .catch(err => {
-                                        console.log('populate',err);
                                         return res.json({
                                             success: false,
                                             message: 'Server error. Please try again.',
@@ -450,7 +507,6 @@ class ClassController{
                             })
                         })
                         .catch(err => {
-                            console.log("find member sai",err);
                             return res.json({
                                 success: false,
                                 message: 'Server error. Please try again.',
@@ -460,9 +516,16 @@ class ClassController{
                             });
                         })
                 }
+                else{
+                    return res.json({
+                        success: false,
+                        message: "This class unenable to join",
+                        res_code: 403,
+                        res_status: "UNENABLE_TO_JOIN"
+                    })
+                }
             })
             .catch(err => {
-                console.log("find class sai", err)
                 return res.json({
                     success: false,
                     message: 'Server error. Please try again.',

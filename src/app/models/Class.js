@@ -27,6 +27,10 @@ const ClassSchema = new Schema({
     category: {
         type: String,
         default: ''
+    },
+    permission: {
+        type: Schema.Types.ObjectId, 
+        ref:  'ClassPermission'
     }
 },
 {
