@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const User = require('../../models/User');
 const imgur = require('../../imgur/service');
+const UserImage = require('../../models/UserImage');
 
 class UserProfile{
     getUserProfile(req, res){
@@ -94,13 +95,39 @@ class UserProfile{
                 }
                 let avatar;
                 await imgur
-                    .uploadBase64(req.body.avatar,"b4L0vU3")
-                    .then((json) => {
+                    .uploadBase64(req.body.avatar,/*"b4L0vU3"*/)
+                    .then(async (json) => {
+                        console.log(json);
                         avatar = json.link
+                        let userImgage = new UserImage({
+                            user : mongoose.Types.ObjectId(user._id),
+                            image_type: 1,
+                            image_id: json.id,
+                            delete_hash: json.deletehash,
+                            image_link: json.link
+                        });
+                        await userImgage.save()
+                            .then(newUserImage =>{})
+                            .catch(err => {
+                                console.log(err);
+                                return res.json({
+                                    success: false,
+                                    message: 'Save image failed',
+                                    error: error,
+                                    res_code: 500,
+                                    res_status: "SERVER_ERROR"
+                                });
+                            })
                     })
                     .catch((err) => {
                         console.error(err.message);
-                        return;
+                        return res.json({
+                            success: false,
+                            message: 'Upload image failed',
+                            error: error,
+                            res_code: 500,
+                            res_status: "SERVER_ERROR"
+                        });
                     });
                 let query = {email: user.email};
                 let update = 
@@ -147,7 +174,6 @@ class UserProfile{
                 });
             })
     };
-    
 }
 
 module.exports = new UserProfile;

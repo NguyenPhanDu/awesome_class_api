@@ -9,6 +9,7 @@ const imgur = require('../../imgur/service');
 class SocialLogin{
     async loginWithFacebook(req, res){
         let user_type_id;
+        let userImage;
         await UserType.findOne({ id_user_type: 2 })
             .then(result=>{
                 user_type_id = result._id;
@@ -18,9 +19,10 @@ class SocialLogin{
                 if(!result){
                     let avatar;
                     await imgur
-                    .uploadUrl(req.body.avatar,"b4L0vU3")
+                    .uploadUrl(req.body.avatar,/*"b4L0vU3"*/)
                     .then((json) => {
-                      avatar = json.link
+                      avatar = json.link;
+                      userImage = json;
                     })
                     .catch((err) => {
                         console.error(err.message);
@@ -40,6 +42,25 @@ class SocialLogin{
                     });
                     await user.save()
                         .then(async user => {
+                            let userImgage = new UserImage({
+                                user : mongoose.Types.ObjectId(user._id),
+                                image_type: 1,
+                                image_id: userImage.id,
+                                delete_hash: userImage.deletehash,
+                                image_link: userImage.link
+                            });
+                            await userImgage.save()
+                                .then(newUserImage =>{})
+                                .catch(err => {
+                                    console.log(err);
+                                    return res.json({
+                                        success: false,
+                                        message: 'Save image failed',
+                                        error: error,
+                                        res_code: 500,
+                                        res_status: "SERVER_ERROR"
+                                    });
+                                })
                             sendActiveMail(req,user);
                             let token = jwt.sign({_id: user._id, email: user.email}, secretKeyJwt.secret,{expiresIn: 86400})
                             let userNew = JSON.parse(JSON.stringify(user));
@@ -80,6 +101,7 @@ class SocialLogin{
 
     async loginWithGoogle(req, res){
         let user_type_id;
+        let userImage;
         await UserType.findOne({ id_user_type: 2 })
             .then(result=>{
                 user_type_id = result._id;
@@ -89,9 +111,10 @@ class SocialLogin{
                 if(!result){
                     let avatar;
                     await imgur
-                    .uploadUrl(req.body.avatar,"b4L0vU3")
+                    .uploadUrl(req.body.avatar,/*"b4L0vU3"*/)
                     .then((json) => {
-                      avatar = json.link
+                      avatar = json.link;
+                      userImage = json;
                     })
                     .catch((err) => {
                         console.error(err.message);
@@ -111,6 +134,25 @@ class SocialLogin{
                     });
                     await user.save()
                         .then(async user => {
+                            let userImgage = new UserImage({
+                                user : mongoose.Types.ObjectId(user._id),
+                                image_type: 1,
+                                image_id: userImage.id,
+                                delete_hash: userImage.deletehash,
+                                image_link: userImage.link
+                            });
+                            await userImgage.save()
+                                .then(newUserImage =>{})
+                                .catch(err => {
+                                    console.log(err);
+                                    return res.json({
+                                        success: false,
+                                        message: 'Save image failed',
+                                        error: error,
+                                        res_code: 500,
+                                        res_status: "SERVER_ERROR"
+                                    });
+                                })
                             sendActiveMail(req,user);
                             let token = jwt.sign({_id: user._id, email: user.email}, secretKeyJwt.secret,{expiresIn: 86400})
                             let userNew = JSON.parse(JSON.stringify(user));
