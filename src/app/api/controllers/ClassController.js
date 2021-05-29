@@ -84,7 +84,7 @@ class ClassController{
             ableStudentInvite = req.body.permission.able_invite_by_student;
         }
         // findOneAndUpdate class
-        let queryClass = {id_class: Number(req.params.id)};
+        let queryClass = {id_class: Number(req.body.id_class)};
         let updateClass = 
             {
                 name: req.body.name,
