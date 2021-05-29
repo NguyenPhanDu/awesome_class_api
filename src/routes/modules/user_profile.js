@@ -7,5 +7,6 @@ const UserProfileController = require('../../app/api/controllers/UserProfileCont
 router.post('/get-user-profile', UserProfileController.getUserProfile);
 router.post('/update-user-profile',UserProfileController.updateUserProfile);
 router.post('/update-avatar', UserProfileController.updateAvatar);
-router.post('/update-avatar', UserProfileController.updateAvatar);
+router.post('/update-avatar2', UserProfileController.testUpdateAvar);
+
 module.exports = router;

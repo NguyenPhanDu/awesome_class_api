@@ -95,7 +95,7 @@ class UserProfile{
                 }
                 let avatar;
                 await imgur
-                    .uploadBase64(req.body.avatar,/*"b4L0vU3"*/)
+                    .uploadBase64(req.body.avatar)
                     .then(async (json) => {
                         console.log(json);
                         avatar = json.link
@@ -174,6 +174,26 @@ class UserProfile{
                 });
             })
     };
+    async testUpdateAvar(req, res){
+        await imgur
+                        .uploadBase64(req.body.avatar)
+                        .then(async (json) => {
+                            console.log(json);
+                            res.json(json)
+                        })
+                        .catch((err) => {
+                            console.log(err)
+                            return res.json({
+                                success: false,
+                                message: 'Upload image failed',
+                                error: err,
+                                res_code: 500,
+                                res_status: "SERVER_ERROR"
+                            });
+                        });
+    }
 }
+
+
 
 module.exports = new UserProfile;

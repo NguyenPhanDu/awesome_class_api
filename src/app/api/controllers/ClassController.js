@@ -187,9 +187,21 @@ class ClassController{
                 .then(async classs => {
                     if(classs){
                         if(classs.admin.email == res.locals.email){
+                            await ClassPermission.findOneAndUpdate({_id: mongoose.Types.ObjectId(classs.permission)},update,option)
+                                .then(result =>{})
+                                .catch(err => {
+                                    console.log(err);
+                                    return res.json({
+                                        success: false,
+                                        message: 'Server error. Please try again. delete class permisstion failed ',
+                                        error: err,
+                                        res_code: 500,
+                                        res_status: "SERVER_ERROR"
+                                    });
+                                });
                             await ClassMember.updateMany(
                                 { class: mongoose.Types.ObjectId(classs._id) },
-                                { id_delete: true }
+                                { is_deltete: true }
                             )
                             .then( result => {})
                             .catch(err => {
@@ -261,13 +273,15 @@ class ClassController{
             .populate(
                 {
                     path: 'class',
-                    populate: {
+                    populate: [{
                         path: 'admin',
                         select:['profile','email']
                     },
-                    populate: {
+                    {
                         path: 'permission',
-                    },
+                    }
+                    ]
+                    ,
                     match: { is_deltete: { $eq: false} }
                 }
             )
@@ -340,13 +354,14 @@ class ClassController{
         .populate(
             {
                 path: 'class',
-                populate: {
+                populate: [{
                     path: 'admin',
                     select:['profile','email']
                 },
-                populate: {
+                {
                     path: 'permission',
-                },
+                }
+                ]
             }
         )
         .exec((err, result) => {
@@ -416,13 +431,14 @@ class ClassController{
                                             .populate(
                                                 {
                                                     path: 'class',
-                                                    populate: {
+                                                    populate: [{
                                                         path: 'admin',
                                                         select:['profile','email']
                                                     },
-                                                    populate: {
+                                                    {
                                                         path: 'permission',
-                                                    },
+                                                    }
+                                                    ]
                                                 }
                                             )
                                             .then(result => {
@@ -470,13 +486,14 @@ class ClassController{
                                     .populate(
                                         {
                                             path: 'class',
-                                            populate: {
+                                            populate: [{
                                                 path: 'admin',
                                                 select:['profile','email']
                                             },
-                                            populate: {
+                                            {
                                                 path: 'permission',
-                                            },
+                                            }
+                                            ]
                                         }
                                     )
                                     .then(result => {
