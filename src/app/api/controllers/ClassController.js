@@ -181,7 +181,7 @@ class ClassController{
     };
 
     async deleteClass(req, res){
-        let query = {id_class: Number(req.params.id), is_deltete : false};
+        let query = {id_class: Number(req.body.id_class), is_deltete : false};
         let update = 
             {
                 is_deltete: true

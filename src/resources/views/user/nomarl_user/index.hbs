@@ -24,7 +24,8 @@
                 <th>Email</th>
                 <th>Social</th>
                 <th>Activated Mail</th>
-                <th>ACTION</th>
+                <th>Status</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
@@ -37,10 +38,15 @@
                 {{else}}
                     <td><span class="badge bg-warning">Pending</span></td>
                 {{/if}}
+                {{#if this.is_delete}}
+                    <td><span class="badge bg-danger">Baned</span></td>
+                {{else}}
+                    <td><span class="badge bg-primary">Enable</span></td>
+                {{/if}}
                 <td>
                     <a href="#" class="btn btn-info btn-sm">Info</a>
                     <a href="#" class="btn btn-warning btn-sm">Edit</a>
-                    <a href="#" class="btn btn-danger btn-sm">Delete</a>
+                    <a href="#" class="btn btn-danger btn-sm">Ban</a>
                 </td>
             </tr>
             {{/each}}

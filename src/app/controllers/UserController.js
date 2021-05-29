@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const User = require('../models/User');
 const UserType = require('../models/UserType');
 class NomarlUserController{
     // GET 

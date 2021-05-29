@@ -4,12 +4,17 @@ const Schema = mongoose.Schema;
 
 const UserTypeSchema = Schema(
     {
-        name: {type: String, require: true, unique: true}
+        name: {type: String, require: true, unique: true},
+        is_deltete: {
+            type: Boolean,
+            default: false
+        },
     },
     {
         timestamps :true,
         collection: 'user_types'
-    }
+    },
+    
 );
 
 UserTypeSchema.plugin(AutoIncrement, {inc_field: 'id_user_type'});
