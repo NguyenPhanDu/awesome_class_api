@@ -10,7 +10,8 @@ const ClassRouter = require('./modules/class');
 const ClassMemberRouter = require('./modules/class_member');
 const ChangePasswordRouter = require('./modules/change_password');
 const HomeworkRouter = require('./modules/homework');
-
+const ClassHomeworkRouter = require('./modules/class_homework');
+const HomeworkAssignRouter = require('./modules/homework_assign');
 // MVC
 const siteRouter = require('./mvc/site');
 const AuthMVCRouter = require('./mvc/auth');
@@ -30,7 +31,8 @@ function route(app){
     app.use('/api/change-password', ChangePasswordRouter);
     app.use('/api/class-member/',ClassMemberRouter);
     app.use('/api/homework/', HomeworkRouter);
-
+    app.use('/api/class-homework', ClassHomeworkRouter);
+    app.use('/api/homework-assign', HomeworkAssignRouter)
 
 
     //MVC ROUTER
