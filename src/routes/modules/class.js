@@ -3,7 +3,7 @@ const router = express.Router();
 const {verifyToken} = require('../../app/middlewares/authJwt');
 const ClassController = require('../../app/api/controllers/ClassController');
 
-//router.use(verifyToken);
+router.use(verifyToken);
 router.post('/create-class',ClassController.creteClass);
 router.post('/join-class', ClassController.joinClass);
 router.post('/edit-class',ClassController.editClassInforClass);
