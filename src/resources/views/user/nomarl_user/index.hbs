@@ -1,0 +1,49 @@
+<div class="page-heading">
+    <div class="page-title">
+        <div class="row">
+            <div class="col-12 col-md-6 order-md-1 order-last">
+                <h4>Nomarl User Management</h4>
+            </div>
+            <div class="col-12 col-md-6 order-md-2 order-first">
+                <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Nomarl user management
+                        </li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped mb-0">
+        <thead>
+            <tr>
+                <th>Email</th>
+                <th>Social</th>
+                <th>Activated Mail</th>
+                <th>ACTION</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each users}}
+            <tr>
+                <td class="text-bold-500">{{this.email}}</td>
+                <td class="text-bold-500">{{this.social}}</td>
+                {{#if this.activated}}
+                    <td><span class="badge bg-success">Activated</span></td>
+                {{else}}
+                    <td><span class="badge bg-warning">Pending</span></td>
+                {{/if}}
+                <td>
+                    <a href="#" class="btn btn-info btn-sm">Info</a>
+                    <a href="#" class="btn btn-warning btn-sm">Edit</a>
+                    <a href="#" class="btn btn-danger btn-sm">Delete</a>
+                </td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+</div>

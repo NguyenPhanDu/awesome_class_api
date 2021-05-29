@@ -16,6 +16,7 @@ const siteRouter = require('./mvc/site');
 const AuthMVCRouter = require('./mvc/auth');
 const HomeworkType = require('./mvc/homework_type');
 const UserRouter = require('./mvc/user');
+const NormalUserMVC = require('./mvc/nomarl_user');
 
 function route(app){
     // API ROUTER
@@ -36,7 +37,7 @@ function route(app){
     app.use('/admin/',siteRouter);
     app.use('/admin/',AuthMVCRouter);
     app.use('/homework-type', HomeworkType);
-    app.use('/admin/users',UserRouter)
+    app.use('/admin/users/nomarl-users/',NormalUserMVC);
 }
 
 module.exports = route;

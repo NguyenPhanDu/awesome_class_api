@@ -78,12 +78,10 @@ class ClassController{
 
     async editClassInforClass(req, res){
         let joinEnable = true;
-        if(req.body.joinable_by_code){
-            joinEnable = req.body.joinable_by_code
-        }
         let ableStudentInvite = true;
-        if(req.body.able_invite_by_student){
-            ableStudentInvite = false;
+        if(req.body.permission){
+            joinEnable = req.body.permission.joinable_by_code;
+            ableStudentInvite = req.body.permission.able_invite_by_student;
         }
         // findOneAndUpdate class
         let queryClass = {id_class: Number(req.params.id)};
@@ -91,7 +89,7 @@ class ClassController{
             {
                 name: req.body.name,
                 description: req.body.description,
-                description: req.body.category
+                category: req.body.category
             };
         let optionClass = {new: true}
         await Class.findOne({id_class: req.body.id_class})
