@@ -9,9 +9,13 @@ const NormalHomeworkSchema = Schema(
             required: true
         },
         description: {
-            type: String
+            type: String,
+            default: ''
         },
         deadline: {
+            type: String
+        },
+        start_date: {
             type: String
         },
         homework_type: {

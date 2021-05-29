@@ -21,6 +21,18 @@ const HomeworkAssignSchema = Schema(
             type: String,
             require: true,
             enum: ['NormalHomework', 'QuestionHomework']
+        },
+        status: {
+            type: Number,
+            default: 1,
+        },
+        scores: {
+            type: String,
+            default: ''
+        },
+        is_delete: {
+            type: Boolean,
+            default: false
         }
     },
     {

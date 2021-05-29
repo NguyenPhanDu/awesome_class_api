@@ -4,7 +4,11 @@ const Schema = mongoose.Schema;
 
 const HomeworkTypeSchema = Schema(
     {
-        name: {type: String, require: true, unique: true}
+        name: {type: String, require: true, unique: true},
+        is_delete: {
+            type: Boolean,
+            default: false
+        }
     },
     {
         timestamps :true,

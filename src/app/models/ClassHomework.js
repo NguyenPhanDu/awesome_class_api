@@ -8,15 +8,21 @@ const ClassHomeworkSchema = Schema(
             type: Schema.Types.ObjectId, 
             ref:  'Class'
         },
-        homework : {
-            type: Schema.Types.ObjectId,
-            require: true,
-            refPath: 'onModel'
-        },
+        homework :
+            {
+                type: Schema.Types.ObjectId,
+                require: true,
+                refPath: 'onModel'
+            }
+        ,
         onModel: {
             type: String,
             require: true,
             enum: ['NormalHomework', 'QuestionHomework']
+        },
+        is_delete: {
+            type: Boolean,
+            default: false
         }
     },
     {
