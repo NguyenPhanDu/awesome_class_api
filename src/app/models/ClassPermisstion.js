@@ -11,7 +11,11 @@ const ClassPermissionSchema = Schema(
         able_invite_by_student: {
             type: Boolean,
             default: true
-        }
+        },
+        is_deltete: {
+            type: Boolean,
+            default: false
+        },
     },
     {
         timestamps :true,
