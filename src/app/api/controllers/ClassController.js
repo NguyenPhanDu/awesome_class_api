@@ -123,7 +123,17 @@ class ClassController{
                                     res_status: "SERVER_ERROR"
                                 });
                             })
-                            await Class.findOneAndUpdate(queryClass, updateClass, optionClass)
+                            await Class.findOneAndUpdate({
+                                _id : mongoose.Types.ObjectId(classs._id)
+                            },
+                            {
+                                name: req.body.name,
+                                description: req.body.description,
+                                category: req.body.category
+                            },
+                            {
+                                new: true
+                            })
                                 .populate({
                                     path: 'admin',
                                     select:['profile','email']
