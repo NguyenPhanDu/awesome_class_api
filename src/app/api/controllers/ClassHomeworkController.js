@@ -9,7 +9,7 @@ const HomeworkAssign = require('../../models/HomeworkAssign');
 const ClassRole = require('../../models/ClassRole');
 
 class ClassHomeworkController{
-    async getAllClassHomework(req, res){
+    async getHomeworkInClass(req, res){
         let classId;
         await Class.findOne({id_class : Number(req.body.id_class)})
             .then(classs => {

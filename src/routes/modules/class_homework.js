@@ -4,6 +4,6 @@ const {verifyToken} = require('../../app/middlewares/authJwt');
 const ClassHomeworkController = require('../../app/api/controllers/ClassHomeworkController');
 
 router.use(verifyToken);
-router.post('/',ClassHomeworkController.getAllClassHomework);
+router.post('/',ClassHomeworkController.getHomeworkInClass);
 
 module.exports = router;

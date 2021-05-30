@@ -18,6 +18,10 @@ const NormalHomeworkSchema = Schema(
         start_date: {
             type: String
         },
+        total_scores: {
+            type: String,
+            default: ''
+        },
         homework_type: {
             type: Schema.Types.ObjectId, 
             ref:  'HomeworkType'

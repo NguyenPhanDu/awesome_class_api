@@ -9,7 +9,7 @@ const HomeworkAssign = require('../../models/HomeworkAssign');
 const ClassRole = require('../../models/ClassRole');
 
 class HomeWorkController{
-    // Req:  id_class, title, description, deadline, start_date
+    // Req:  id_class, title, description, deadline, start_date, total_scores
     async createNormalHomework(req, res){
         let homeworkId;
         let classRoleStudentId;
@@ -45,6 +45,7 @@ class HomeWorkController{
             description: req.body.description,
             start_date: req.body.start_date,
             deadline: req.body.deadline,
+            total_scores: req.body.total_scores,
             homework_type: mongoose.Types.ObjectId(homeWorkTypeId),
             create_by: mongoose.Types.ObjectId(userId)
         });
@@ -127,7 +128,7 @@ class HomeWorkController{
     };
     // Req: 
     async deleteHomework(req, res){
-
+        
     }
 }
 
