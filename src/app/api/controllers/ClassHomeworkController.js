@@ -15,7 +15,7 @@ class ClassHomeworkController{
             .then(classs => {
                 classId = classs._id
             })
-        await ClassHomework.find({class: mongoose.Types.ObjectId(classId), id_delete : false})
+        await ClassHomework.find({class: mongoose.Types.ObjectId(classId), is_delete: false})
             .populate({
                 path: 'homework',
                 populate: [{
