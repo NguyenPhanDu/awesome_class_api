@@ -25,6 +25,9 @@ class ClassHomeworkController{
                 {
                     path: 'homework_category',
                     select:['title','id_homework_category']
+                },
+                {
+                    path: 'create_by'
                 }
                 ]
             })
