@@ -41,14 +41,8 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-// app.use((req, res, next) => {
-//   res.locals.message = req.session.passport.message;
-//   next();
-// })
-
 //STATIC FILE
 app.use(express.static(path.join(__dirname,'public')));
-console.log(path.join(__dirname, 'public'))
 // VIEW ENGINE
 app.engine('hbs', handlebars({extname: '.hbs'}));
 app.set('view engine', 'hbs');
