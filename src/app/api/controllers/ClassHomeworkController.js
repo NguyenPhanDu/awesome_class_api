@@ -18,10 +18,15 @@ class ClassHomeworkController{
         await ClassHomework.find({class: mongoose.Types.ObjectId(classId)})
             .populate({
                 path: 'homework',
-                populate: {
+                populate: [{
                     path: 'homework_type',
                     select:['name','id_homework_type']
+                },
+                {
+                    path: 'homework_category',
+                    select:['title','id_homework_category']
                 }
+                ]
             })
             .then(classmem => {
                 let newArray = classmem.map(classs => {
@@ -30,7 +35,7 @@ class ClassHomeworkController{
                 res.json({
                     success: true,
                     message: "get all homework successfull!",
-                    data: newArray,
+                    data: classmem,
                     res_code: 200,
                     res_status: "GET_SUCCESSFULLY"
                 })
