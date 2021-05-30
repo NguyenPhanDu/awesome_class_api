@@ -13,10 +13,12 @@ const NormalHomeworkSchema = Schema(
             default: ''
         },
         deadline: {
-            type: String
+            type: String,
+            default: null,
         },
         start_date: {
-            type: String
+            type: String,
+            default: null
         },
         total_scores: {
             type: Number,
