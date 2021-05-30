@@ -19,12 +19,17 @@ const NormalHomeworkSchema = Schema(
             type: String
         },
         total_scores: {
-            type: String,
-            default: ''
+            type: Number,
+            default: null
         },
         homework_type: {
             type: Schema.Types.ObjectId, 
             ref:  'HomeworkType'
+        },
+        homework_category: {
+            type: Schema.Types.ObjectId,
+            ref: 'HomeworkCategory',
+            default: null,
         },
         document: [
             {

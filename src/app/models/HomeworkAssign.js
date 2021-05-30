@@ -27,8 +27,8 @@ const HomeworkAssignSchema = Schema(
             default: 1,
         },
         scores: {
-            type: String,
-            default: ''
+            type: Number,
+            default: null
         },
         is_delete: {
             type: Boolean,
