@@ -23,10 +23,15 @@ class HomeworkAssignController{
         await HomeworkAssign.find({ class: mongoose.Types.ObjectId(classId), user: mongoose.Types.ObjectId(userId) })
             .populate({
                 path: 'homework',
-                populate: {
+                populate: [{
                     path: 'homework_type',
                     select:['name','id_homework_type']
+                },
+                {
+                    path: 'homework_category',
+                    select:['title','id_homework_category']
                 }
+                ]
             })
             .then(result => {
                 let newArray = result.map(classs => {

@@ -227,9 +227,77 @@ class HomeWorkController{
         }
         
     };
-    // Req: 
+    // Req: id_class_homework , homework_type : (1, 2, 3)
     async deleteHomework(req, res){
-        
+        let homeworkModel;
+        if(Number(req.body.homework_type) == 1){
+            homeworkModel = NormalHomework;
+        }
+        if(Number(req.body.homework_type) == 2){
+            homeworkModel = '';
+        }
+        if(Number(req.body.homework_type) == 3){
+            homeworkModel = '';
+        }
+        let homeworkId;
+        await ClassHomework.findOneAndUpdate(
+            {id_class_homework: req.body.id_class_homework, is_delete: false},
+            { is_delete : true },
+            {new: true}
+        ).then(result => {
+            console.log('xóa class home work thành công')
+            homeworkId = result.homework
+            return homeworkId;
+        })
+        .then(async homeworkId => {
+            await HomeworkAssign.updateMany({homework : mongoose.Types.ObjectId(homeworkId), is_delete: false}, {is_delete : true})
+                .then(result => {
+                    console.log('xóa class assgin thành công');
+                })
+                .catch(err => {
+                    console.log(err);
+                    return res.json({
+                        success: false,
+                        message: 'Server error. Please try again. delete home work assign failed',
+                        error: err,
+                        res_code: 500,
+                        res_status: "SERVER_ERROR"
+                    });
+                })
+            return homeworkId
+        })
+        .then(async homeworkId => {
+            console.log(homeworkId)
+            await homeworkModel.findOneAndUpdate({_id: mongoose.Types.ObjectId(homeworkId), is_delete: false},{is_delete : true}, {new : true} )
+                .then(result => {
+                    return res.status(200).json({
+                        success: true,
+                        message: "Delete exercises successfull!",
+                        res_code: 200,
+                        res_status: "DELETE_SUCCESSFULLY"
+                    })
+                })
+                .catch(err => {
+                    console.log(err);
+                    return res.json({
+                        success: false,
+                        message: 'Server error. Delete Homework failed Please try again.',
+                        error: err,
+                        res_code: 500,
+                        res_status: "SERVER_ERROR"
+                    });
+                })
+        })
+        .catch(err => {
+            console.log(err);
+            return res.json({
+                success: false,
+                message: 'Server error. Please try again.',
+                error: err,
+                res_code: 500,
+                res_status: "SERVER_ERROR"
+            });
+        })
     }
 }
 
