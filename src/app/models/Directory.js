@@ -14,7 +14,7 @@ const DirectorySchema = Schema(
             type: String,
             default: ''
         },
-        parent : [this],
+        parent : this,
         refId: {
             type: String
         },

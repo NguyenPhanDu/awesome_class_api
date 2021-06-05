@@ -8,11 +8,22 @@ const ClassHomework = require('../../models/ClassHomework');
 const HomeworkAssign = require('../../models/HomeworkAssign');
 const ClassRole = require('../../models/ClassRole');
 const HomeworkCategory = require('../../models/HomeworkCategory');
+const googleDriveCrud = require('../../google_drive/index');
+const Directory = require('../../models/Directory');
+const { promisify } = require('util');
+const fs = require("fs");
+const unlinkAsync = promisify(fs.unlink);
+
 
 class HomeWorkController{
     // Req:  id_class, title, description, deadline, start_date, total_scores, category : { title, id_homework_category};
     async createNormalHomework(req, res){
-        console.log(req.files)
+        if(req.total_scores == null ){
+            req.total_scores = -1;
+        }
+        await JSON.parse(req.body.category);
+        //console.log(req.files)
+        let blogalHomework
         let homeworkId;
         let classRoleStudentId;
         await ClassRole.findOne({id_class_role : 2})
@@ -28,8 +39,13 @@ class HomeWorkController{
         await Class.findOne({id_class : Number(req.body.id_class)})
             .then(classs => {
                 classId = classs._id
+            });
+        let parentFolder;
+        await Directory.findOne({refId: classId})
+            .then(result=> {
+                parentFolder = result;
             })
-        // Vai trò của user trong class
+        //Vai trò của user trong class
         let userRole;
         await ClassMember.findOne({ user :  mongoose.Types.ObjectId(userId), class : mongoose.Types.ObjectId(classId)})
                 .populate('role')
@@ -54,6 +70,8 @@ class HomeWorkController{
                 });
                 await newHomework.save()
                     .then(async homework => {
+                        blogalHomework = homework;
+                        await googleDriveCrud.createHomeworkFolder(homework.title,homework._id,parentFolder)
                         homeworkId = homework._id
                         await ClassHomework.create({
                             class: mongoose.Types.ObjectId(classId),
@@ -94,11 +112,16 @@ class HomeWorkController{
                                     res_status: "SERVER_ERROR"
                                 });
                             });
+                        return blogalHomework;
                     })
-                    .then((homework)=>{
+                    .then(blogalHomework => {
+                        googleDriveCrud.uploadFile(req.files, blogalHomework)
+                    })
+                    .then((blogalHomework)=>{
                         NormalHomework.findById(homeworkId)
                             .populate("homework_type", "-_id -__v")
                             .populate("create_by", "-_id -__v -password")
+                            .populate("document", "name viewLink")
                             .then(result => {
                                 return res.json({
                                     success: true,
@@ -150,6 +173,7 @@ class HomeWorkController{
                         });
                         await newHomework.save()
                             .then(async homework => {
+                                blogalHomework = homework;
                                 homeworkId = homework._id
                                 await ClassHomework.create({
                                     class: mongoose.Types.ObjectId(classId),
@@ -190,12 +214,17 @@ class HomeWorkController{
                                             res_status: "SERVER_ERROR"
                                         });
                                     });
+                                    return blogalHomework;
+                            })
+                            .then(blogalHomework => {
+                                googleDriveCrud.uploadFile(req.files, blogalHomework)
                             })
                             .then((homework)=>{
                                 NormalHomework.findById(homeworkId)
                                     .populate("homework_type", "-_id -__v")
                                     .populate("create_by", "-_id -__v -password")
                                     .populate("homework_category", "-_id -__v")
+                                    .populate("document", "name viewLink")
                                     .then(result => {
                                         return res.json({
                                             success: true,
@@ -226,7 +255,6 @@ class HomeWorkController{
                 res_status: "NO_ACCESS"
             })
         }
-        
     };
     // Req: id_class_homework , homework_type : (1, 2, 3)
     async deleteHomework(req, res){
@@ -344,6 +372,7 @@ class HomeWorkController{
                 .populate('homework_category',"title id_homework_category")
                 .populate('homework_type',"name id_homework_type")
                 .populate('create_by', "-password")
+                .populate("document", "name viewLink")
                 .then(homework => {
                     return res.status(200).json({
                         success: true,

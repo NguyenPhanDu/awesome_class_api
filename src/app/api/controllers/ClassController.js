@@ -6,7 +6,7 @@ const User = require('../../models/User');
 const ClassPermission = require('../../models/ClassPermisstion');
 const ClassHomework = require('../../models/ClassHomework');
 const generateRandomCode = require('../../../helpers/index');
-
+const googleDriveCrud = require('../../google_drive/index');
 class ClassController{
     async creteClass(req, res){
         let user_id;
@@ -35,6 +35,7 @@ class ClassController{
         });
         await newClass.save()
             .then(async newClass => {
+                googleDriveCrud.createClassFoler(newClass.name, newClass._id)
                 const classMember = new ClassMember({
                     user: user_id,
                     role: class_role,
@@ -196,6 +197,7 @@ class ClassController{
                 .then(async classs => {
                     if(classs){
                         if(classs.admin.email == res.locals.email){
+                            await googleDriveCrud.deleteFolder(classs._id)
                             await ClassPermission.findOneAndUpdate({_id: mongoose.Types.ObjectId(classs.permission)},update,option)
                                 .then(result =>{})
                                 .catch(err => {

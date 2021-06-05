@@ -1,35 +1,34 @@
 const drive = require('../../config/google_drive/index');
 const Directory = require('../models/Directory');
 const File = require('../models/File');
+const { promisify } = require('util');
+const fs = require("fs");
+const unlinkAsync = promisify(fs.unlink);
 const mongoose = require('mongoose');
+const NormalHomework = require('../models/NormalHomework');
 
-async function createFoler(name, parent, id){
+async function createClassFoler(name, id){
     try{
         const response = await drive.files.create({
             resource: {
                 'name': name,
                 'mimeType': 'application/vnd.google-apps.folder',
-                parents: [parent.id]
             }
         })
-        let path;
-        if(parent){
-            path = parent.path+name
-        }
-        else{
-            path = '/'+name+'/'
-        }
-        console.log(response.data)
+        console.log(response.data);
+        
+        let path = '/'+name.replace(/\s+/g, '')+'/'
         const newDirectory = new Directory({
             id_folder: response.data.id,
             name: response.data.name,
-            refId: mongoose.Types.ObjectId(id),
+            refId: id,
             mimeType: response.data.mimeType,
             path: path
         })
         await newDirectory.save()
-        .then(result => {
+        .then(result => { 
             console.log('create folder successfully');
+            return result;
         })
         .catch(err => {
             console.log(err)
@@ -40,20 +39,103 @@ async function createFoler(name, parent, id){
     }
 };
 
-async function deleteFolder(idFolder, refId){
+async function createHomeworkFolder(name, id, parent){
     try{
-        const response = await drive.files.delete({
-            fileId: idFolder
+        let folder;
+        const response = await drive.files.create({
+          resource: {
+            'name': name,
+            'mimeType': 'application/vnd.google-apps.folder',
+            parents: [parent.id_folder]
+          }
         })
-        console.log(response.status);
+        console.log(response.data)
+        let path = parent.path+name.replace(/\s+/g, '')+'/'
+        const newDirectory = new Directory({
+            id_folder: response.data.id,
+            name: response.data.name,
+            refId: id,
+            mimeType: response.data.mimeType,
+            path: path,
+            parent: mongoose.Types.ObjectId(parent._id)
+        })
+        await newDirectory.save()
+            .then(result => {
+                folder = result;
+                return folder
+            })
+            .then(async folder => {
+                const response2 = await drive.files.create({
+                    resource: {
+                      'name': 'Teacher',
+                      'mimeType': 'application/vnd.google-apps.folder',
+                      parents: [folder.id_folder]
+                    }
+                })
+                let path = folder.path+'Teacher/'
+                await Directory.create({
+                    id_folder: response2.data.id,
+                    name: response2.data.name,
+                    refId: id,
+                    mimeType: response2.data.mimeType,
+                    path: path,
+                    parent: mongoose.Types.ObjectId(folder._id)
+                })
+                .then(result => {
+                    console.log('create teacher folder!')
+                })
+                .catch(err => {
+                    console.log(err)
+                });
+                return folder;
+            })
+            .then(async folder => {
+                const response3 = await drive.files.create({
+                    resource: {
+                      'name': 'Student',
+                      'mimeType': 'application/vnd.google-apps.folder',
+                      parents: [folder.id_folder]
+                    }
+                })
+                let path = folder.path+'Student/'
+                await Directory.create({
+                    id_folder: response3.data.id,
+                    name: response3.data.name,
+                    refId: id,
+                    mimeType: response3.data.mimeType,
+                    path: path,
+                    parent: mongoose.Types.ObjectId(folder._id)
+                })
+                .then(result => {
+                    console.log('create Student folder!')
+                })
+                .catch(err => {
+                    console.log(err)
+                });
+                return folder;
+            })
+            .catch(err => {
+                console.log(err)
+            });      
+    }
+    catch(err){
+        console.log(err)
+    }
+}
+
+async function deleteFolder(refId){
+    try{
         let path;
+        let folderId;
         await Directory.findOne({refId: refId, is_deltete: false})
             .then(result => {
-                path = result.path
+                path = result.path;
+                folderId = result.id_folder;
                 return path;
             })
             .then(async path => {
-                await Directory.updateMany({path: /path/, is_deltete: false}, { is_deltete: true })
+                console.log(path)
+                await Directory.updateMany({path: { $regex: '.*' + path + '.*' }, is_deltete: false}, { is_deltete: true })
                 .then(result => {
                     console.log('delete foler!')
                 })
@@ -64,10 +146,10 @@ async function deleteFolder(idFolder, refId){
                 return path;
             })
             .then(async path => {
-                await File.find({path: /path/, is_deltete: false})
+                await File.find({path: { $regex: '.*' + path + '.*' }, is_deltete: false})
                     .then(async result => {
                         if(result.length > 0){
-                            await File.updateMany({path: /path/, is_deltete: false}, { is_deltete: true })
+                            await File.updateMany({path: { $regex: '.*' + path + '.*' }, is_deltete: false}, { is_deltete: true })
                             .then(result => {
                                 console.log('delete file');
                             })
@@ -80,14 +162,78 @@ async function deleteFolder(idFolder, refId){
             })
             .catch(err => {
                 console.log(err)
-            })
+            });
     }
     catch(err){
         console.log(err)
     }
-  }
+}
+
+async function uploadFile (files, homework){
+    for(let i =0; i<files.length;i++){
+        await drive.files.create({
+            requestBody: {
+                name: files[i].originalname,
+                mimetype: files[i].mimetype
+            },
+            media: {
+                mimeType: files[i].mimetype,
+                body: fs.createReadStream(files[i].path)
+            }
+        })
+        .then(async result => {
+            let folderHomework;
+            await Directory.findOne({refId: homework._id, name: 'Teacher', is_deltete: false})
+            .then(result => {
+                folderHomework = result
+            })
+            let id = result.id;
+            let name = result.name;
+            let mineType = result.mineType;
+            let path = folderHomework.path+result.name
+            let link;
+            await drive.permissions.create({
+                fileId: id,
+                requestBody:{
+                    role: 'reader',
+                    type: 'anyone'
+                }
+            });
+            await drive.files.get({
+                fileId: id,
+                fields: 'webViewLink'
+            })
+            .then(result => {
+                link = result.data.webViewLink
+            });
+            await File.create({
+                id_file: id,
+                name: name,
+                parent: folderHomework._id,
+                path: path,
+                mimeType: mineType,
+                viewLink: link
+            })
+            .then(async result => {
+                await NormalHomework.findByIdAndUpdate(
+                    homework._id,
+                    {
+                        $push: {document: result._id}
+                    },
+                    {new: true}
+                )
+            })
+        })
+        .catch(err => {
+            console.log(err);
+        })
+        await unlinkAsync(files[i].path);
+    }
+}
 
 module.exports = {
-    createFoler,
-    deleteFolder
+    createClassFoler,
+    createHomeworkFolder,
+    deleteFolder,
+    uploadFile
 }

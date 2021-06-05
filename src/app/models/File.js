@@ -25,6 +25,10 @@ const FileSchema = Schema(
             type: Boolean,
             default: false
         },
+        viewLink: {
+            type: String,
+            default: ""
+        }
     },
     {
         timestamps :true,
@@ -32,6 +36,6 @@ const FileSchema = Schema(
     }
 );
 
-FileSchema.plugin(AutoIncrement, {inc_field: 'id_file'});
+FileSchema.plugin(AutoIncrement, {inc_field: 'id_files'});
 
 module.exports = mongoose.model('File',FileSchema);
