@@ -12,6 +12,7 @@ const HomeworkCategory = require('../../models/HomeworkCategory');
 class HomeWorkController{
     // Req:  id_class, title, description, deadline, start_date, total_scores, category : { title, id_homework_category};
     async createNormalHomework(req, res){
+        console.log(req.files)
         let homeworkId;
         let classRoleStudentId;
         await ClassRole.findOne({id_class_role : 2})
@@ -239,20 +240,32 @@ class HomeWorkController{
         if(Number(req.body.homework_type) == 3){
             homeworkModel = '';
         }
-        let homeworkId;
+        let createBy;
+        await ClassHomework.findOne({id_class_homework: req.body.id_class_homework, is_delete: false})
+            .populate({
+                path: 'homework',
+                populate: [
+                {
+                    path: 'create_by'
+                }
+                ]
+            })
+            .then(result => {
+                createBy = result.homework.create_by.email;
+            })
+        if(createBy == res.locals.email){
+            let homeworkId;
         await ClassHomework.findOneAndUpdate(
             {id_class_homework: req.body.id_class_homework, is_delete: false},
             { is_delete : true },
             {new: true}
         ).then(result => {
-            console.log('xóa class home work thành công')
             homeworkId = result.homework
             return homeworkId;
         })
         .then(async homeworkId => {
             await HomeworkAssign.updateMany({homework : mongoose.Types.ObjectId(homeworkId), is_delete: false}, {is_delete : true})
                 .then(result => {
-                    console.log('xóa class assgin thành công');
                 })
                 .catch(err => {
                     console.log(err);
@@ -282,6 +295,69 @@ class HomeWorkController{
                     return res.json({
                         success: false,
                         message: 'Server error. Delete Homework failed Please try again.',
+                        error: err,
+                        res_code: 500,
+                        res_status: "SERVER_ERROR"
+                    });
+                })
+        })
+        .catch(err => {
+            console.log(err);
+            return res.json({
+                success: false,
+                message: 'Server error. Please try again.',
+                error: err,
+                res_code: 500,
+                res_status: "SERVER_ERROR"
+            });
+        })
+        }
+        else{
+            return res.json({
+                success: false,
+                message: "No access",
+                res_code: 403,
+                res_status: "NO_ACCESS"
+            })
+        }
+    }
+    //  Req:  id_class_homework , homework_type : (1, 2, 3)
+    async getDetailHomework(req, res){
+        let homeworkModel;
+        if(Number(req.body.homework_type) == 1){
+            homeworkModel = NormalHomework;
+        }
+        if(Number(req.body.homework_type) == 2){
+            homeworkModel = '';
+        }
+        if(Number(req.body.homework_type) == 3){
+            homeworkModel = '';
+        }
+        let homeworkId;
+        await ClassHomework.findOne({id_class_homework: req.body.id_class_homework, is_delete: false})
+        .then(classHomework => {
+            homeworkId = classHomework.homework
+            return homeworkId;
+        })
+        .then(async homeworkId => {
+            await homeworkModel.findOne({_id : mongoose.Types.ObjectId(homeworkId)})
+                .populate('homework_category',"title id_homework_category")
+                .populate('homework_type',"name id_homework_type")
+                .populate('create_by', "-password")
+                .then(homework => {
+                    return res.status(200).json({
+                        success: true,
+                        message: "get detail exercise successfull!",
+                        data: homework,
+                        res_code: 200,
+                        res_status: "DELETE_SUCCESSFULLY"
+                    })
+                })
+                .catch(err => {
+                    console.log(err);
+                    return res.json({
+                        success: false,
+                        message: 'Server error. get homework failed.',
                         error: err,
                         res_code: 500,
                         res_status: "SERVER_ERROR"

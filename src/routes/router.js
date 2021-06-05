@@ -1,5 +1,8 @@
 const path = require('path');
 const express = require('express');
+
+const upload = require('../app/middlewares/upload');
+
 const userTypeRouter = require('./modules/user_type');
 const authRouter = require('./modules/auth');
 const activeRouter = require('./modules/active_mail');
@@ -18,6 +21,8 @@ const AuthMVCRouter = require('./mvc/auth');
 const HomeworkType = require('./mvc/homework_type');
 const UserRouter = require('./mvc/user');
 const NormalUserMVC = require('./mvc/nomarl_user');
+
+const Uploadfile = require('../app/api/controllers/UploadFile');
 
 function route(app){
     // API ROUTER
@@ -40,6 +45,9 @@ function route(app){
     app.use('/admin/',AuthMVCRouter);
     app.use('/homework-type', HomeworkType);
     app.use('/admin/users/nomarl-users/',NormalUserMVC);
+
+    app.post('/upload/',upload, Uploadfile.upLoadFile);
+
 }
 
 module.exports = route;

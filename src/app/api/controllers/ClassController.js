@@ -4,6 +4,7 @@ const Class = require('../../models/Class');
 const ClassMember = require('../../models/ClassMember');
 const User = require('../../models/User');
 const ClassPermission = require('../../models/ClassPermisstion');
+const ClassHomework = require('../../models/ClassHomework');
 const generateRandomCode = require('../../../helpers/index');
 
 class ClassController{
@@ -305,7 +306,14 @@ class ClassController{
                         })
                         .catch(error => {
                             console.log(error);
+                        }); 
+                    await ClassHomework.countDocuments({ class: mongoose.Types.ObjectId(classs.class._id), is_deltete: false })
+                        .then(count => {
+                            classs.class.exercises = count;
                         })
+                        .catch(error => {
+                            console.log(error);
+                        }); 
                 }
                 return newClassArray
             })

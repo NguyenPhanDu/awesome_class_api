@@ -348,6 +348,47 @@ class ClassMemberController{
                             });
                         });
             })
+    };
+    async getStudentInClass(req, res){
+        let classRole
+        await ClassRole.findOne({id_class_role: 2})
+            .then(classRolez => {
+                classRole = classRolez._id
+            })
+        let class_id;
+        await Class.findOne({ id_class: Number(req.body.id_class), is_deltete: false })
+            .then(classs => {
+                class_id = classs._id
+            });
+        ClassMember.find({ class: mongoose.Types.ObjectId(class_id),role: mongoose.Types.ObjectId(classRole) ,is_deltete: false })
+            .populate('role')
+            .populate({
+                path:'user',
+                select:['profile','email', 'user_type', 'id_user'], 
+                populate: {
+                    path: 'user_type'
+                }
+            })
+            .exec((err, member)=>{
+                if(member){
+                    res.json({
+                        success: true,
+                        message: "get all class successfull!",
+                        data: member,
+                        res_code: 200,
+                        res_status: "GET_SUCCESSFULLY"
+                    })
+                }
+                if(err){
+                    return res.json({
+                        success: false,
+                        message: 'Server error. Please try again.',
+                        error: err,
+                        res_code: 500,
+                        res_status: "SERVER_ERROR"
+                    });
+                }
+            })
     }
 };
 

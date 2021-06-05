@@ -9,7 +9,8 @@ const helmet = require("helmet");
 const passport = require('passport');
 const session = require('express-session');
 const flash = require('express-flash');
-
+const multer = require('multer');
+global.__basedir = __dirname;
 require('dotenv').config();
 
 //import database 
@@ -18,7 +19,6 @@ const db = require('./config/db/index');
 db.connect();
 
 const app = express();
-
 // CORS
 app.use(cors())
 // HELMET
@@ -27,6 +27,8 @@ app.use(helmet());
 // BODY PARSER
 app.use(bodyParser.json({limit: '50mb'}))
 app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
+
+
 //MEDTHOD OVERRIDE
 app.use(methodOverride('_method'))
 //MORGAN
