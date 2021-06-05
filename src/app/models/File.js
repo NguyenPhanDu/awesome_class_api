@@ -28,6 +28,13 @@ const FileSchema = Schema(
         viewLink: {
             type: String,
             default: ""
+        },
+        downloadLink: {
+            type: String,
+            default: ""
+        },
+        size: {
+            type: Number,
         }
     },
     {

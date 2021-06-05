@@ -171,10 +171,16 @@ async function deleteFolder(refId){
 
 async function uploadFile (files, homework){
     for(let i =0; i<files.length;i++){
+        let folderHomework;
+            await Directory.findOne({refId: homework._id, name: 'Teacher', is_deltete: false})
+            .then(result => {
+                folderHomework = result
+            })
         await drive.files.create({
-            requestBody: {
+            resource: {
                 name: files[i].originalname,
-                mimetype: files[i].mimetype
+                mimetype: files[i].mimetype,
+                parents: [folderHomework.id_folder]
             },
             media: {
                 mimeType: files[i].mimetype,
@@ -182,29 +188,27 @@ async function uploadFile (files, homework){
             }
         })
         .then(async result => {
-            let folderHomework;
-            await Directory.findOne({refId: homework._id, name: 'Teacher', is_deltete: false})
-            .then(result => {
-                folderHomework = result
-            })
-            let id = result.id;
-            let name = result.name;
-            let mineType = result.mineType;
-            let path = folderHomework.path+result.name
-            let link;
+            console.log(result.data);
+            let id = result.data.id;
+            let name = result.data.name;
+            let mineType = result.data.mineType;
+            let path = folderHomework.path+result.data.name
+            let viewLink;
+            let downloadLink;
             await drive.permissions.create({
-                fileId: id,
+                fileId: result.data.id,
                 requestBody:{
                     role: 'reader',
                     type: 'anyone'
                 }
             });
             await drive.files.get({
-                fileId: id,
-                fields: 'webViewLink'
+                fileId: result.data.id,
+                fields: 'webViewLink, webContentLink'
             })
             .then(result => {
-                link = result.data.webViewLink
+                viewLink = result.data.webViewLink,
+                downloadLink = result.data.webContentLink
             });
             await File.create({
                 id_file: id,
@@ -212,9 +216,12 @@ async function uploadFile (files, homework){
                 parent: folderHomework._id,
                 path: path,
                 mimeType: mineType,
-                viewLink: link
+                viewLink: viewLink,
+                downloadLink: downloadLink,
+                size: files[i].size
             })
             .then(async result => {
+                console.log("create File!")
                 await NormalHomework.findByIdAndUpdate(
                     homework._id,
                     {

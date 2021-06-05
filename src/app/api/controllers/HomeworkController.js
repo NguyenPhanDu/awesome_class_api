@@ -12,17 +12,16 @@ const googleDriveCrud = require('../../google_drive/index');
 const Directory = require('../../models/Directory');
 const { promisify } = require('util');
 const fs = require("fs");
-const unlinkAsync = promisify(fs.unlink);
 
 
 class HomeWorkController{
     // Req:  id_class, title, description, deadline, start_date, total_scores, category : { title, id_homework_category};
     async createNormalHomework(req, res){
-        if(req.total_scores == null ){
-            req.total_scores = -1;
+        const reqCategory = await JSON.parse(req.body.category);
+        const reqTotalScore = await JSON.parse(req.body.total_scores)
+        if(req.body.deadline == 'null'){
+            req.body.deadline = null;
         }
-        await JSON.parse(req.body.category);
-        //console.log(req.files)
         let blogalHomework
         let homeworkId;
         let classRoleStudentId;
@@ -58,13 +57,13 @@ class HomeWorkController{
                     .then(homeWorkType => {
                         homeWorkTypeId = homeWorkType._id
                     })
-            if(req.body.category == null){
+            if(reqCategory == null){
                 const newHomework = NormalHomework({
                     title: req.body.title,
                     description: req.body.description,
                     start_date: req.body.start_date,
                     deadline: req.body.deadline,
-                    total_scores: req.body.total_scores,
+                    total_scores: reqTotalScore,
                     homework_type: mongoose.Types.ObjectId(homeWorkTypeId),
                     create_by: mongoose.Types.ObjectId(userId)
                 });
@@ -81,6 +80,7 @@ class HomeWorkController{
                         .then(result => {
                         })
                         .catch(err => {
+                            console.log(err);
                             return res.json({
                                 success: false,
                                 message: 'Server error. Please try again. create class homework failed',
@@ -114,15 +114,18 @@ class HomeWorkController{
                             });
                         return blogalHomework;
                     })
-                    .then(blogalHomework => {
-                        googleDriveCrud.uploadFile(req.files, blogalHomework)
+                    .then(async blogalHomework => {
+                        if(req.files){
+                            await googleDriveCrud.uploadFile(req.files, blogalHomework)
+                        }
                     })
                     .then((blogalHomework)=>{
                         NormalHomework.findById(homeworkId)
                             .populate("homework_type", "-_id -__v")
                             .populate("create_by", "-_id -__v -password")
-                            .populate("document", "name viewLink")
+                            .populate("document", "name viewLink downloadLink size")
                             .then(result => {
+                                console.log(result)
                                 return res.json({
                                     success: true,
                                     message: "Create homework successfull!",
@@ -143,12 +146,13 @@ class HomeWorkController{
                     });
             }
             else{
+                console.log('category đéo null')
                 let categoryId;
-                await HomeworkCategory.findOne({title: req.body.category.title})
+                await HomeworkCategory.findOne({title: reqCategory.title})
                     .then(async category => {
                         if(!category){
                             await HomeworkCategory.create({
-                                title: req.body.category.title
+                                title: reqCategory.title
                             })
                             .then(result => {
                                 categoryId = result._id;
@@ -166,13 +170,14 @@ class HomeWorkController{
                             description: req.body.description,
                             start_date: req.body.start_date,
                             deadline: req.body.deadline,
-                            total_scores: req.body.total_scores,
+                            total_scores: reqTotalScore,
                             homework_type: mongoose.Types.ObjectId(homeWorkTypeId),
                             create_by: mongoose.Types.ObjectId(userId),
                             homework_category: mongoose.Types.ObjectId(result)
                         });
                         await newHomework.save()
                             .then(async homework => {
+                                await googleDriveCrud.createHomeworkFolder(homework.title,homework._id,parentFolder)
                                 blogalHomework = homework;
                                 homeworkId = homework._id
                                 await ClassHomework.create({
@@ -216,15 +221,15 @@ class HomeWorkController{
                                     });
                                     return blogalHomework;
                             })
-                            .then(blogalHomework => {
-                                googleDriveCrud.uploadFile(req.files, blogalHomework)
+                            .then(async blogalHomework => {
+                                await googleDriveCrud.uploadFile(req.files, blogalHomework)
                             })
                             .then((homework)=>{
                                 NormalHomework.findById(homeworkId)
                                     .populate("homework_type", "-_id -__v")
                                     .populate("create_by", "-_id -__v -password")
                                     .populate("homework_category", "-_id -__v")
-                                    .populate("document", "name viewLink")
+                                    .populate("document", "name viewLink downloadLink size")
                                     .then(result => {
                                         return res.json({
                                             success: true,
@@ -372,7 +377,7 @@ class HomeWorkController{
                 .populate('homework_category',"title id_homework_category")
                 .populate('homework_type',"name id_homework_type")
                 .populate('create_by', "-password")
-                .populate("document", "name viewLink")
+                .populate("document", "name viewLink downloadLink size")
                 .then(homework => {
                     return res.status(200).json({
                         success: true,
