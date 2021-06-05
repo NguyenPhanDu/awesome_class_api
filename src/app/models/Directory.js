@@ -2,36 +2,36 @@ const mongoose = require('mongoose');
 const AutoIncrement = require('mongoose-sequence')(mongoose);
 const Schema = mongoose.Schema;
 
-const FileSchema = Schema(
+const DirectorySchema = Schema(
     {
-        id_file: {
+        id_folder: {
             type: String
         },
         name: {
             type: String
         },
-        parent : {
-            type: Schema.Types.ObjectId, 
-            ref:  'Directory'
-        },
         path: {
             type: String,
             default: ''
         },
-        mimeType: {
+        parent : [this],
+        refId: {
             type: String
         },
         is_deltete: {
             type: Boolean,
             default: false
         },
+        mimeType: {
+            type: String
+        }
     },
     {
         timestamps :true,
-        collection: 'files'
+        collection: 'directories'
     }
 );
 
-FileSchema.plugin(AutoIncrement, {inc_field: 'id_file'});
+DirectorySchema.plugin(AutoIncrement, {inc_field: 'id_directory'});
 
-module.exports = mongoose.model('File',FileSchema);
+module.exports = mongoose.model('Directory',DirectorySchema);

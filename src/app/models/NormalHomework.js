@@ -14,11 +14,9 @@ const NormalHomeworkSchema = Schema(
         },
         deadline: {
             type: String,
-            default: "",
         },
         start_date: {
             type: String,
-            default: ""
         },
         total_scores: {
             type: Number,

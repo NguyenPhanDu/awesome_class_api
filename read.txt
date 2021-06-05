@@ -1,0 +1,39 @@
+ - Quản lý thư mục trên google drive: 
+        ** google drive quản lý theo id, name
+
+        folder class 
+            => folder bài tập (1)
+                => folder chứa bài tập đc giao
+                        =>>> các file
+                => folder chứa file bài tập nộp của sinh viên (2)
+                        =>>> các file
+
+ - Khi tạo class sẽ tạo ra folder tên class đó !
+ - Khi tạo bài tập sẽ tạo ra folder (1) (2)
+ - Khi học sinh nộp bài các file nộp sẽ vào folder (2)
+ - Khi xóa bài tập thì xóa lun 2 folder
+ - Khi xóa class thì xóa cả folder class
+
+ - cơ sở dữ liệu áp ứng được các tiêu chí: 
+ + Lưu đc thông tin các folder, file
+ + Giáo viên có thể xem đc các file học sinh đã nộp
+ + Hiển thị các file kèm theo bài tập giáo viên giao
+ + Biết được folder nào là của bài tập nào lớp nào, học sinh nôp file nào
+
+
+ Schema model: 
+
+ + directories{
+        _id,
+        id_folder
+        name: 
+        parent: this,
+        is_delete
+ }
+
+ + file {
+         _id,
+         id_file
+         name:,
+         parent
+ }
