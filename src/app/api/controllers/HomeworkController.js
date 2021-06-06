@@ -469,7 +469,7 @@ class HomeWorkController{
                     {
                     path: 'create_by',
                     select: ["-password"],
-                    match: { email : { $eq : req.body.email } }
+                    match: { email : { $eq : res.locals.email } }
                 }]
             })
             
