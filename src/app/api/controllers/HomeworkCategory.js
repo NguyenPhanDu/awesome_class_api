@@ -88,16 +88,7 @@ class HomeworkCategoryController{
                             });
                         })
                 })
-                .catch(err=> {
-                    if (err.name === 'MongoError' && err.code === 11000) {
-                        return res.json({
-                            success: false,
-                            message: 'This category already exist!',
-                            error: err,
-                            res_code: 422,
-                            res_status: "SERVER_ERROR"
-                        });
-                    }                
+                .catch(err=> {           
                     console.log(err);
                     return res.json({
                         success: false,

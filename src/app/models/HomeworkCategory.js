@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 
 const HomeworkCategorySchema = Schema(
     {
-        title: {type: String, require: true, unique: true},
+        title: {type: String, require: true},
         is_delete: {
             type: Boolean,
             default: false
