@@ -450,7 +450,7 @@ class HomeWorkController{
     // Get all homework of user login create and assgined
     async getAllHomewworkOfUser(req, res){
         let arrayHomework  = [];
-        await ClassHomework.find({id_delete: false})
+        await ClassHomework.find({is_delete: false})
             .populate({
                 path: 'homework',
                 populate: [
