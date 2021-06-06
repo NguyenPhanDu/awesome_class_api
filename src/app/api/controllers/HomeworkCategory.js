@@ -145,7 +145,6 @@ class HomeworkCategoryController{
                     await HomeworkCategory.findByIdAndUpdate(result._id, 
                         {
                             title: req.body.title,
-                            is_delete: true
                         },
                         {
                             new: true
