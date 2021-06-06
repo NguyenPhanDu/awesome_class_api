@@ -17,7 +17,7 @@ class HomeWorkController{
     async createNormalHomework(req, res){
         const reqCategory = await JSON.parse(req.body.category);
         const reqTotalScore = await JSON.parse(req.body.total_scores);
-        let reqStudent = await JSON.parse(req.body.student);
+        //let reqStudent = await JSON.parse(req.body.student);
         if(req.body.deadline == 'null'){
             req.body.deadline = null;
         }
@@ -89,24 +89,24 @@ class HomeWorkController{
                             });
                         });
                         // Trường hợp chọn học sinh chỉ định
-                        if(reqStudent && reqStudent.length > 0){
-                            let arrayUserId = [];
-                            for(let i = 0; i < reqStudent.length; i++){
-                                await ClassMember.findOne({class: mongoose.Types.ObjectId(classId), email: reqStudent[i].email })
-                                    .then(result => {
-                                        arrayUserId.push(result.user)
-                                    })
-                            }
-                            let arrayUserIdLength = arrayUserId.length
-                            for(let i = 0; i< arrayUserIdLength; i++){
-                                HomeworkAssign.create({
-                                    user: mongoose.Types.ObjectId(arrayUserIdLength[i]),
-                                    class: mongoose.Types.ObjectId(classId),
-                                    homework: mongoose.Types.ObjectId(homework._id),
-                                    onModel: 'NormalHomework'
-                                })
-                            }
-                        }
+                        // if(reqStudent && reqStudent.length > 0){
+                        //     let arrayUserId = [];
+                        //     for(let i = 0; i < reqStudent.length; i++){
+                        //         await ClassMember.findOne({class: mongoose.Types.ObjectId(classId), email: reqStudent[i].email })
+                        //             .then(result => {
+                        //                 arrayUserId.push(result.user)
+                        //             })
+                        //     }
+                        //     let arrayUserIdLength = arrayUserId.length
+                        //     for(let i = 0; i< arrayUserIdLength; i++){
+                        //         HomeworkAssign.create({
+                        //             user: mongoose.Types.ObjectId(arrayUserIdLength[i]),
+                        //             class: mongoose.Types.ObjectId(classId),
+                        //             homework: mongoose.Types.ObjectId(homework._id),
+                        //             onModel: 'NormalHomework'
+                        //         })
+                        //     }
+                        // }
                         // Trường hợp tất cả học sinh
                         // 1 tìm tất cả user học sinh trong class đó : find [ _id user ] tìm trong classMember;
                         // for list user vừa nhận mỗi lần lập tạo ra 1 Homeasgin với user là id đó
@@ -215,24 +215,24 @@ class HomeWorkController{
                                         res_status: "SERVER_ERROR"
                                     });
                                 });
-                                if(reqStudent && reqStudent.length > 0){
-                                    let arrayUserId = [];
-                                    for(let i = 0; i < reqStudent.length; i++){
-                                        await ClassMember.findOne({class: mongoose.Types.ObjectId(classId), email: reqStudent[i].email })
-                                            .then(result => {
-                                                arrayUserId.push(result.user)
-                                            })
-                                    }
-                                    let arrayUserIdLength = arrayUserId.length
-                                    for(let i = 0; i< arrayUserIdLength; i++){
-                                        HomeworkAssign.create({
-                                            user: mongoose.Types.ObjectId(arrayUserIdLength[i]),
-                                            class: mongoose.Types.ObjectId(classId),
-                                            homework: mongoose.Types.ObjectId(homework._id),
-                                            onModel: 'NormalHomework'
-                                        })
-                                    }
-                                }
+                                // if(reqStudent && reqStudent.length > 0){
+                                //     let arrayUserId = [];
+                                //     for(let i = 0; i < reqStudent.length; i++){
+                                //         await ClassMember.findOne({class: mongoose.Types.ObjectId(classId), email: reqStudent[i].email })
+                                //             .then(result => {
+                                //                 arrayUserId.push(result.user)
+                                //             })
+                                //     }
+                                //     let arrayUserIdLength = arrayUserId.length
+                                //     for(let i = 0; i< arrayUserIdLength; i++){
+                                //         HomeworkAssign.create({
+                                //             user: mongoose.Types.ObjectId(arrayUserIdLength[i]),
+                                //             class: mongoose.Types.ObjectId(classId),
+                                //             homework: mongoose.Types.ObjectId(homework._id),
+                                //             onModel: 'NormalHomework'
+                                //         })
+                                //     }
+                                // }
                                 // Trường hợp tất cả học sinh
                                 // 1 tìm tất cả user học sinh trong class đó : find [ _id user ] tìm trong classMember;
                                 // for list user vừa nhận mỗi lần lập tạo ra 1 Homeasgin với user là id đó
