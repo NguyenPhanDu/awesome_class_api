@@ -41,7 +41,7 @@ class HomeworkCategoryController{
             .then(classs => {
                 classId = classs._id
             });
-        await User.findOne({email: req.body.email})
+        await User.findOne({email: res.locals.email})
             .then(async user => {
                 await HomeworkCategory.find({class: mongoose.Types.ObjectId(classId), is_delete: false})
                     .then(array => {
@@ -122,24 +122,14 @@ class HomeworkCategoryController{
             })
     }
     async update(req, res){
-        await HomeworkCategory.findOneAndUpdate(
-            {id_homework_category: req.body.id_homework_category, is_delete: false}, {title: req.body.title}, {new: true})
-            .then(result => {
-                return res.json({
-                    success: true,
-                    message: "update exercises successfull!",
-                    data: result,
-                    res_code: 200,
-                    res_status: "DELETE_SUCCESSFULLY"
-                })
-            })
+       
     }
     // req.body.id_class
     async delete(req, res){
         await HomeworkCategory.findOne({id_homework_category: req.body.id_homework_category, is_delete: false})
             .populate('user','-password')
             .then(async result => {
-                if(result.user.email = req.body.emaill){
+                if(result.user.email = res.locals.email){
                     await HomeworkCategory.findByIdAndUpdate(result._id, 
                         {
                             is_delete: true
