@@ -121,10 +121,101 @@ class HomeworkCategoryController{
                 });
             })
     }
+    // req.body.id_class, title, req.body.id_homework_category
     async update(req, res){
-       
+        let flag = false;
+        let reqTitle = req.body.title.toLowerCase();
+        let classId;
+        await Class.findOne({id_class : Number(req.body.id_class)})
+            .then(classs => {
+                classId = classs._id
+            });
+        await HomeworkCategory.findOne({id_homework_category: req.body.id_homework_category, is_delete: false})
+        .populate('user','-password')
+        .then(async result => {
+            if(result.user.email = res.locals.email){
+                await HomeworkCategory.find({class: mongoose.Types.ObjectId(classId), is_delete: false})
+                    .then(array => {
+                        if(array.length>0){
+                            for(let i = 0 ;i< array.length; i++){
+                                if(reqTitle == array[0].title.toLowerCase()){
+                                    flag = true;
+                                    return res.json({
+                                        success: false,
+                                        message: 'This category already exist!',
+                                        res_code: 422,
+                                        res_status: "SERVER_ERROR"
+                                    });
+                                }
+                            }
+                        }
+                    });
+                if(flag == false){
+                    await HomeworkCategory.findByIdAndUpdate(result._id, 
+                        {
+                            title: req.body.title,
+                            is_delete: true
+                        },
+                        {
+                            new: true
+                        })
+                        .then(async deleted => {
+                            await HomeworkCategory.findById(deleted._id)
+                                .populate('user','-password')
+                                .then(result => {
+                                    return res.status(200).json({
+                                        success: true,
+                                        message: "Update exercises successfull!",
+                                        data: result,
+                                        res_code: 200,
+                                        res_status: "UPDATE_SUCCESSFULLY"
+                                    })
+                                })
+                                .catch(err=> {
+                                    console.log(err);
+                                    return res.json({
+                                        success: false,
+                                        message: 'Server error. Please try again.',
+                                        error: err,
+                                        res_code: 500,
+                                        res_status: "SERVER_ERROR"
+                                    });
+                                })
+                            
+                        })
+                        .catch(err=> {
+                            console.log(err);
+                            return res.json({
+                                success: false,
+                                message: 'Server error. Please try again.',
+                                error: err,
+                                res_code: 500,
+                                res_status: "SERVER_ERROR"
+                            });
+                        })
+                }
+            }
+            else{
+                return res.json({
+                    success: false,
+                    message: "No access",
+                    res_code: 403,
+                    res_status: "NO_ACCESS"
+                })
+            }
+        })
+        .catch(err=> {
+            console.log(err);
+            return res.json({
+                success: false,
+                message: 'Server error. Please try again.',
+                error: err,
+                res_code: 500,
+                res_status: "SERVER_ERROR"
+            });
+        })
     }
-    // req.body.id_class
+    // req.body.id_homework_category
     async delete(req, res){
         await HomeworkCategory.findOne({id_homework_category: req.body.id_homework_category, is_delete: false})
             .populate('user','-password')
@@ -154,6 +245,16 @@ class HomeworkCategoryController{
                         res_status: "NO_ACCESS"
                     })
                 }
+            })
+            .catch(err=> {
+                console.log(err);
+                return res.json({
+                    success: false,
+                    message: 'Server error. Please try again.',
+                    error: err,
+                    res_code: 500,
+                    res_status: "SERVER_ERROR"
+                });
             })
     }
 }
