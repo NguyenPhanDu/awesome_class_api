@@ -547,7 +547,7 @@ class HomeWorkController{
         return res.json({
             success: true,
             message: "get all homework successfull!",
-            data: arrayHomework,
+            data: JSON.stringify(arrayHomework),
             res_code: 200,
             res_status: "CREATE_SUCCESSFULLY"
         })
