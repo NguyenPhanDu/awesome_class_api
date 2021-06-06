@@ -80,9 +80,9 @@ class ClassMemberController{
             })
         await ClassMember.findOne({ 
             user: mongoose.Types.ObjectId(user_id),
-            class: mongoose.Types.ObjectId(classObj._id)
+            class: mongoose.Types.ObjectId(classObj._id),
         })
-            .then(classMember =>{
+            .then(async classMember =>{
                 if(!classMember){
                     const newClassMember = new ClassMember({
                         user: mongoose.Types.ObjectId(user_id),
@@ -110,7 +110,32 @@ class ClassMemberController{
                             });
                         })
                 }
-                if(classMember){
+                if(classMember && classMember.is_deltete == true){
+                    await ClassMember.findOneAndUpdate(
+                        { _id: mongoose.Types.ObjectId(classMember._id) }, 
+                        {status: 2, is_deltete: false},
+                        { new: true }
+                    )
+                    .then(result => {
+                        res.json({
+                            success: true,
+                            message: "Invite member successfull!",
+                            res_code: 200,
+                            res_status: "INVITE_MEMBER_SUCCESSFULLY"
+                        })
+                        sendInviteMemberEmail(req,useraa,classObj,result);
+                    })
+                    .catch(err => {
+                        return res.json({
+                            success: false,
+                            message: 'Server error. Please try again.',
+                            error: err,
+                            res_code: 500,
+                            res_status: "SERVER_ERROR"
+                        });
+                    })
+                }
+                if(classMember && classMember.is_deltete == false){
                     return res.json({
                         success: false,
                         message: "This member is joined class.",

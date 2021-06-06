@@ -165,12 +165,13 @@ class HomeWorkController{
             }
             else{
                 let categoryId;
-                await HomeworkCategory.findOne({title: reqCategory.title, user: mongoose.Types.ObjectId(userId), is_delete: false})
+                await HomeworkCategory.findOne({is_delete: false, id_homework_category: reqCategory.id_homework_category})
                     .then(async category => {
                         if(!category){
                             await HomeworkCategory.create({
                                 title: reqCategory.title,
-                                user: mongoose.Types.ObjectId(userId)
+                                user: mongoose.Types.ObjectId(userId),
+                                class: mongoose.Types.ObjectId(classId)
                             })
                             .then(result => {
                                 categoryId = result._id;

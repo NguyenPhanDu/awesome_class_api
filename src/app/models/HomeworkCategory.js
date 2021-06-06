@@ -12,7 +12,11 @@ const HomeworkCategorySchema = Schema(
         user: {
             type: Schema.Types.ObjectId, 
             ref:  'User'
-        }
+        },
+        class: {
+            type: Schema.Types.ObjectId, 
+            ref:  'Class'
+        },
     },
     {
         timestamps :true,
