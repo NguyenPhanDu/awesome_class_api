@@ -10,15 +10,14 @@ const ClassRole = require('../../models/ClassRole');
 const HomeworkCategory = require('../../models/HomeworkCategory');
 const googleDriveCrud = require('../../google_drive/index');
 const Directory = require('../../models/Directory');
-const { promisify } = require('util');
-const fs = require("fs");
 
 
 class HomeWorkController{
-    // Req:  id_class, title, description, deadline, start_date, total_scores, category : { title, id_homework_category};
+    // Req:  id_class, title, description, deadline, start_date, total_scores, category : { title, id_homework_category}, student[];
     async createNormalHomework(req, res){
         const reqCategory = await JSON.parse(req.body.category);
-        const reqTotalScore = await JSON.parse(req.body.total_scores)
+        const reqTotalScore = await JSON.parse(req.body.total_scores);
+        let reqStudent = await JSON.parse(req.body.student);
         if(req.body.deadline == 'null'){
             req.body.deadline = null;
         }
@@ -89,6 +88,25 @@ class HomeWorkController{
                                 res_status: "SERVER_ERROR"
                             });
                         });
+                        // Trường hợp chọn học sinh chỉ định
+                        if(reqStudent && reqStudent.length > 0){
+                            let arrayUserId = [];
+                            for(let i = 0; i < reqStudent.length; i++){
+                                await ClassMember.findOne({class: mongoose.Types.ObjectId(classId), email: reqStudent[i].email })
+                                    .then(result => {
+                                        arrayUserId.push(result.user)
+                                    })
+                            }
+                            let arrayUserIdLength = arrayUserId.length
+                            for(let i = 0; i< arrayUserIdLength; i++){
+                                HomeworkAssign.create({
+                                    user: mongoose.Types.ObjectId(arrayUserIdLength[i]),
+                                    class: mongoose.Types.ObjectId(classId),
+                                    homework: mongoose.Types.ObjectId(homework._id),
+                                    onModel: 'NormalHomework'
+                                })
+                            }
+                        }
                         // Trường hợp tất cả học sinh
                         // 1 tìm tất cả user học sinh trong class đó : find [ _id user ] tìm trong classMember;
                         // for list user vừa nhận mỗi lần lập tạo ra 1 Homeasgin với user là id đó
@@ -196,6 +214,24 @@ class HomeWorkController{
                                         res_status: "SERVER_ERROR"
                                     });
                                 });
+                                if(reqStudent && reqStudent.length > 0){
+                                    let arrayUserId = [];
+                                    for(let i = 0; i < reqStudent.length; i++){
+                                        await ClassMember.findOne({class: mongoose.Types.ObjectId(classId), email: reqStudent[i].email })
+                                            .then(result => {
+                                                arrayUserId.push(result.user)
+                                            })
+                                    }
+                                    let arrayUserIdLength = arrayUserId.length
+                                    for(let i = 0; i< arrayUserIdLength; i++){
+                                        HomeworkAssign.create({
+                                            user: mongoose.Types.ObjectId(arrayUserIdLength[i]),
+                                            class: mongoose.Types.ObjectId(classId),
+                                            homework: mongoose.Types.ObjectId(homework._id),
+                                            onModel: 'NormalHomework'
+                                        })
+                                    }
+                                }
                                 // Trường hợp tất cả học sinh
                                 // 1 tìm tất cả user học sinh trong class đó : find [ _id user ] tìm trong classMember;
                                 // for list user vừa nhận mỗi lần lập tạo ra 1 Homeasgin với user là id đó
@@ -407,6 +443,112 @@ class HomeWorkController{
                 res_code: 500,
                 res_status: "SERVER_ERROR"
             });
+        })
+    }
+
+    // Get all homework of user login create and assgined
+    async getAllHomewworkOfUser(req, res){
+        let arrayHomework  = [];
+        await ClassHomework.find()
+            .populate({
+                path: 'homework',
+                populate: [
+                    {
+                        path: 'homework_type',
+                        select: ['name', 'id_homework_type']
+                    },
+                    {
+                        path: 'homework_category',
+                        select: ['title', 'id_homework_category']
+                    },
+                    {
+                        path: 'document',
+                        select: ["name", "viewLink", "downloadLink", "size"]
+                    },
+                    {
+                    path: 'create_by',
+                    select: ["-password"],
+                    match: { email : { $eq : req.body.email } }
+                }]
+            })
+            
+            .then(homeworks => {
+                let homeworksParte = JSON.parse(JSON.stringify(homeworks));
+                if(homeworksParte.length > 0){
+                    homeworksParte = homeworksParte.filter(homework => {
+                        return homework.homework.create_by != null
+                    });
+                    homeworksParte.forEach(homework => {
+                        arrayHomework.push(homework);
+                    })
+                }
+            })
+            .catch(err => {
+                return res.json({
+                    success: false,
+                    message: 'Server error. Please try again.',
+                    error: error,
+                    res_code: 500,
+                    res_status: "SERVER_ERROR"
+                });
+            })
+        let user_id;
+        await User.findOne({email: res.locals.email})
+            .then(user => {
+                user_id = user._id
+            })
+        await HomeworkAssign.find({user: mongoose.Types.ObjectId(user_id)})
+            .then(async result => {
+                let resultLength = result.length;
+                if(resultLength > 0){
+                    for(let i = 0 ; i< result.length; i++){
+                        await ClassHomework.findOne({ homework: mongoose.Types.ObjectId(result[i].homework) })
+                        .populate({
+                            path: 'homework',
+                            populate: [
+                                {
+                                    path: 'homework_type',
+                                    select: ['name', 'id_homework_type']
+                                },
+                                {
+                                    path: 'homework_category',
+                                    select: ['title', 'id_homework_category']
+                                },
+                                {
+                                    path: 'document',
+                                    select: ["name", "viewLink", "downloadLink", "size"]
+                                },
+                                {
+                                path: 'create_by',
+                                select: ["-password"],
+                            }]
+                        })
+                        .then(homeworks => {
+                            let homeworksParte = JSON.parse(JSON.stringify(homeworks));
+                            arrayHomework.push(homeworksParte)
+                        })
+                        .catch(err => {
+                            console.log(err);
+                        })
+                    }
+                }
+            })
+            .catch(err => {
+                console.log(err);
+                return res.json({
+                    success: false,
+                    message: 'Server error. Please try again.',
+                    error: error,
+                    res_code: 500,
+                    res_status: "SERVER_ERROR"
+                });
+            });
+        return res.json({
+            success: true,
+            message: "get all homework successfull!",
+            data: arrayHomework,
+            res_code: 200,
+            res_status: "CREATE_SUCCESSFULLY"
         })
     }
 }
