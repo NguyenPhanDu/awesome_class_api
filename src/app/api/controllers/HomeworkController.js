@@ -450,7 +450,7 @@ class HomeWorkController{
     // Get all homework of user login create and assgined
     async getAllHomewworkOfUser(req, res){
         let arrayHomework  = [];
-        await ClassHomework.find()
+        await ClassHomework.find({id_delete: false})
             .populate({
                 path: 'homework',
                 populate: [
@@ -498,7 +498,7 @@ class HomeWorkController{
             .then(user => {
                 user_id = user._id
             })
-        await HomeworkAssign.find({user: mongoose.Types.ObjectId(user_id)})
+        await HomeworkAssign.find({user: mongoose.Types.ObjectId(user_id), is_delete: false})
             .then(async result => {
                 let resultLength = result.length;
                 if(resultLength > 0){
