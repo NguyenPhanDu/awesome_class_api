@@ -183,87 +183,6 @@ class ClassController{
     };
 
     async deleteClass(req, res){
-        // let query = {id_class: Number(req.body.id_class), is_deltete : false};
-        // let update = 
-        //     {
-        //         is_deltete: true
-        //     };
-        // let option = {new: true}
-        // await Class.findOne({id_class: req.body.id_class, is_deltete: false})
-        //         .populate({
-        //             path: 'admin',
-        //             select:['profile','email']
-        //         })
-        //         .then(async classs => {
-        //             if(classs){
-        //                 if(classs.admin.email == res.locals.email){
-        //                     await googleDriveCrud.deleteFolder(classs._id)
-        //                     await ClassPermission.findOneAndUpdate({_id: mongoose.Types.ObjectId(classs.permission)},update,option)
-        //                         .then(result =>{})
-        //                         .catch(err => {
-        //                             console.log(err);
-        //                             return res.json({
-        //                                 success: false,
-        //                                 message: 'Server error. Please try again. delete class permisstion failed ',
-        //                                 error: err,
-        //                                 res_code: 500,
-        //                                 res_status: "SERVER_ERROR"
-        //                             });
-        //                         });
-        //                     await ClassMember.updateMany(
-        //                         { class: mongoose.Types.ObjectId(classs._id) },
-        //                         { is_deltete: true }
-        //                     )
-        //                     .then( result => {})
-        //                     .catch(err => {
-        //                         console.log(err);
-        //                         return res.json({
-        //                             success: false,
-        //                             message: 'Server error. Please try again. delete class member failed ',
-        //                             error: err,
-        //                             res_code: 500,
-        //                             res_status: "SERVER_ERROR"
-        //                         });
-        //                     })
-        //                     await Class.findOneAndUpdate(query, update, option)
-        //                         .then(classs => {
-        //                             return res.status(200).json({
-        //                                 success: true,
-        //                                 message: "Delete classroom successfull!",
-        //                                 res_code: 200,
-        //                                 res_status: "DELETE_SUCCESSFULLY"
-        //                             })
-        //                         })
-        //                         .catch(err => {
-        //                             console.log(err);
-        //                             return res.json({
-        //                                 success: false,
-        //                                 message: 'Server error. Please try again.',
-        //                                 error: err,
-        //                                 res_code: 500,
-        //                                 res_status: "SERVER_ERROR"
-        //                             });
-        //                         })
-        //                 }
-        //                 else{
-        //                     return res.json({
-        //                         success: false,
-        //                         message: "No access",
-        //                         res_code: 403,
-        //                         res_status: "NO_ACCESS"
-        //                     })
-        //                 }
-        //             }
-        //         })
-        //         .catch(err=>{
-        //             return res.json({
-        //                 success: false,
-        //                 message: 'Server error. Please try again.',
-        //                 error: err,
-        //                 res_code: 500,
-        //                 res_status: "SERVER_ERROR"
-        //             });
-        //         })
         try{
             const query = {id_class: Number(req.body.id_class), is_delete : false};
             const update = {
@@ -279,7 +198,7 @@ class ClassController{
                                                 select:['profile','email']
                                             });
             if (classFinded && classFinded.admin.email == res.locals.email){
-                await googleDriveCrud.deleteFolder(classFinded._id);
+                await googleDriveCrud.deleteFolderClass(classFinded._id);
                 await ClassPermission.findOneAndUpdate({_id: mongoose.Types.ObjectId(classFinded.permission)},update,option);
                 await ClassMember.updateMany({ class: mongoose.Types.ObjectId(classFinded._id) },update);
                 await Class.findOneAndUpdate(query, update, option);

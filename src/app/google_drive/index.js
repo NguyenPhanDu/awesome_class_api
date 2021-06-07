@@ -15,8 +15,6 @@ async function createClassFoler(name, id){
                 'mimeType': 'application/vnd.google-apps.folder',
             }
         })
-        console.log(response.data);
-        
         let path = '/'+name.replace(/\s+/g, '')+'/'
         const newDirectory = new Directory({
             id_folder: response.data.id,
@@ -49,7 +47,6 @@ async function createHomeworkFolder(name, id, parent){
             parents: [parent.id_folder]
           }
         })
-        console.log(response.data)
         let path = parent.path+name.replace(/\s+/g, '')+'/'
         const newDirectory = new Directory({
             id_folder: response.data.id,
@@ -123,10 +120,9 @@ async function createHomeworkFolder(name, id, parent){
     }
 }
 
-async function deleteFolder(refId){
+async function deleteFolderClass(refId){
     try{
         let path;
-        let folderId;
         await Directory.findOne({refId: refId, is_delete: false})
             .then(result => {
                 path = result.path;
@@ -169,10 +165,11 @@ async function deleteFolder(refId){
     }
 }
 
-async function uploadFile (files, homework){
+// homework: NormalHomework ,,,
+async function uploadFile (files, classHomeWork, homework){
     for(let i =0; i<files.length;i++){
         let folderHomework;
-            await Directory.findOne({refId: homework._id, name: 'Teacher', is_delete: false})
+            await Directory.findOne({refId: classHomeWork._id, name: 'Teacher', is_delete: false})
             .then(result => {
                 folderHomework = result
             })
@@ -188,7 +185,6 @@ async function uploadFile (files, homework){
             }
         })
         .then(async result => {
-            console.log(result.data);
             let id = result.data.id;
             let name = result.data.name;
             let mineType = result.data.mineType;
@@ -222,13 +218,16 @@ async function uploadFile (files, homework){
             })
             .then(async result => {
                 console.log("create File!")
-                await NormalHomework.findByIdAndUpdate(
-                    homework._id,
+                await NormalHomework.findOneAndUpdate(
+                    {_id: mongoose.Types.ObjectId(homework._id)},
                     {
                         $push: {document: result._id}
                     },
                     {new: true}
                 )
+                .then(result => {
+                    console.log(result);
+                })
             })
         })
         .catch(err => {
@@ -238,9 +237,13 @@ async function uploadFile (files, homework){
     }
 }
 
+// async function uploadFile(){
+
+// }
+
 module.exports = {
     createClassFoler,
     createHomeworkFolder,
-    deleteFolder,
+    deleteFolderClass,
     uploadFile
 }

@@ -20,7 +20,7 @@ const HomeworkCategorySchema = Schema(
     },
     {
         timestamps :true,
-        collection: 'homework_categorys'
+        collection: 'homework_categories'
     }
 );
 

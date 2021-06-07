@@ -15,366 +15,241 @@ const Directory = require('../../models/Directory');
 class HomeWorkController{
     // Req:  id_class, title, description, deadline, start_date, total_scores, category : { title, id_homework_category}, student[];
     async createNormalHomework(req, res){
-        let reqStudent = await JSON.parse(req.body.emails);
-        const reqCategory = await JSON.parse(req.body.category);
-        const reqTotalScore = await JSON.parse(req.body.total_scores);
-        if(req.body.deadline == 'null'){
-            req.body.deadline = null;
-        }
-        let blogalHomework
-        let homeworkId;
-        let classRoleStudentId;
-        await ClassRole.findOne({id_class_role : 2})
-            .then(classRole => {
-                classRoleStudentId = classRole._id;
-            })
-        let userId;
-        await User.findOne({email: res.locals.email})
-            .then(user => {
-                userId = user._id;
-            })
-        let classId;
-        await Class.findOne({id_class : Number(req.body.id_class)})
-            .then(classs => {
-                classId = classs._id
-            });
-        let parentFolder;
-        await Directory.findOne({refId: classId})
-            .then(result=> {
-                parentFolder = result;
-            })
-        //Vai trò của user trong class
-        let userRole;
-        await ClassMember.findOne({ user :  mongoose.Types.ObjectId(userId), class : mongoose.Types.ObjectId(classId)})
-                .populate('role')
-                .then(classMember => {
-                    userRole = classMember.role.id_class_role;
-                });
-        if(userRole == 1){
-            let homeWorkTypeId;
-            await HomeworkType.findOne({id_homework_type: 1})
-                    .then(homeWorkType => {
-                        homeWorkTypeId = homeWorkType._id
-                    })
-            if(reqCategory == null){
-                const newHomework = NormalHomework({
-                    title: req.body.title,
-                    description: req.body.description,
-                    start_date: req.body.start_date,
-                    deadline: req.body.deadline,
-                    total_scores: reqTotalScore,
-                    homework_type: mongoose.Types.ObjectId(homeWorkTypeId),
-                    create_by: mongoose.Types.ObjectId(userId)
-                });
-                await newHomework.save()
-                    .then(async homework => {
-                        blogalHomework = homework;
-                        await googleDriveCrud.createHomeworkFolder(homework.title,homework._id,parentFolder)
-                        homeworkId = homework._id
-                        await ClassHomework.create({
-                            class: mongoose.Types.ObjectId(classId),
-                            homework: mongoose.Types.ObjectId(homework._id),
-                            onModel: 'NormalHomework'
-                        })
-                        .then(result => {
-                        })
-                        .catch(err => {
-                            console.log(err);
-                            return res.json({
-                                success: false,
-                                message: 'Server error. Please try again. create class homework failed',
-                                error: err,
-                                res_code: 500,
-                                res_status: "SERVER_ERROR"
-                            });
-                        });
-                        // Trường hợp chọn học sinh chỉ định
-                        if(reqStudent.length > 0){
-                            console.log('cccc');
-                            let arrayUserId = [];
-                            for(let i = 0; i < reqStudent.length; i++){
-                                await User.findOne({email: reqStudent[i] })
-                                    .then(result => {
-                                        arrayUserId.push(result.user)
-                                    })
-                            }
-
-                            for(let i = 0; i< arrayUserId.length; i++){
-                                HomeworkAssign.create({
-                                    user: mongoose.Types.ObjectId(arrayUserId[i]),
+        try{
+            let reqStudent = await JSON.parse(req.body.emails);
+            let reqCategory = await JSON.parse(req.body.category);
+            let reqTotalScore = await JSON.parse(req.body.total_scores);
+            if(req.body.deadline == 'null'){
+                req.body.deadline = null;
+            }
+            const classRole = await ClassRole.findOne({id_class_role : 2})
+            let classRoleStudentId = classRole._id
+            const user = await User.findOne({email: res.locals.email})
+            let userId = user._id;
+            const classs = await Class.findOne({id_class : Number(req.body.id_class)})
+            let classId = classs._id
+            const folder = await Directory.findOne({refId: classId})
+            const homeWorkType =  await HomeworkType.findOne({id_homework_type: 1});
+            let homeWorkTypeId = homeWorkType._id
+            //Vai trò của user trong class (tìm giáo viên chỉ giáo viên mới đc tạo)
+            const classMember = await ClassMember.findOne({ user :  mongoose.Types.ObjectId(userId), class : mongoose.Types.ObjectId(classId)})
+                                    .populate('role');
+            let userRole = classMember.role.id_class_role;
+            if(userRole == 1){
+                if(reqCategory == null){
+                    let homework = NormalHomework({
+                        title: req.body.title,
+                        description: req.body.description,
+                        start_date: req.body.start_date,
+                        deadline: req.body.deadline,
+                        total_scores: reqTotalScore,
+                        homework_type: mongoose.Types.ObjectId(homeWorkTypeId),
+                        create_by: mongoose.Types.ObjectId(userId)
+                    });
+                    let newHomework = await homework.save();
+                    let classHomework = await ClassHomework.create({
+                        class: mongoose.Types.ObjectId(classId),
+                        homework: mongoose.Types.ObjectId(newHomework._id),
+                        onModel: 'NormalHomework'
+                    });
+                    await googleDriveCrud.createHomeworkFolder(newHomework.title,classHomework._id,folder);
+                    if(req.files){
+                        await googleDriveCrud.uploadFile(req.files,classHomework, newHomework)
+                    }
+                    if(reqStudent.length > 0){
+                        let arrayUserId = [];
+                        for(let i = 0; i < reqStudent.length; i++){
+                            let user =  await User.findOne({email: reqStudent[i] })
+                            arrayUserId.push(user._id)
+                        }
+                        for(let i = 0; i< arrayUserId.length; i++){
+                            await HomeworkAssign.create({
+                                user: mongoose.Types.ObjectId(arrayUserId[i]),
+                                class: mongoose.Types.ObjectId(classId),
+                                homework: mongoose.Types.ObjectId(newHomework._id),
+                                onModel: 'NormalHomework'
+                            })
+                        }
+                    }
+                    else{
+                        let arrStudentInClass = await ClassMember.find({ class: mongoose.Types.ObjectId(classId), role: mongoose.Types.ObjectId(classRoleStudentId), is_delete: false })
+                        if(arrStudentInClass > 0){
+                            for(let i =0; i< arrStudentInClass.length; i++){
+                                await HomeworkAssign.create({
+                                    user: mongoose.Types.ObjectId(arrStudentInClass[i].user),
                                     class: mongoose.Types.ObjectId(classId),
-                                    homework: mongoose.Types.ObjectId(homework._id),
+                                    homework: mongoose.Types.ObjectId(newHomework._id),
                                     onModel: 'NormalHomework'
                                 })
-                            }
-                            return blogalHomework;
+                            };
                         }
-                        // Trường hợp không chỉ định học sinh
-                        else{
-                            await ClassMember.find({ class: mongoose.Types.ObjectId(classId), role: mongoose.Types.ObjectId(classRoleStudentId) })
-                            .then(classMember => {
-                                for(let i =0; i< classMember.length; i++){
-                                    HomeworkAssign.create({
-                                        user: mongoose.Types.ObjectId(classMember[i].user),
-                                        class: mongoose.Types.ObjectId(classId),
-                                        homework: mongoose.Types.ObjectId(homework._id),
-                                        onModel: 'NormalHomework'
-                                    })
-                                };
-                            })
-                            .catch(err => {
-                                return res.json({
+                    };
+                    const homeworkCreated = await NormalHomework.findById(newHomework._id)
+                                    .populate("homework_type", "-_id -__v")
+                                    .populate("create_by", "-_id -__v -password")
+                                    .populate("homework_category", "-_id -__v")
+                                    .populate("document", "name viewLink downloadLink size");
+                    return res.json({
+                        success: true,
+                        message: "Create homework successfull!",
+                        data: homeworkCreated,
+                        res_code: 200,
+                        res_status: "CREATE_SUCCESSFULLY"
+                    })
+                }
+                else{
+                    let flag = false;
+                    let allCategoryInClass = await HomeworkCategory.find({class: mongoose.Types.ObjectId(classId), is_delete: false})
+                    const allCategoryInClassLengnt = allCategoryInClass.length
+                    if(allCategoryInClassLengnt){
+                        for(let i = 0 ;i< allCategoryInClassLengnt; i++){
+                            if(reqCategory.title == allCategoryInClass[0].title.toLowerCase()){
+                                flag = true;
+                                res.json({
                                     success: false,
-                                    message: 'Server error. Please try again. create homework assign failed',
-                                    error: err,
-                                    res_code: 500,
+                                    message: 'This category already exist!',
+                                    res_code: 422,
                                     res_status: "SERVER_ERROR"
                                 });
-                            });
-                            return blogalHomework;
+                                return;
+                            }
                         }
-                        
-                    })
-                    .then(async blogalHomework => {
-                        if(req.files){
-                            await googleDriveCrud.uploadFile(req.files, blogalHomework)
-                        }
-                    })
-                    .then((blogalHomework)=>{
-                        NormalHomework.findById(homeworkId)
-                            .populate("homework_type", "-_id -__v")
-                            .populate("create_by", "-_id -__v -password")
-                            .populate("document", "name viewLink downloadLink size")
-                            .then(result => {
-                                return res.json({
-                                    success: true,
-                                    message: "Create homework successfull!",
-                                    data: result,
-                                    res_code: 200,
-                                    res_status: "CREATE_SUCCESSFULLY"
-                                })
-                            })
-                    })
-                    .catch(err => {
-                        return res.json({
-                            success: false,
-                            message: 'Server error. Please try again. create homework failed',
-                            error: err,
-                            res_code: 500,
-                            res_status: "SERVER_ERROR"
+                    }
+                    if(flag = false){
+                        const newHomeworkCategory = await HomeworkCategory.create({
+                            title: reqCategory.title,
+                            user: mongoose.Types.ObjectId(userId),
+                            class: mongoose.Types.ObjectId(classId)
                         });
-                    });
-            }
-            else{
-                let categoryId;
-                await HomeworkCategory.findOne({is_delete: false, id_homework_category: reqCategory.id_homework_category})
-                    .then(async category => {
-                        if(!category){
-                            await HomeworkCategory.create({
-                                title: reqCategory.title,
-                                user: mongoose.Types.ObjectId(userId),
-                                class: mongoose.Types.ObjectId(classId)
-                            })
-                            .then(result => {
-                                categoryId = result._id;
-                            })
-                            .catch(err => {
-                                console.log(err);
-                            })
-                            return categoryId;
-                        }
-                        return category._id;
-                    })
-                    .then(async result => {
-                        const newHomework = NormalHomework({
+                        let homework = NormalHomework({
                             title: req.body.title,
                             description: req.body.description,
                             start_date: req.body.start_date,
                             deadline: req.body.deadline,
                             total_scores: reqTotalScore,
-                            homework_type: mongoose.Types.ObjectId(homeWorkTypeId),
-                            create_by: mongoose.Types.ObjectId(userId),
-                            homework_category: mongoose.Types.ObjectId(result)
+                            homework_type: mongoose.Types.ObjectId(newHomeworkCategory._id),
+                            create_by: mongoose.Types.ObjectId(userId)
                         });
-                        await newHomework.save()
-                            .then(async homework => {
-                                await googleDriveCrud.createHomeworkFolder(homework.title,homework._id,parentFolder)
-                                blogalHomework = homework;
-                                homeworkId = homework._id
-                                await ClassHomework.create({
+                        let newHomework = homework.save();
+                        let classHomework = await ClassHomework.create({
+                            class: mongoose.Types.ObjectId(classId),
+                            homework: mongoose.Types.ObjectId(newHomework._id),
+                            onModel: 'NormalHomework'
+                        });
+                        await googleDriveCrud.createHomeworkFolder(newHomework.title,classHomework._id,folder);
+                        if(req.files){
+                            await googleDriveCrud.uploadFile(req.files,classHomework, newHomework)
+                        }
+                        if(reqStudent.length > 0){
+                            let arrayUserId = [];
+                            for(let i = 0; i < reqStudent.length; i++){
+                                let user =  await User.findOne({email: reqStudent[i] })
+                                arrayUserId.push(user._id)
+                            }
+                            for(let i = 0; i< arrayUserId.length; i++){
+                                await HomeworkAssign.create({
+                                    user: mongoose.Types.ObjectId(arrayUserId[i]),
                                     class: mongoose.Types.ObjectId(classId),
-                                    homework: mongoose.Types.ObjectId(homework._id),
+                                    homework: mongoose.Types.ObjectId(newHomework._id),
                                     onModel: 'NormalHomework'
                                 })
-                                .then(result => {
-                                })
-                                .catch(err => {
-                                    return res.json({
-                                        success: false,
-                                        message: 'Server error. Please try again. create class homework failed',
-                                        error: err,
-                                        res_code: 500,
-                                        res_status: "SERVER_ERROR"
-                                    });
-                                });
-                                if(reqStudent.length > 0){
-                                    let arrayUserId = [];
-                                    for(let i = 0; i < reqStudent.length; i++){
-                                        await User.findOne({email: reqStudent[i] })
-                                            .then(result => {
-                                                arrayUserId.push(result.user)
-                                            })
-                                    }
-        
-                                    for(let i = 0; i< arrayUserId.length; i++){
-                                        HomeworkAssign.create({
-                                            user: mongoose.Types.ObjectId(arrayUserId[i]),
-                                            class: mongoose.Types.ObjectId(classId),
-                                            homework: mongoose.Types.ObjectId(homework._id),
-                                            onModel: 'NormalHomework'
-                                        })
-                                    }
-                                    return blogalHomework;
-                                }
-                                else{
-                                    await ClassMember.find({ class: mongoose.Types.ObjectId(classId), role: mongoose.Types.ObjectId(classRoleStudentId) })
-                                    .then(classMember => {
-                                        for(let i =0; i< classMember.length; i++){
-                                            HomeworkAssign.create({
-                                                user: mongoose.Types.ObjectId(classMember[i].user),
-                                                class: mongoose.Types.ObjectId(classId),
-                                                homework: mongoose.Types.ObjectId(homework._id),
-                                                onModel: 'NormalHomework'
-                                            })
-                                        };
+                            }
+                        }
+                        else{
+                            let arrStudentInClass = await ClassMember.find({ class: mongoose.Types.ObjectId(classId), role: mongoose.Types.ObjectId(classRoleStudentId), is_delete: false })
+                            if(arrStudentInClass > 0){
+                                for(let i =0; i< arrStudentInClass.length; i++){
+                                    await HomeworkAssign.create({
+                                        user: mongoose.Types.ObjectId(arrStudentInClass[i].user),
+                                        class: mongoose.Types.ObjectId(classId),
+                                        homework: mongoose.Types.ObjectId(newHomework._id),
+                                        onModel: 'NormalHomework'
                                     })
-                                    .catch(err => {
-                                        return res.json({
-                                            success: false,
-                                            message: 'Server error. Please try again. create homework assign failed',
-                                            error: err,
-                                            res_code: 500,
-                                            res_status: "SERVER_ERROR"
-                                        });
-                                    });
-                                    return blogalHomework;
-                                }   
-                            })
-                            .then(async blogalHomework => {
-                                await googleDriveCrud.uploadFile(req.files, blogalHomework)
-                            })
-                            .then((homework)=>{
-                                NormalHomework.findById(homeworkId)
-                                    .populate("homework_type", "-_id -__v")
-                                    .populate("create_by", "-_id -__v -password")
-                                    .populate("homework_category", "-_id -__v")
-                                    .populate("document", "name viewLink downloadLink size")
-                                    .then(result => {
-                                        return res.json({
-                                            success: true,
-                                            message: "Create homework successfull!",
-                                            data: result,
-                                            res_code: 200,
-                                            res_status: "CREATE_SUCCESSFULLY"
-                                        })
-                                    })
-                            })
-                            .catch(err => {
-                                return res.json({
-                                    success: false,
-                                    message: 'Server error. Please try again. create homework failed',
-                                    error: err,
-                                    res_code: 500,
-                                    res_status: "SERVER_ERROR"
-                                });
-                            });
-                    })
+                                };
+                            }
+                        };
+                        const homeworkCreated = await NormalHomework.findById(newHomework._id)
+                                        .populate("homework_type", "-_id -__v")
+                                        .populate("create_by", "-_id -__v -password")
+                                        .populate("homework_category", "-_id -__v")
+                                        .populate("document", "name viewLink downloadLink size");
+                        return res.json({
+                            success: true,
+                            message: "Create homework successfull!",
+                            data: homeworkCreated,
+                            res_code: 200,
+                            res_status: "CREATE_SUCCESSFULLY"
+                        })
+                    }
+                }
+            }
+            else{
+                return res.json({
+                    success: false,
+                    message: "No access",
+                    res_code: 403,
+                    res_status: "NO_ACCESS"
+                })
             }
         }
-        else{
+        catch(err){
             return res.json({
                 success: false,
-                message: "No access",
-                res_code: 403,
-                res_status: "NO_ACCESS"
-            })
+                message: 'Server error. Please try again',
+                error: err,
+                res_code: 500,
+                res_status: "SERVER_ERROR"
+            });
         }
     };
     // Req: id_class_homework , homework_type : (1, 2, 3)
     async deleteHomework(req, res){
-        let homeworkModel;
-        if(Number(req.body.homework_type) == 1){
-            homeworkModel = NormalHomework;
+        try{
+            let homeworkModel;
+            if(Number(req.body.homework_type) == 1){
+                homeworkModel = NormalHomework;
+            }
+            if(Number(req.body.homework_type) == 2){
+                homeworkModel = '';
+            }
+            if(Number(req.body.homework_type) == 3){
+                homeworkModel = '';
+            }
+            const classHomeWork = await ClassHomework.findOne({id_class_homework: req.body.id_class_homework, is_delete: false})
+                                                        .populate({
+                                                            path: 'homework',
+                                                            populate: [
+                                                            {
+                                                                path: 'create_by'
+                                                            }
+                                                            ]
+                                                        });
+            if(classHomeWork.homework.create_by.email == res.locals.email){
+                await ClassHomework.findOneAndUpdate(
+                    {id_class_homework: req.body.id_class_homework, is_delete: false},
+                    { is_delete : true },
+                    {new: true}
+                );
+                await googleDriveCrud.deleteFolderClass(classHomeWork._id);
+                await HomeworkAssign.updateMany({homework: mongoose.Types.ObjectId(classHomeWork.homework._id), is_delete: false}, {is_delete: true});
+                await homeworkModel.findOneAndUpdate({_id: mongoose.Types.ObjectId(classHomeWork.homework._id), is_delete: false},{is_delete : true}, {new : true} );
+                return res.status(200).json({
+                    success: true,
+                    message: "Delete exercises successfull!",
+                    res_code: 200,
+                    res_status: "DELETE_SUCCESSFULLY"
+                })
+            }
+            else{
+                return res.json({
+                    success: false,
+                    message: "No access",
+                    res_code: 403,
+                    res_status: "NO_ACCESS"
+                })
+            }
         }
-        if(Number(req.body.homework_type) == 2){
-            homeworkModel = '';
-        }
-        if(Number(req.body.homework_type) == 3){
-            homeworkModel = '';
-        }
-        let createBy;
-        await ClassHomework.findOne({id_class_homework: req.body.id_class_homework, is_delete: false})
-            .populate({
-                path: 'homework',
-                populate: [
-                {
-                    path: 'create_by'
-                }
-                ]
-            })
-            .then(result => {
-                createBy = result.homework.create_by.email;
-            })
-        if(createBy == res.locals.email){
-            let homeworkId;
-        await ClassHomework.findOneAndUpdate(
-            {id_class_homework: req.body.id_class_homework, is_delete: false},
-            { is_delete : true },
-            {new: true}
-        ).then(result => {
-            homeworkId = result.homework
-            return homeworkId;
-        })
-        .then(async homeworkId => {
-            await HomeworkAssign.updateMany({homework : mongoose.Types.ObjectId(homeworkId), is_delete: false}, {is_delete : true})
-                .then(result => {
-                })
-                .catch(err => {
-                    console.log(err);
-                    return res.json({
-                        success: false,
-                        message: 'Server error. Please try again. delete home work assign failed',
-                        error: err,
-                        res_code: 500,
-                        res_status: "SERVER_ERROR"
-                    });
-                })
-            return homeworkId
-        })
-        .then(async homeworkId => {
-            console.log(homeworkId)
-            await homeworkModel.findOneAndUpdate({_id: mongoose.Types.ObjectId(homeworkId), is_delete: false},{is_delete : true}, {new : true} )
-                .then(result => {
-                    return res.status(200).json({
-                        success: true,
-                        message: "Delete exercises successfull!",
-                        res_code: 200,
-                        res_status: "DELETE_SUCCESSFULLY"
-                    })
-                })
-                .catch(err => {
-                    console.log(err);
-                    return res.json({
-                        success: false,
-                        message: 'Server error. Delete Homework failed Please try again.',
-                        error: err,
-                        res_code: 500,
-                        res_status: "SERVER_ERROR"
-                    });
-                })
-        })
-        .catch(err => {
-            console.log(err);
+        catch(err){
             return res.json({
                 success: false,
                 message: 'Server error. Please try again.',
@@ -382,16 +257,7 @@ class HomeWorkController{
                 res_code: 500,
                 res_status: "SERVER_ERROR"
             });
-        })
-        }
-        else{
-            return res.json({
-                success: false,
-                message: "No access",
-                res_code: 403,
-                res_status: "NO_ACCESS"
-            })
-        }
+        };
     }
     //  Req:  id_class_homework , homework_type : (1, 2, 3)
     async getDetailHomework(req, res){
