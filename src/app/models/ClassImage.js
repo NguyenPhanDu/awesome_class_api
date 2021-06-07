@@ -27,7 +27,7 @@ const ClassImageSchema = new Schema(
             type: String,
             required: true
         },
-        is_deltete: {
+        is_delete: {
             type: Boolean,
             default: false
         },

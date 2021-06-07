@@ -8,11 +8,11 @@ const sendInviteMemberEmail = require('../../mailers/sendEmailActivate/sendEmail
 class ClassMemberController{
     async getMemberClass(req, res){
         let class_id;
-        await Class.findOne({ id_class: Number(req.body.id_class), is_deltete: false })
+        await Class.findOne({ id_class: Number(req.body.id_class), is_delete: false })
             .then(classs => {
                 class_id = classs._id
             });
-        ClassMember.find({ class: mongoose.Types.ObjectId(class_id), is_deltete: false })
+        ClassMember.find({ class: mongoose.Types.ObjectId(class_id), is_delete: false })
             .populate('role')
             .populate({
                 path:'user',
@@ -110,10 +110,10 @@ class ClassMemberController{
                             });
                         })
                 }
-                if(classMember && classMember.is_deltete == true){
+                if(classMember && classMember.is_delete == true){
                     await ClassMember.findOneAndUpdate(
                         { _id: mongoose.Types.ObjectId(classMember._id) }, 
-                        {status: 2, is_deltete: false},
+                        {status: 2, is_delete: false},
                         { new: true }
                     )
                     .then(result => {
@@ -135,7 +135,7 @@ class ClassMemberController{
                         });
                     })
                 }
-                if(classMember && classMember.is_deltete == false){
+                if(classMember && classMember.is_delete == false){
                     return res.json({
                         success: false,
                         message: "This member is joined class.",
@@ -207,14 +207,14 @@ class ClassMemberController{
                 statusMember = classMember.status;
             })
 
-        let query = {class: mongoose.Types.ObjectId(id_class), user: mongoose.Types.ObjectId(id_user_deleted), is_deltete: false};
+        let query = {class: mongoose.Types.ObjectId(id_class), user: mongoose.Types.ObjectId(id_user_deleted), is_delete: false};
         let update = 
             {
-                is_deltete: true
+                is_delete: true
             };
         let option = {new: true};
 
-        await ClassMember.findOne({ class: mongoose.Types.ObjectId(id_class), user: mongoose.Types.ObjectId(id_user_deleted), is_deltete: false })
+        await ClassMember.findOne({ class: mongoose.Types.ObjectId(id_class), user: mongoose.Types.ObjectId(id_user_deleted), is_delete: false })
             .populate('role')
             .populate({
                 path:'user',
@@ -329,14 +329,14 @@ class ClassMemberController{
             .then(classs => {
                 id_class = classs._id;
             });
-        let query = {class: mongoose.Types.ObjectId(id_class), user: mongoose.Types.ObjectId(userId), is_deltete: false};
+        let query = {class: mongoose.Types.ObjectId(id_class), user: mongoose.Types.ObjectId(userId), is_delete: false};
         let update = 
             {
-                is_deltete: true
+                is_delete: true
             };
         let option = {new: true};
 
-        await ClassMember.findOne({ class : mongoose.Types.ObjectId(id_class), user : mongoose.Types.ObjectId(userId), is_deltete : false})
+        await ClassMember.findOne({ class : mongoose.Types.ObjectId(id_class), user : mongoose.Types.ObjectId(userId), is_delete : false})
             .populate('role')
             .populate({
                 path:'user',
@@ -381,11 +381,11 @@ class ClassMemberController{
                 classRole = classRolez._id
             })
         let class_id;
-        await Class.findOne({ id_class: Number(req.body.id_class), is_deltete: false })
+        await Class.findOne({ id_class: Number(req.body.id_class), is_delete: false })
             .then(classs => {
                 class_id = classs._id
             });
-        ClassMember.find({ class: mongoose.Types.ObjectId(class_id),role: mongoose.Types.ObjectId(classRole) ,is_deltete: false })
+        ClassMember.find({ class: mongoose.Types.ObjectId(class_id),role: mongoose.Types.ObjectId(classRole) ,is_delete: false })
             .populate('role')
             .populate({
                 path:'user',

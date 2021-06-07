@@ -18,7 +18,7 @@ const ClassMemberSchema = Schema({
     status: {
         type: Number,
     },
-    is_deltete: {
+    is_delete: {
         type: Boolean,
         default: false
     },

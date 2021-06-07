@@ -18,7 +18,7 @@ const DirectorySchema = Schema(
         refId: {
             type: String
         },
-        is_deltete: {
+        is_delete: {
             type: Boolean,
             default: false
         },

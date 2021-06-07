@@ -5,7 +5,7 @@ const Schema = mongoose.Schema;
 const UserTypeSchema = Schema(
     {
         name: {type: String, require: true, unique: true},
-        is_deltete: {
+        is_delete: {
             type: Boolean,
             default: false
         },

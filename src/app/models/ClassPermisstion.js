@@ -12,7 +12,7 @@ const ClassPermissionSchema = Schema(
             type: Boolean,
             default: true
         },
-        is_deltete: {
+        is_delete: {
             type: Boolean,
             default: false
         },

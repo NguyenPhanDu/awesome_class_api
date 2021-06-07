@@ -127,7 +127,7 @@ async function deleteFolder(refId){
     try{
         let path;
         let folderId;
-        await Directory.findOne({refId: refId, is_deltete: false})
+        await Directory.findOne({refId: refId, is_delete: false})
             .then(result => {
                 path = result.path;
                 folderId = result.id_folder;
@@ -135,7 +135,7 @@ async function deleteFolder(refId){
             })
             .then(async path => {
                 console.log(path)
-                await Directory.updateMany({path: { $regex: '.*' + path + '.*' }, is_deltete: false}, { is_deltete: true })
+                await Directory.updateMany({path: { $regex: '.*' + path + '.*' }, is_delete: false}, { is_delete: true })
                 .then(result => {
                     console.log('delete foler!')
                 })
@@ -146,10 +146,10 @@ async function deleteFolder(refId){
                 return path;
             })
             .then(async path => {
-                await File.find({path: { $regex: '.*' + path + '.*' }, is_deltete: false})
+                await File.find({path: { $regex: '.*' + path + '.*' }, is_delete: false})
                     .then(async result => {
                         if(result.length > 0){
-                            await File.updateMany({path: { $regex: '.*' + path + '.*' }, is_deltete: false}, { is_deltete: true })
+                            await File.updateMany({path: { $regex: '.*' + path + '.*' }, is_delete: false}, { is_delete: true })
                             .then(result => {
                                 console.log('delete file');
                             })
@@ -172,7 +172,7 @@ async function deleteFolder(refId){
 async function uploadFile (files, homework){
     for(let i =0; i<files.length;i++){
         let folderHomework;
-            await Directory.findOne({refId: homework._id, name: 'Teacher', is_deltete: false})
+            await Directory.findOne({refId: homework._id, name: 'Teacher', is_delete: false})
             .then(result => {
                 folderHomework = result
             })

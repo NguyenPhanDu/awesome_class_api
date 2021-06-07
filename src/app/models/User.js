@@ -29,7 +29,7 @@ const userSchema = new Schema(
             type: Number,
             default: 1
         },
-        is_deltete: {
+        is_delete: {
             type: Boolean,
             default: false
         },

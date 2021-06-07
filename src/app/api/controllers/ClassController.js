@@ -49,7 +49,7 @@ class ClassController{
                         console.log(err);
                     });
                 let newClassPopulate;
-                await Class.findOne({_id : newClass._id, is_deltete: false})
+                await Class.findOne({_id : newClass._id, is_delete: false})
                     .populate({
                         path: 'admin',
                         select:['profile','email']
@@ -183,87 +183,132 @@ class ClassController{
     };
 
     async deleteClass(req, res){
-        let query = {id_class: Number(req.body.id_class), is_deltete : false};
-        let update = 
-            {
-                is_deltete: true
+        // let query = {id_class: Number(req.body.id_class), is_deltete : false};
+        // let update = 
+        //     {
+        //         is_deltete: true
+        //     };
+        // let option = {new: true}
+        // await Class.findOne({id_class: req.body.id_class, is_deltete: false})
+        //         .populate({
+        //             path: 'admin',
+        //             select:['profile','email']
+        //         })
+        //         .then(async classs => {
+        //             if(classs){
+        //                 if(classs.admin.email == res.locals.email){
+        //                     await googleDriveCrud.deleteFolder(classs._id)
+        //                     await ClassPermission.findOneAndUpdate({_id: mongoose.Types.ObjectId(classs.permission)},update,option)
+        //                         .then(result =>{})
+        //                         .catch(err => {
+        //                             console.log(err);
+        //                             return res.json({
+        //                                 success: false,
+        //                                 message: 'Server error. Please try again. delete class permisstion failed ',
+        //                                 error: err,
+        //                                 res_code: 500,
+        //                                 res_status: "SERVER_ERROR"
+        //                             });
+        //                         });
+        //                     await ClassMember.updateMany(
+        //                         { class: mongoose.Types.ObjectId(classs._id) },
+        //                         { is_deltete: true }
+        //                     )
+        //                     .then( result => {})
+        //                     .catch(err => {
+        //                         console.log(err);
+        //                         return res.json({
+        //                             success: false,
+        //                             message: 'Server error. Please try again. delete class member failed ',
+        //                             error: err,
+        //                             res_code: 500,
+        //                             res_status: "SERVER_ERROR"
+        //                         });
+        //                     })
+        //                     await Class.findOneAndUpdate(query, update, option)
+        //                         .then(classs => {
+        //                             return res.status(200).json({
+        //                                 success: true,
+        //                                 message: "Delete classroom successfull!",
+        //                                 res_code: 200,
+        //                                 res_status: "DELETE_SUCCESSFULLY"
+        //                             })
+        //                         })
+        //                         .catch(err => {
+        //                             console.log(err);
+        //                             return res.json({
+        //                                 success: false,
+        //                                 message: 'Server error. Please try again.',
+        //                                 error: err,
+        //                                 res_code: 500,
+        //                                 res_status: "SERVER_ERROR"
+        //                             });
+        //                         })
+        //                 }
+        //                 else{
+        //                     return res.json({
+        //                         success: false,
+        //                         message: "No access",
+        //                         res_code: 403,
+        //                         res_status: "NO_ACCESS"
+        //                     })
+        //                 }
+        //             }
+        //         })
+        //         .catch(err=>{
+        //             return res.json({
+        //                 success: false,
+        //                 message: 'Server error. Please try again.',
+        //                 error: err,
+        //                 res_code: 500,
+        //                 res_status: "SERVER_ERROR"
+        //             });
+        //         })
+        try{
+            const query = {id_class: Number(req.body.id_class), is_delete : false};
+            const update = {
+                is_delete: true
             };
-        let option = {new: true}
-        await Class.findOne({id_class: req.body.id_class, is_deltete: false})
-                .populate({
-                    path: 'admin',
-                    select:['profile','email']
+            const option = {
+                new: true
+            }
+
+            let classFinded = await Class.findOne(query)
+                                            .populate({
+                                                path: 'admin',
+                                                select:['profile','email']
+                                            });
+            if (classFinded && classFinded.admin.email == res.locals.email){
+                await googleDriveCrud.deleteFolder(classFinded._id);
+                await ClassPermission.findOneAndUpdate({_id: mongoose.Types.ObjectId(classFinded.permission)},update,option);
+                await ClassMember.updateMany({ class: mongoose.Types.ObjectId(classFinded._id) },update);
+                await Class.findOneAndUpdate(query, update, option);
+                await ClassHomework.updateMany({class: mongoose.Types.ObjectId(classFinded._id)}, update);
+                return res.status(200).json({
+                            success: true,
+                            message: "Delete classroom successfull!",
+                            res_code: 200,
+                            res_status: "DELETE_SUCCESSFULLY"
+                        })
+            }
+            else{
+                return res.json({
+                    success: false,
+                    message: "No access",
+                    res_code: 403,
+                    res_status: "NO_ACCESS"
                 })
-                .then(async classs => {
-                    if(classs){
-                        if(classs.admin.email == res.locals.email){
-                            await googleDriveCrud.deleteFolder(classs._id)
-                            await ClassPermission.findOneAndUpdate({_id: mongoose.Types.ObjectId(classs.permission)},update,option)
-                                .then(result =>{})
-                                .catch(err => {
-                                    console.log(err);
-                                    return res.json({
-                                        success: false,
-                                        message: 'Server error. Please try again. delete class permisstion failed ',
-                                        error: err,
-                                        res_code: 500,
-                                        res_status: "SERVER_ERROR"
-                                    });
-                                });
-                            await ClassMember.updateMany(
-                                { class: mongoose.Types.ObjectId(classs._id) },
-                                { is_deltete: true }
-                            )
-                            .then( result => {})
-                            .catch(err => {
-                                console.log(err);
-                                return res.json({
-                                    success: false,
-                                    message: 'Server error. Please try again. delete class member failed ',
-                                    error: err,
-                                    res_code: 500,
-                                    res_status: "SERVER_ERROR"
-                                });
-                            })
-                            await Class.findOneAndUpdate(query, update, option)
-                                .then(classs => {
-                                    return res.status(200).json({
-                                        success: true,
-                                        message: "Delete classroom successfull!",
-                                        res_code: 200,
-                                        res_status: "DELETE_SUCCESSFULLY"
-                                    })
-                                })
-                                .catch(err => {
-                                    console.log(err);
-                                    return res.json({
-                                        success: false,
-                                        message: 'Server error. Please try again.',
-                                        error: err,
-                                        res_code: 500,
-                                        res_status: "SERVER_ERROR"
-                                    });
-                                })
-                        }
-                        else{
-                            return res.json({
-                                success: false,
-                                message: "No access",
-                                res_code: 403,
-                                res_status: "NO_ACCESS"
-                            })
-                        }
-                    }
-                })
-                .catch(err=>{
-                    return res.json({
-                        success: false,
-                        message: 'Server error. Please try again.',
-                        error: err,
-                        res_code: 500,
-                        res_status: "SERVER_ERROR"
-                    });
-                })
+            }
+        }
+        catch (err) {
+            return res.json({
+                success: false,
+                message: 'Server error. Please try again.',
+                error: err,
+                res_code: 500,
+                res_status: "SERVER_ERROR"
+            });
+        };
     };
     // status: 0 = admin, 1= actived, 2= pending, 3= disable
     async getAllClass(req, res){
@@ -272,7 +317,7 @@ class ClassController{
             .then(user => {
                 adminId = user._id
             });
-        await ClassMember.find({user: mongoose.Types.ObjectId(adminId), is_deltete: false, $or: [{ status: 0 }, {status : 1}]})
+        await ClassMember.find({user: mongoose.Types.ObjectId(adminId), is_delete: false, $or: [{ status: 0 }, {status : 1}]})
             .populate({
                 path:'user',
                 select:['profile','email', 'user_type', 'id_user'], 
@@ -293,7 +338,7 @@ class ClassController{
                     }
                     ]
                     ,
-                    match: { is_deltete: { $eq: false} }
+                    match: { is_delete: { $eq: false} }
                 }
             )
             .then(async result => {
@@ -302,14 +347,14 @@ class ClassController{
                     return classss.class != null
                 });
                 for(let classs of newClassArray){
-                    await ClassMember.countDocuments({class: mongoose.Types.ObjectId(classs.class._id), is_deltete: false ,$or: [{ status: 0 }, {status : 1}, {status : 3}]})
+                    await ClassMember.countDocuments({class: mongoose.Types.ObjectId(classs.class._id), is_delete: false ,$or: [{ status: 0 }, {status : 1}, {status : 3}]})
                         .then(count =>{
                             classs.class.member = count;
                         })
                         .catch(error => {
                             console.log(error);
                         }); 
-                    await ClassHomework.countDocuments({ class: mongoose.Types.ObjectId(classs.class._id), is_deltete: false })
+                    await ClassHomework.countDocuments({class: mongoose.Types.ObjectId(classs.class._id), is_delete: false })
                         .then(count => {
                             classs.class.exercises = count;
                         })
@@ -488,11 +533,11 @@ class ClassController{
                                         });
                                     })
                             }
-                            if(classMember.is_deltete == true){
+                            if(classMember.is_delete == true){
                                 let query = {class: mongoose.Types.ObjectId(classMember.class), user: mongoose.Types.ObjectId(classMember.user)};
                                 let update = 
                                     {
-                                        is_deltete: false
+                                        is_delete: false
                                     };
                                 let option = {new: true};
                                 await ClassMember.findOneAndUpdate(query, update, option)
