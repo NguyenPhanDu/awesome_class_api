@@ -1,12 +1,13 @@
  - Quản lý thư mục trên google drive: 
         ** google drive quản lý theo id, name
-
-        folder class 
-            => folder bài tập (1)
-                => folder chứa bài tập đc giao
-                        =>>> các file
-                => folder chứa file bài tập nộp của sinh viên (2)
-                        =>>> các file
+        folder user
+                folder class 
+                        => folder bài tập (1)
+                                => folder teacher
+                                        =>>> các file
+                                => folder studen chức các thư mục nộp bài của student
+                                        =>>> các folder tên student
+                                                => các file
 
  - Khi tạo class sẽ tạo ra folder tên class đó !
  - Khi tạo bài tập sẽ tạo ra folder (1) (2)
@@ -24,16 +25,46 @@
  Schema model: 
 
  + directories{
+         path:
         _id,
         id_folder
         name: 
-        parent: this,
-        is_delete
+        parent: this,(_id của folder chứa nó)
+        is_delete:
+        level;
+        user_drive:
  }
 
  + file {
+         path: 
          _id,
          id_file
          name:,
-         parent
- }
+         parent: _id (_id của folder chứa nó)
+         level: 
+}
+
+bao gồm chứ các folder của học sinh, giáo viên
+bao gồm file giao tham khỏa và file nộp bài tập
+
+folderUser{
+        user:
+        folder:
+}
+
+folderHomework{
+        _id;
+        class:
+        user:
+        homework:
+        folder:
+}
+
+fileHomework: {
+        _id;
+        class:
+        user:
+        homework:
+        file:
+}
+

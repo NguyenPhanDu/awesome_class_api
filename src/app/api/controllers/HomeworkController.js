@@ -13,7 +13,7 @@ const Directory = require('../../models/Directory');
 
 
 class HomeWorkController{
-    // Req:  id_class, title, description, deadline, start_date, total_scores, category : { title, id_homework_category}, student[];
+    // Req:  id_class, title, description, deadline, start_date, total_scores, category : { title, id_homework_category}, emails[];
     async createNormalHomework(req, res){
         try{
             let reqStudent = await JSON.parse(req.body.emails);
@@ -73,14 +73,14 @@ class HomeWorkController{
                     }
                     else{
                         let arrStudentInClass = await ClassMember.find({ class: mongoose.Types.ObjectId(classId), role: mongoose.Types.ObjectId(classRoleStudentId), is_delete: false })
-                        if(arrStudentInClass > 0){
+                        if(arrStudentInClass.length > 0){
                             for(let i =0; i< arrStudentInClass.length; i++){
                                 await HomeworkAssign.create({
                                     user: mongoose.Types.ObjectId(arrStudentInClass[i].user),
                                     class: mongoose.Types.ObjectId(classId),
                                     homework: mongoose.Types.ObjectId(newHomework._id),
                                     onModel: 'NormalHomework'
-                                })
+                                });
                             };
                         }
                     };
@@ -261,49 +261,42 @@ class HomeWorkController{
     }
     //  Req:  id_class_homework , homework_type : (1, 2, 3)
     async getDetailHomework(req, res){
-        let homeworkModel;
-        if(Number(req.body.homework_type) == 1){
-            homeworkModel = NormalHomework;
-        }
-        if(Number(req.body.homework_type) == 2){
-            homeworkModel = '';
-        }
-        if(Number(req.body.homework_type) == 3){
-            homeworkModel = '';
-        }
-        let homeworkId;
-        await ClassHomework.findOne({id_class_homework: req.body.id_class_homework, is_delete: false})
-        .then(classHomework => {
-            homeworkId = classHomework.homework
-            return homeworkId;
-        })
-        .then(async homeworkId => {
-            await homeworkModel.findOne({_id : mongoose.Types.ObjectId(homeworkId)})
+        try{
+            let homeworkModel;
+            if(Number(req.body.homework_type) == 1){
+                homeworkModel = NormalHomework;
+            }
+            if(Number(req.body.homework_type) == 2){
+                homeworkModel = '';
+            }
+            if(Number(req.body.homework_type) == 3){
+                homeworkModel = '';
+            }
+            const classHomework = await ClassHomework.findOne({id_class_homework: req.body.id_class_homework, is_delete: false});
+            let homeworkId = classHomework.homework;
+            let homeworkNoAssigned = await homeworkModel.findOne({_id : mongoose.Types.ObjectId(homeworkId)})
                 .populate('homework_category',"title id_homework_category")
                 .populate('homework_type',"name id_homework_type")
                 .populate('create_by', "-password")
-                .populate("document", "name viewLink downloadLink size")
-                .then(homework => {
-                    return res.status(200).json({
-                        success: true,
-                        message: "get detail exercise successfull!",
-                        data: homework,
-                        res_code: 200,
-                        res_status: "DELETE_SUCCESSFULLY"
-                    })
-                })
-                .catch(err => {
-                    console.log(err);
-                    return res.json({
-                        success: false,
-                        message: 'Server error. get homework failed.',
-                        error: err,
-                        res_code: 500,
-                        res_status: "SERVER_ERROR"
-                    });
-                })
-        })
-        .catch(err => {
+                .populate("document", "name viewLink downloadLink size");
+            let arrayStudentAssgined = await HomeworkAssign.find({ homework: mongoose.Types.ObjectId(homeworkNoAssigned._id) })
+                                                .populate('user', '-__v, -password');
+            let arrayStudentAssginedEmail = [];
+            arrayStudentAssgined.forEach(student => {
+                arrayStudentAssginedEmail.push(student.user.email);
+            });
+            console.log(arrayStudentAssginedEmail)
+            let finalResult = JSON.parse(JSON.stringify(homeworkNoAssigned));
+            finalResult['student_assgined'] = arrayStudentAssginedEmail;
+            return res.status(200).json({
+                success: true,
+                message: "get detail exercise successfull!",
+                data: finalResult,
+                res_code: 200,
+                res_status: "DELETE_SUCCESSFULLY"
+            })
+        }
+        catch(err){
             console.log(err);
             return res.json({
                 success: false,
@@ -312,7 +305,7 @@ class HomeWorkController{
                 res_code: 500,
                 res_status: "SERVER_ERROR"
             });
-        })
+        }
     }
 
     // Get all homework of user login create and assgined
@@ -420,9 +413,15 @@ class HomeWorkController{
             res_status: "CREATE_SUCCESSFULLY"
         })
     };
-
+    // Req:  id_class, title, description, deadline, start_date, total_scores, category : { title, id_homework_category}, emails[];
     async updateNormalHomework(req, res){
-        
+        // các bảng data liên quan, File, Nomarl homework, Home assgin
+        try{
+
+        }
+        catch{
+
+        }
     }
 }
 
