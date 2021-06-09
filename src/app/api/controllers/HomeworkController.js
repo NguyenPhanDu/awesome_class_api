@@ -8,9 +8,7 @@ const ClassHomework = require('../../models/ClassHomework');
 const HomeworkAssign = require('../../models/HomeworkAssign');
 const ClassRole = require('../../models/ClassRole');
 const HomeworkCategory = require('../../models/HomeworkCategory');
-const googleDriveCrud = require('../../google_drive/index');
-const Directory = require('../../models/Directory');
-
+const FolerServices = require('../../services/file_and_folder/index');
 
 class HomeWorkController{
     // Req:  id_class, title, description, deadline, start_date, total_scores, category : { title, id_homework_category}, emails[];
@@ -28,7 +26,7 @@ class HomeWorkController{
             let userId = user._id;
             const classs = await Class.findOne({id_class : Number(req.body.id_class)})
             let classId = classs._id
-            const folder = await Directory.findOne({refId: classId})
+            //const folder = await Directory.findOne({refId: classId})
             const homeWorkType =  await HomeworkType.findOne({id_homework_type: 1});
             let homeWorkTypeId = homeWorkType._id
             //Vai trò của user trong class (tìm giáo viên chỉ giáo viên mới đc tạo)
@@ -52,9 +50,8 @@ class HomeWorkController{
                         homework: mongoose.Types.ObjectId(newHomework._id),
                         onModel: 'NormalHomework'
                     });
-                    await googleDriveCrud.createHomeworkFolder(newHomework.title,classHomework._id,folder);
+                    //await FolerServices.createFolderHomework(userId,classId,classHomework);
                     if(req.files){
-                        await googleDriveCrud.uploadFile(req.files,classHomework, newHomework)
                     }
                     if(reqStudent.length > 0){
                         let arrayUserId = [];
@@ -136,9 +133,7 @@ class HomeWorkController{
                             homework: mongoose.Types.ObjectId(newHomework._id),
                             onModel: 'NormalHomework'
                         });
-                        await googleDriveCrud.createHomeworkFolder(newHomework.title,classHomework._id,folder);
                         if(req.files){
-                            await googleDriveCrud.uploadFile(req.files,classHomework, newHomework)
                         }
                         if(reqStudent.length > 0){
                             let arrayUserId = [];
@@ -193,6 +188,7 @@ class HomeWorkController{
             }
         }
         catch(err){
+            console.log(err);
             return res.json({
                 success: false,
                 message: 'Server error. Please try again',
@@ -230,7 +226,6 @@ class HomeWorkController{
                     { is_delete : true },
                     {new: true}
                 );
-                await googleDriveCrud.deleteFolderClass(classHomeWork._id);
                 await HomeworkAssign.updateMany({homework: mongoose.Types.ObjectId(classHomeWork.homework._id), is_delete: false}, {is_delete: true});
                 await homeworkModel.findOneAndUpdate({_id: mongoose.Types.ObjectId(classHomeWork.homework._id), is_delete: false},{is_delete : true}, {new : true} );
                 return res.status(200).json({

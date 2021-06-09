@@ -4,6 +4,21 @@ const Schema = mongoose.Schema;
 
 const FileSchema = Schema(
     {
+        class_homework: {
+            type: Schema.Types.ObjectId,
+            ref: 'ClassHomework'
+        },
+        class: {
+            type: Schema.Types.ObjectId, 
+            ref:  'Class'
+        },
+        create_by: {
+            type: Schema.Types.ObjectId, 
+            ref:  'User'
+        },
+        type: {
+            type: Number
+        },
         id_file: {
             type: String
         },
@@ -12,7 +27,7 @@ const FileSchema = Schema(
         },
         parent : {
             type: Schema.Types.ObjectId, 
-            ref:  'Directory'
+            ref: 'Folder'
         },
         path: {
             type: String,

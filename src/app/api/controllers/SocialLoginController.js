@@ -6,6 +6,7 @@ const jwt = require('jsonwebtoken');
 const sendActiveMail = require('../../mailers/sendEmailActivate/sendEmailActivate');
 const generateRandomCode = require('../../../helpers/index');
 const imgur = require('../../imgur/service');
+const FolerServices = require('../../services/file_and_folder/index');
 class SocialLogin{
     async loginWithFacebook(req, res){
         let user_type_id;
@@ -42,6 +43,7 @@ class SocialLogin{
                     });
                     await user.save()
                         .then(async user => {
+                            await FolerServices.createUserFolder(user);
                             let userImgage = new UserImage({
                                 user : mongoose.Types.ObjectId(user._id),
                                 image_type: 1,

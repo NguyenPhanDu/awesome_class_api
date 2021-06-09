@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const AutoIncrement = require('mongoose-sequence')(mongoose);
 const Schema = mongoose.Schema;
 
-const DirectorySchema = Schema(
+const FolderSchema = Schema(
     {
         id_folder: {
             type: String
@@ -15,23 +15,23 @@ const DirectorySchema = Schema(
             default: ''
         },
         parent : this,
-        refId: {
-            type: String
-        },
         is_delete: {
             type: Boolean,
             default: false
         },
-        mimeType: {
-            type: String
+        level: {
+            type: Number
+        },
+        type: {
+            type: Number
         }
     },
     {
         timestamps :true,
-        collection: 'directories'
+        collection: 'folders'
     }
 );
 
-DirectorySchema.plugin(AutoIncrement, {inc_field: 'id_directory'});
+FolderSchema.plugin(AutoIncrement, {inc_field: 'id_folders'});
 
-module.exports = mongoose.model('Directory',DirectorySchema);
+module.exports = mongoose.model('Folder',FolderSchema);

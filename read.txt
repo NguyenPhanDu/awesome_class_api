@@ -1,70 +1,244 @@
  - Quản lý thư mục trên google drive: 
         ** google drive quản lý theo id, name
+        1
         folder user
-                folder class 
+                2
+                folder class
+                        3
                         => folder bài tập (1)
+                                4
                                 => folder teacher
+                                        5
                                         =>>> các file
                                 => folder studen chức các thư mục nộp bài của student
+                                        5
                                         =>>> các folder tên student
+                                                6
                                                 => các file
 
- - Khi tạo class sẽ tạo ra folder tên class đó !
- - Khi tạo bài tập sẽ tạo ra folder (1) (2)
- - Khi học sinh nộp bài các file nộp sẽ vào folder (2)
- - Khi xóa bài tập thì xóa lun 2 folder
- - Khi xóa class thì xóa cả folder class
 
- - cơ sở dữ liệu áp ứng được các tiêu chí: 
- + Lưu đc thông tin các folder, file
- + Giáo viên có thể xem đc các file học sinh đã nộp
- + Hiển thị các file kèm theo bài tập giáo viên giao
- + Biết được folder nào là của bài tập nào lớp nào, học sinh nôp file nào
+folder(trong folder tự ref tới chính mình, 1 folder có nhiều folder) => bảng folder; user
+file (1 file thuộc 1 folder, của 1 user) => bảng file: _id folder; user
+1 folder class thì có nhiều folder bài tập:  
+1 folder class có nhiều folder: bảng folderclass class 
+1 folder user có nhiều folder class : bảng folder user 
 
-
- Schema model: 
-
- + directories{
-         path:
-        _id,
-        id_folder
-        name: 
-        parent: this,(_id của folder chứa nó)
-        is_delete:
-        level;
-        user_drive:
- }
-
- + file {
-         path: 
-         _id,
-         id_file
-         name:,
-         parent: _id (_id của folder chứa nó)
-         level: 
-}
-
-bao gồm chứ các folder của học sinh, giáo viên
-bao gồm file giao tham khỏa và file nộp bài tập
-
-folderUser{
+ // UserFoler
+{      
+        _id:
         user:
-        folder:
-}
+        folder: {
 
-folderHomework{
-        _id;
+        }
+}
+// ClassFolder
+{
+        _id:
         class:
-        user:
-        homework:
-        folder:
+        //UserFoler
+        user_folder: {
+                _id:
+                user:
+                folder: {
+
+                } 
+        }
+}
+//HomeworkFolder
+{
+      _id:
+      homework:
+      class_folder: {
+                id:
+                class:
+                user_folder: {
+                        _id:
+                        user:
+                        folder: {
+
+                        } 
+                }
+      }  
 }
 
-fileHomework: {
-        _id;
-        class:
-        user:
-        homework:
-        file:
+const mongoose = require('mongoose');
+const AutoIncrement = require('mongoose-sequence')(mongoose);
+const Schema = mongoose.Schema;
+
+const FileSchema = Schema(
+    {
+        class_homework: {
+            type: Schema.Types.ObjectId,
+            ref: 'ClassHomework'
+        },
+        class: {
+            type: Schema.Types.ObjectId, 
+            ref:  'Class'
+        },
+        create_by: {
+            type: Schema.Types.ObjectId, 
+            ref:  'User'
+        },
+        type: {
+            type: Number
+        },
+        id_file: {
+            type: String
+        },
+        name: {
+            type: String
+        },
+        parent : {
+            type: Schema.Types.ObjectId, 
+            ref:  'Folder'
+        },
+        path: {
+            type: String,
+            default: ''
+        },
+        mimeType: {
+            type: String
+        },
+        is_delete: {
+            type: Boolean,
+            default: false
+        },
+        viewLink: {
+            type: String,
+            default: ""
+        },
+        downloadLink: {
+            type: String,
+            default: ""
+        },
+        size: {
+            type: Number,
+        }
+    },
+    {
+        timestamps :true,
+        collection: 'files'
+    }
+);
+
+FileSchema.plugin(AutoIncrement, {inc_field: 'id_files'});
+
+module.exports = mongoose.model('File',FileSchema);
+
+
+async function deleteFolderClass(refId){
+    try{
+        let path;
+        await Directory.findOne({refId: refId, is_delete: false})
+            .then(result => {
+                path = result.path;
+                folderId = result.id_folder;
+                return path;
+            })
+            .then(async path => {
+                console.log(path)
+                await Directory.updateMany({path: { $regex: '.*' + path + '.*' }, is_delete: false}, { is_delete: true })
+                .then(result => {
+                    console.log('delete foler!')
+                })
+                .catch(err => {
+                    console.log(err);
+                    return;
+                })
+                return path;
+            })
+            .then(async path => {
+                await File.find({path: { $regex: '.*' + path + '.*' }, is_delete: false})
+                    .then(async result => {
+                        if(result.length > 0){
+                            await File.updateMany({path: { $regex: '.*' + path + '.*' }, is_delete: false}, { is_delete: true })
+                            .then(result => {
+                                console.log('delete file');
+                            })
+                            .catch(err => {
+                                console.log(err);
+                            })
+                        }
+                        console.log('delete file');
+                    })
+            })
+            .catch(err => {
+                console.log(err)
+            });
+    }
+    catch(err){
+        console.log(err)
+    }
 }
 
+// homework: NormalHomework ,,,
+async function uploadFile (files, classHomeWork, homework){
+    for(let i =0; i<files.length;i++){
+        let folderHomework;
+            await Directory.findOne({refId: classHomeWork._id, name: 'Teacher', is_delete: false})
+            .then(result => {
+                folderHomework = result
+            })
+        await drive.files.create({
+            resource: {
+                name: files[i].originalname,
+                mimetype: files[i].mimetype,
+                parents: [folderHomework.id_folder]
+            },
+            media: {
+                mimeType: files[i].mimetype,
+                body: fs.createReadStream(files[i].path)
+            }
+        })
+        .then(async result => {
+            let id = result.data.id;
+            let name = result.data.name;
+            let mineType = result.data.mineType;
+            let path = folderHomework.path+result.data.name
+            let viewLink;
+            let downloadLink;
+            await drive.permissions.create({
+                fileId: result.data.id,
+                requestBody:{
+                    role: 'reader',
+                    type: 'anyone'
+                }
+            });
+            await drive.files.get({
+                fileId: result.data.id,
+                fields: 'webViewLink, webContentLink'
+            })
+            .then(result => {
+                viewLink = result.data.webViewLink,
+                downloadLink = result.data.webContentLink
+            });
+            await File.create({
+                id_file: id,
+                name: name,
+                parent: folderHomework._id,
+                path: path,
+                mimeType: mineType,
+                viewLink: viewLink,
+                downloadLink: downloadLink,
+                size: files[i].size
+            })
+            .then(async result => {
+                console.log("create File!")
+                await NormalHomework.findOneAndUpdate(
+                    {_id: mongoose.Types.ObjectId(homework._id)},
+                    {
+                        $push: {document: result._id}
+                    },
+                    {new: true}
+                )
+                .then(result => {
+                    console.log(result);
+                })
+            })
+        })
+        .catch(err => {
+            console.log(err);
+        })
+        await unlinkAsync(files[i].path);
+    }
+}

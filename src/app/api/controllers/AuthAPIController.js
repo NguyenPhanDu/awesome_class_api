@@ -6,7 +6,7 @@ const secretKeyJwt = require('../../../config/auth')
 const jwt = require('jsonwebtoken');
 const sendActiveMail = require('../../mailers/sendEmailActivate/sendEmailActivate')
 const generateRandomCode = require('../../../helpers/index')
-
+const FolerServices = require('../../services/file_and_folder/index');
 class UserController{
     async signUp(req, res){
         let user_type_id;
@@ -22,6 +22,7 @@ class UserController{
         });
         await user.save()
             .then(async user => {
+                await FolerServices.createUserFolder(user);
                 let user2;
                 await User.findOne({_id : user._id}).populate('user_type')
                     .then( newUser =>{
