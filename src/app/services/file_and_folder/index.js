@@ -5,6 +5,9 @@ const FolerUser = require('../../models/FolderUser');
 const FolderClass = require('../../models/FolderClass');
 const FolderHomework = require('../../models/FolderHomework');
 const ClassHomework = require('../../models/ClassHomework');
+const File = require('../../models/File');
+const NormalHomework = require('../../models/NormalHomework');
+const fs = require('fs');
 
 async function createUserFolder(user){
     try{
@@ -32,7 +35,7 @@ async function createUserFolder(user){
         console.log(err);
         return;
     }
-}
+};
 
 async function createClassFolder (userId, classs){
     try{
@@ -65,7 +68,7 @@ async function createClassFolder (userId, classs){
         console.log(err);
         return;
     }
-}
+};
 
 async function createFolderHomework(userId, classId, classHomework){
     try{
@@ -91,11 +94,13 @@ async function createFolderHomework(userId, classId, classHomework){
             parent: parentFolder.folder._id
         });
         const newFolderHomework = await folderchema.save();
-        const folderHomework = await FolderHomework.create({
+        await FolderHomework.create({
             create_by: mongoose.Types.ObjectId(userId),
             class: mongoose.Types.ObjectId(classId),
             class_homework: mongoose.Types.ObjectId(classHomework._id),
-            folder: mongoose.Types.ObjectId(newFolderHomework._id)
+            folder: mongoose.Types.ObjectId(newFolderHomework._id),
+            level: 3,
+            type: 0
         })
         // Folder Teacher
         const folerTeacherDrive = response = await drive.files.create({
@@ -118,7 +123,9 @@ async function createFolderHomework(userId, classId, classHomework){
             create_by: mongoose.Types.ObjectId(userId),
             class: mongoose.Types.ObjectId(classId),
             class_homework: mongoose.Types.ObjectId(classHomework._id),
-            folder: mongoose.Types.ObjectId(newFolerTeacher._id)
+            folder: mongoose.Types.ObjectId(newFolerTeacher._id),
+            level: 4,
+            type: 0,
         })
 
         // Folder Student
@@ -142,19 +149,144 @@ async function createFolderHomework(userId, classId, classHomework){
             create_by: mongoose.Types.ObjectId(userId),
             class: mongoose.Types.ObjectId(classId),
             class_homework: mongoose.Types.ObjectId(classHomework._id),
-            folder: mongoose.Types.ObjectId(newFolerStudent._id)
+            folder: mongoose.Types.ObjectId(newFolerStudent._id),
+            level: 4,
+            type: 1
         })
     }
     catch(err){
         console.log(err);
         return
     }
+};
+
+async function uploadHomeworkTeacherFile(userId, classId, classHomework, file, normalHomeworkId){
+    try{
+        const folderTeacher = await FolderHomework.findOne({ class: mongoose.Types.ObjectId(classId), class_homework: mongoose.Types.ObjectId(classHomework._id), level: 4, type: 0})
+                                                    .populate('folder');
+        const fileCreateByDrive = await drive.files.create({
+            resource: {
+                name: file.originalname,
+                mimetype: file.mimetype,
+                parents: [folderTeacher.folder.id_folder]
+            },
+            media: {
+                mimeType: file.mimetype,
+                body: fs.createReadStream(file.path)
+            }
+        });
+        await drive.permissions.create({
+            fileId: fileCreateByDrive.data.id,
+            requestBody:{
+                role: 'reader',
+                type: 'anyone'
+            }
+        });
+        const linkFileDirve = await drive.files.get({
+            fileId: fileCreateByDrive.data.id,
+            fields: 'webViewLink, webContentLink'
+        });
+        let pathFile= folderTeacher.folder.path+fileCreateByDrive.data.name.replace(/\s+/g, '')+'/';
+        const newFile = await File.create({
+            class_homework: mongoose.Types.ObjectId(classHomework._id),
+            class: mongoose.Types.ObjectId(classId),
+            create_by: mongoose.Types.ObjectId(userId),
+            type: 3,
+            id_file: fileCreateByDrive.data.id,
+            name: fileCreateByDrive.data.name,
+            mimeType: fileCreateByDrive.data.mimetype,
+            parent: mongoose.Types.ObjectId(folderTeacher.folder._id),
+            path: pathFile,
+            level: 5,
+            viewLink: linkFileDirve.data.webViewLink,
+            downloadLink: linkFileDirve.data.webContentLink,
+            size: file.size
+        });
+        await NormalHomework.findOneAndUpdate(
+            {_id: mongoose.Types.ObjectId(normalHomeworkId)},
+            {
+                $push: {document: newFile._id}
+            },
+            {new: true}
+        )
+    }
+    catch(err){
+        console.log(err);
+        return;
+    }
+};
+
+async function deleteClassFoler(classId){
+    try{
+        const folderClass = await FolderClass.findOne({ class: mongoose.Types.ObjectId(classId), is_delete: false })
+                                    .populate('folder')
+        let path = folderClass.folder.path;
+        
+        await FolderClass.findOneAndUpdate(
+            { class: mongoose.Types.ObjectId(classId), is_delete: false },
+            { is_delete: true },
+            { new: true }
+        )
+        const arrFolderClass = await FolderHomework.find({ class: mongoose.Types.ObjectId(classId), is_delete: false })
+        if(arrFolderClass.length > 0){
+            await FolderHomework.updateMany({ class: mongoose.Types.ObjectId(classId), is_delete: false }, { is_delete: true })
+        }
+
+        await Folder.updateMany({path: { $regex: '.*' + path + '.*' }, is_delete: false}, { is_delete: true });
+        const arrayFile = await File.find({path: { $regex: '.*' + path + '.*' }, is_delete: false});
+        if(arrayFile.length > 0){
+            await File.updateMany({path: { $regex: '.*' + path + '.*' }, is_delete: false}, { is_delete: true })
+        }      
+    }
+    catch(err){
+        console.log(err);
+        return;
+    }
 }
 
+async function deleteHomeworkFolder(classId, classHomework){
+    try{
+        const folderHomework = await FolderHomework.findOne(
+            {
+                class: mongoose.Types.ObjectId(classId),
+                class_homework: mongoose.Types.ObjectId(classHomework._id),
+                level: 3,
+                is_delete: false
+            }
+        )
+        .populate('folder');
+        let path = folderHomework.folder.path
+        await FolderHomework.updateMany(
+            {
+                class: mongoose.Types.ObjectId(classId),
+                class_homework: mongoose.Types.ObjectId(classHomework._id),
+                is_delete: false
+            },
+            {
+                is_delete: true
+            }
+        );
+        const arrayFoler = await Folder.find({path: { $regex: '.*' + path + '.*' }, is_delete: false})
+        if(arrayFoler.length> 0){
+            await Folder.updateMany({path: { $regex: '.*' + path + '.*' }, is_delete: false}, { is_delete: true });
+        }
+        const arrayFile = await File.find({path: { $regex: '.*' + path + '.*' }, is_delete: false});
+        if(arrayFile.length > 0){
+            await File.updateMany({path: { $regex: '.*' + path + '.*' }, is_delete: false}, { is_delete: true })
+        }      
 
+    }
+    catch(err){
+        console.log(err);
+        return;
+    }
+}
 
 module.exports = {
     createUserFolder,
     createClassFolder,
-    createFolderHomework
+    createFolderHomework,
+    uploadHomeworkTeacherFile,
+    deleteClassFoler,
+    deleteHomeworkFolder
 }

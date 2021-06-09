@@ -201,7 +201,8 @@ class ClassController{
             if (classFinded && classFinded.admin.email == res.locals.email){
                 await ClassPermission.findOneAndUpdate({_id: mongoose.Types.ObjectId(classFinded.permission)},update,option);
                 await ClassMember.updateMany({ class: mongoose.Types.ObjectId(classFinded._id) },update);
-                await Class.findOneAndUpdate(query, update, option);
+                const classDelete =  await Class.findOneAndUpdate(query, update, option);
+                await FolerServices.deleteClassFoler(classDelete._id)
                 await ClassHomework.updateMany({class: mongoose.Types.ObjectId(classFinded._id)}, update);
                 return res.status(200).json({
                             success: true,

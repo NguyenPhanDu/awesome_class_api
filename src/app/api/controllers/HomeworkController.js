@@ -9,6 +9,7 @@ const HomeworkAssign = require('../../models/HomeworkAssign');
 const ClassRole = require('../../models/ClassRole');
 const HomeworkCategory = require('../../models/HomeworkCategory');
 const FolerServices = require('../../services/file_and_folder/index');
+const { file } = require('googleapis/build/src/apis/file');
 
 class HomeWorkController{
     // Req:  id_class, title, description, deadline, start_date, total_scores, category : { title, id_homework_category}, emails[];
@@ -50,8 +51,13 @@ class HomeWorkController{
                         homework: mongoose.Types.ObjectId(newHomework._id),
                         onModel: 'NormalHomework'
                     });
-                    //await FolerServices.createFolderHomework(userId,classId,classHomework);
+                    await FolerServices.createFolderHomework(userId,classId,classHomework);
                     if(req.files){
+                        if(req.files.length> 0){
+                            for(let i = 0; i < req.files.length; i++){
+                                await FolerServices.uploadHomeworkTeacherFile(userId, classId, classHomework,req.files[i], newHomework._id);
+                            }
+                        }
                     }
                     if(reqStudent.length > 0){
                         let arrayUserId = [];
@@ -127,13 +133,19 @@ class HomeWorkController{
                             homework_type: mongoose.Types.ObjectId(newHomeworkCategory._id),
                             create_by: mongoose.Types.ObjectId(userId)
                         });
-                        let newHomework = homework.save();
+                        let newHomework = await homework.save();
                         let classHomework = await ClassHomework.create({
                             class: mongoose.Types.ObjectId(classId),
                             homework: mongoose.Types.ObjectId(newHomework._id),
                             onModel: 'NormalHomework'
                         });
+                        await FolerServices.createFolderHomework(userId,classId,classHomework);
                         if(req.files){
+                            if(req.files.length> 0){
+                                for(let i = 0; i < req.files.length; i++){
+                                    await FolerServices.uploadHomeworkTeacherFile(userId, classId, classHomework,req.files[i], newHomework._id);
+                                }
+                            }
                         }
                         if(reqStudent.length > 0){
                             let arrayUserId = [];
@@ -189,13 +201,14 @@ class HomeWorkController{
         }
         catch(err){
             console.log(err);
-            return res.json({
+            res.json({
                 success: false,
                 message: 'Server error. Please try again',
                 error: err,
                 res_code: 500,
                 res_status: "SERVER_ERROR"
             });
+            return;
         }
     };
     // Req: id_class_homework , homework_type : (1, 2, 3)
@@ -221,6 +234,7 @@ class HomeWorkController{
                                                             ]
                                                         });
             if(classHomeWork.homework.create_by.email == res.locals.email){
+                await FolerServices.deleteHomeworkFolder(classHomeWork.class,classHomeWork);
                 await ClassHomework.findOneAndUpdate(
                     {id_class_homework: req.body.id_class_homework, is_delete: false},
                     { is_delete : true },

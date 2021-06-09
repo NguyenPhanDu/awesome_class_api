@@ -23,6 +23,12 @@ const FolderHomeworkSchema = Schema(
         class_homework: {
             type: Schema.Types.ObjectId,
             ref: 'ClassHomework'
+        },
+        level: {
+            type: String,
+        },
+        type: {
+            type: Number
         }
     },
     {

@@ -50,6 +50,9 @@ const FileSchema = Schema(
         },
         size: {
             type: Number,
+        },
+        level: {
+            type: Number
         }
     },
     {

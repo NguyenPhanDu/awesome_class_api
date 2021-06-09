@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const AutoIncrement = require('mongoose-sequence')(mongoose);
 const Schema = mongoose.Schema;
-
+require('./File');
 const NormalHomeworkSchema = Schema(
     {
         title: {
@@ -33,8 +33,8 @@ const NormalHomeworkSchema = Schema(
         },
         document: [
             {
-                type: Schema.Types.ObjectId, 
-                ref:  'File'
+                type: Schema.Types.ObjectId,
+                ref: 'File',
             }
         ],
         create_by: {
