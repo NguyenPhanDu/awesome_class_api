@@ -9,7 +9,7 @@ const HomeworkAssign = require('../../models/HomeworkAssign');
 const ClassRole = require('../../models/ClassRole');
 const HomeworkCategory = require('../../models/HomeworkCategory');
 const FolerServices = require('../../services/file_and_folder/index');
-const { file } = require('googleapis/build/src/apis/file');
+const Comment = require('../../models/Comment');
 
 class HomeWorkController{
     // Req:  id_class, title, description, deadline, start_date, total_scores, category : { title, id_homework_category}, emails[];
@@ -27,7 +27,6 @@ class HomeWorkController{
             let userId = user._id;
             const classs = await Class.findOne({id_class : Number(req.body.id_class)})
             let classId = classs._id
-            //const folder = await Directory.findOne({refId: classId})
             const homeWorkType =  await HomeworkType.findOne({id_homework_type: 1});
             let homeWorkTypeId = homeWorkType._id
             //Vai trò của user trong class (tìm giáo viên chỉ giáo viên mới đc tạo)
@@ -283,6 +282,8 @@ class HomeWorkController{
             }
             const classHomework = await ClassHomework.findOne({id_class_homework: req.body.id_class_homework, is_delete: false});
             let homeworkId = classHomework.homework;
+            const arrayCommet = await Comment.find({ onModel: 'ClassHomework', is_delete: false, ref: mongoose.Types.ObjectId(classHomework._id) })
+            .populate('user', '-password');
             let homeworkNoAssigned = await homeworkModel.findOne({_id : mongoose.Types.ObjectId(homeworkId)})
                 .populate('homework_category',"title id_homework_category")
                 .populate('homework_type',"name id_homework_type")
@@ -294,9 +295,9 @@ class HomeWorkController{
             arrayStudentAssgined.forEach(student => {
                 arrayStudentAssginedEmail.push(student.user.email);
             });
-            console.log(arrayStudentAssginedEmail)
             let finalResult = JSON.parse(JSON.stringify(homeworkNoAssigned));
             finalResult['student_assgined'] = arrayStudentAssginedEmail;
+            finalResult['comments'] = arrayCommet;
             return res.status(200).json({
                 success: true,
                 message: "get detail exercise successfull!",
