@@ -31,6 +31,7 @@
     "imgur": "^1.0.2",
     "jsonwebtoken": "^8.5.1",
     "method-override": "^3.0.0",
+    "moment": "^2.29.1",
     "mongoose": "^5.12.4",
     "mongoose-sequence": "^5.3.1",
     "mongoose-slug-generator": "^1.0.4",
