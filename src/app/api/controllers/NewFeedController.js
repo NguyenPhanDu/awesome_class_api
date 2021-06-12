@@ -42,8 +42,14 @@ class NewFeedController{
                     newfeed.push(arrayNotify[i]);
                 }
             };
-            const sortNewFeed  = newfeed.sort((a,b) => moment(parseTimeFormMongo(b.createdAt), "YYYY-MM-DD HH:mm:ss") - moment(parseTimeFormMongo(a.createdAt), "YYYY-MM-DD HH:mm:ss"))
-            res.json(sortNewFeed)
+            const sortNewFeed  = newfeed.sort((a,b) => moment(parseTimeFormMongo(b.createdAt), "YYYY-MM-DD HH:mm:ss") - moment(parseTimeFormMongo(a.createdAt), "YYYY-MM-DD HH:mm:ss"));
+            res.json({
+                success: true,
+                message: "get newfeed successfull!",
+                data: sortNewFeed,
+                res_code: 200,
+                res_status: "GET_SUCCESSFULLY"
+            })
         }
         catch(err){
             console.log(err);

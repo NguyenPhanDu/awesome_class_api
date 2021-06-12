@@ -240,7 +240,7 @@ class HomeWorkController{
                     { is_delete : true },
                     {new: true}
                 );
-                await HomeworkAssign.updateMany({homework: mongoose.Types.ObjectId(classHomeWork._id), is_delete: false}, {is_delete: true});
+                await HomeworkAssign.updateMany({homework: mongoose.Types.ObjectId(classHomeWork.homework._id), is_delete: false}, {is_delete: true});
                 await homeworkModel.findOneAndUpdate({_id: mongoose.Types.ObjectId(classHomeWork.homework._id), is_delete: false},{is_delete : true}, {new : true} );
                 return res.status(200).json({
                     success: true,

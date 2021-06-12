@@ -9,6 +9,6 @@ router.post('/create-normal-homework',upload, HomeWorkController.createNormalHom
 router.post('/delete-homework', HomeWorkController.deleteHomework);
 router.post('/get-detail-homework',HomeWorkController.getDetailHomework);
 router.get('/get-all-homework',HomeWorkController.getAllHomewworkOfUser);
-router.post('/update-normal-homework', HomeWorkController.updateNormalHomework);
+router.post('/update-normal-homework',upload, HomeWorkController.updateNormalHomework);
 
 module.exports = router;
