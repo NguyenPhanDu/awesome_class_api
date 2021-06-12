@@ -48,7 +48,7 @@ async function createClassFolder (userId, classs){
             parents: [folderUser.folder.id_folder]
           }
         });
-        let path = folderUser.folder.path+folerDrive.data.name.replace(/\s+/g, '')+'/';
+        let path = folderUser.folder.path+classs.id_class.replace(/\s+/g, '')+'/';
         const folderSchema = new Folder({
             id_folder: folerDrive.data.id,
             name: folerDrive.data.name,
@@ -84,7 +84,7 @@ async function createFolderHomework(userId, classId, classHomework){
                 parents: [parentFolder.folder.id_folder]
             }
         });
-        let path = parentFolder.folder.path+folerDrive.data.name.replace(/\s+/g, '')+'/';
+        let path = parentFolder.folder.path+classHomework.id_class_homework.replace(/\s+/g, '')+'/';
         const folderchema = new Folder({
             id_folder: folerDrive.data.id,
             name: folerDrive.data.name,

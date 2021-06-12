@@ -11,7 +11,7 @@ class ClassNotificationController{
     async create(req, res){
         try{
             const now = moment().format('MM:DD:YYYY HH:mm');
-            const user = await User.findOne({ email : res.locals.email});
+            const user = await User.findOne({ email : req.body.email});
             const classs = await Class.findOne({ id_class: req.body.id_class, is_delete: false});
             const classMember = await ClassMember.findOne({ user :  mongoose.Types.ObjectId(user._id), class : mongoose.Types.ObjectId(classs._id)})
                                         .populate('role');

@@ -18,6 +18,7 @@ const HomeworkAssignRouter = require('./modules/homework_assign');
 const HomeworkCategoryRouter = require('./modules/homework_category');
 const ClassNotifyRouter = require('./modules/class_notify');
 const CommentRouter = require('./modules/comment');
+const NewFeedRouter = require('./modules/new_feed');
 // MVC
 const siteRouter = require('./mvc/site');
 const AuthMVCRouter = require('./mvc/auth');
@@ -44,7 +45,8 @@ function route(app){
     app.use('/api/homework-category', HomeworkCategoryRouter);
     app.use('/api/class-notify',ClassNotifyRouter);
     app.use('/api/comment', CommentRouter);
-
+    app.use('/api/newfeed',NewFeedRouter);
+    
     //MVC ROUTER
     app.use('/admin/',siteRouter);
     app.use('/admin/',AuthMVCRouter);
