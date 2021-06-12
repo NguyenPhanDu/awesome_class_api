@@ -10,7 +10,7 @@ const ClassRole = require('../../models/ClassRole');
 const HomeworkCategory = require('../../models/HomeworkCategory');
 const FolerServices = require('../../services/file_and_folder/index');
 const Comment = require('../../models/Comment');
-
+const File = require('../../models/File');
 class HomeWorkController{
     // Req:  id_class, title, description, deadline, start_date, total_scores, category : { title, id_homework_category}, emails[];
     async createNormalHomework(req, res){
@@ -445,8 +445,9 @@ class HomeWorkController{
                     path: 'create_by'
                 }
             });
+            let classId = classHomeWork.class
             const user = await User.findOne({email: req.body.email})
-            let userId = user._id;
+            const userId = user._id;
             if(classHomeWork.homework.create_by.email == req.body.email){
                 let flag = false;
                 let categoryUpdateId;
@@ -487,7 +488,9 @@ class HomeWorkController{
                     { id_normal_homework: classHomeWork.homework.id_normal_homework, is_delete: false },
                     { 
                         description: req.body.description,
-                        title: req.body.title
+                        title: req.body.title,
+                        deadline: req.body.deadline,
+                        total_scores: reqTotalScore
                     },
                     { new : true }
                 )
@@ -502,13 +505,103 @@ class HomeWorkController{
                     { 
                         class: mongoose.Types.ObjectId(classHomeWork.class),
                         homework: mongoose.Types.ObjectId(classHomeWork.homework._id),
+                        onModel: "NormalHomework",
                         is_delete: false
                     },
                     {
                         is_delete: true
                     }
                 );
-                
+                if(reqStudent.length > 0 ){
+                    let arrLength = reqStudent.length
+                    for(let i = 0; i<arrLength;i++ ){
+                        let ddd = await User.findOne({email: reqStudent[i]})
+                        let userIds = ddd._id;
+                        let a = await HomeworkAssign.findOne({
+                            class: mongoose.Types.ObjectId(classHomeWork.class),
+                            homework: mongoose.Types.ObjectId(classHomeWork.homework._id),
+                            onModel: "NormalHomework",
+                            user: mongoose.Types.ObjectId(userIds)
+                        });
+                        if(a){
+                            await HomeworkAssign.findByIdAndUpdate(a._id, { is_delete : false });
+                        }
+                        else{
+                            await HomeworkAssign.create({
+                                user: mongoose.Types.ObjectId(userIds),
+                                class: mongoose.Types.ObjectId(classHomeWork.class),
+                                homework: mongoose.Types.ObjectId(classHomeWork.homework._id),
+                                onModel: 'NormalHomework'
+                            }) 
+                        }
+                    }
+                }
+                else{
+                    let arrLength = reqStudent.length
+                    for(let i = 0; i<arrLength;i++ ){
+                        let ddd = await User.findOne({email: reqStudent[i]})
+                        let userIds = ddd._id;
+                        let a = await HomeworkAssign.findOne({
+                            class: mongoose.Types.ObjectId(classHomeWork.class),
+                            homework: mongoose.Types.ObjectId(classHomeWork.homework._id),
+                            onModel: "NormalHomework",
+                            user: mongoose.Types.ObjectId(userIds)
+                        });
+                        if(a){
+                            await HomeworkAssign.findByIdAndUpdate(a._id, { is_delete : false });
+                        }
+                        else{
+                            await HomeworkAssign.create({
+                                user: mongoose.Types.ObjectId(userIds),
+                                class: mongoose.Types.ObjectId(classHomeWork.class),
+                                homework: mongoose.Types.ObjectId(classHomeWork.homework._id),
+                                onModel: 'NormalHomework'
+                            }) 
+                        }
+                    }
+                }
+                if(req.files > 0){
+                    if(req.files.length> 0){
+                        // cập nhật toàn bộ file trong bài tập đó thành is_delete true
+                        const normalHomework = await NormalHomework.findById(classHomeWork.homework._id)
+                        .populate('document');
+                        let a = JSON.parse(JSON.stringify(normalHomework.document));
+                        if(a.length > 0){
+                            let arrDocument = [];
+                            for(let i = 0; i< a.length; i++){
+                                arrDocument.push(a[i]._id)
+                            }
+                            for(let i = 0; i< arrDocument.length; i++){
+                                await File.findByIdAndUpdate(arrDocument[i], { is_delete: true });
+                            }
+                        }
+                        // cập nhật document của bài tập đó thành []
+                        await NormalHomework.findOneAndUpdate(
+                            {_id: mongoose.Types.ObjectId(classHomeWork.homework._id)},
+                            {
+                                document: []
+                            },
+                            {new: true}
+                        );
+                        // kiểm tra array files nếu có size và tên trùng trong database thì cập nhật lại is_delete: true không thì up file mới
+                        for(let i = 0; i < req.files.length; i++){
+                            let a = await File.findOne({ name: req.files[i].name, class_homework: mongoose.Types.ObjectId(classHomeWork._id), type: 3, level: 5});
+                            if(a){
+                                await File.findByIdAndUpdate(a._id, { is_delete: false });
+                                await NormalHomework.findOneAndUpdate(
+                                    {_id: mongoose.Types.ObjectId(classHomeWork.homework._id)},
+                                    {
+                                        $push: {document: a._id}
+                                    },
+                                    {new: true}
+                                );
+                            }
+                            else{
+                                await FolerServices.uploadHomeworkTeacherFile(userId, classId, classHomeWork,req.files[i], classHomeWork.homework._id);
+                            }
+                        }
+                    }
+                }
             }
             else{
                 return res.json({
