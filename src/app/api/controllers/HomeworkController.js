@@ -68,8 +68,7 @@ class HomeWorkController{
                             await HomeworkAssign.create({
                                 user: mongoose.Types.ObjectId(arrayUserId[i]),
                                 class: mongoose.Types.ObjectId(classId),
-                                homework: mongoose.Types.ObjectId(newHomework._id),
-                                onModel: 'NormalHomework'
+                                homework: mongoose.Types.ObjectId(classHomework._id),
                             })
                         }
                     }
@@ -105,7 +104,7 @@ class HomeWorkController{
                     const allCategoryInClassLengnt = allCategoryInClass.length
                     if(allCategoryInClassLengnt > 0){
                         for(let i = 0 ;i< allCategoryInClassLengnt; i++){
-                            if(reqCategory.title == allCategoryInClass[0].title.toLowerCase()){
+                            if(reqCategory.titleflag.toLowerCase() == allCategoryInClass[0].title.toLowerCase()){
                                 flag = true;
                                 res.json({
                                     success: false,
@@ -156,8 +155,7 @@ class HomeWorkController{
                                 await HomeworkAssign.create({
                                     user: mongoose.Types.ObjectId(arrayUserId[i]),
                                     class: mongoose.Types.ObjectId(classId),
-                                    homework: mongoose.Types.ObjectId(newHomework._id),
-                                    onModel: 'NormalHomework'
+                                    homework: mongoose.Types.ObjectId(classHomework._id),
                                 })
                             }
                         }
@@ -168,8 +166,7 @@ class HomeWorkController{
                                     await HomeworkAssign.create({
                                         user: mongoose.Types.ObjectId(arrStudentInClass[i].user),
                                         class: mongoose.Types.ObjectId(classId),
-                                        homework: mongoose.Types.ObjectId(newHomework._id),
-                                        onModel: 'NormalHomework'
+                                        homework: mongoose.Types.ObjectId(classHomework._id),
                                     })
                                 };
                             }
@@ -239,7 +236,7 @@ class HomeWorkController{
                     { is_delete : true },
                     {new: true}
                 );
-                await HomeworkAssign.updateMany({homework: mongoose.Types.ObjectId(classHomeWork.homework._id), is_delete: false}, {is_delete: true});
+                await HomeworkAssign.updateMany({homework: mongoose.Types.ObjectId(classHomeWork._id), is_delete: false}, {is_delete: true});
                 await homeworkModel.findOneAndUpdate({_id: mongoose.Types.ObjectId(classHomeWork.homework._id), is_delete: false},{is_delete : true}, {new : true} );
                 return res.status(200).json({
                     success: true,
@@ -438,20 +435,30 @@ class HomeWorkController{
             //     req.body.deadline = null;
             // }
             const classHomeWork = await ClassHomework.findOne({ id_class_homework: Number(req.body.id_class_homework), is_delete: false})
-            .populate('homework');
+            .populate({
+                path: 'homework',
+                populate: {
+                    path: 'create_by'
+                }
+            });
             const user = await User.findOne({email: req.body.email})
             let userId = user._id;
-            if(classHomeWork.homework.create_by == userId){
+            if(classHomeWork.homework.create_by.email == req.body.email){
                 let flag = false;
+                let categoryUpdateId;
                 //flow của category
                 // kiểm tra xem req category.id_category có trong db ? có thì update id vào category của nomarl homework:  không thì tạo mới
                 if(req.body.categoryId == -1){
                     let allCategoryInClass = await HomeworkCategory.find({class: mongoose.Types.ObjectId(classHomeWork.class), is_delete: false})
                     const allCategoryInClassLengnt = allCategoryInClass.length
+                    console.log(allCategoryInClass)
                     if(allCategoryInClassLengnt > 0){
                         for(let i = 0 ;i< allCategoryInClassLengnt; i++){
-                            if(req.body.categoryTitle == allCategoryInClass[0].title.toLowerCase()){
+                            console.log("db",allCategoryInClass[0].title)
+                            console.log(req.body.categoryTitle)
+                            if(req.body.categoryTitle.toLowerCase() == allCategoryInClass[0].title.toLowerCase()){
                                 flag = true;
+                                console.log(flag)
                                 res.json({
                                     success: false,
                                     message: 'This category already exist!',
@@ -462,7 +469,40 @@ class HomeWorkController{
                             }
                         }
                     }
+                    if(flag == false){
+                        const newHomeworkCategory = await HomeworkCategory.create({
+                            title: req.body.categoryTitle,
+                            user: mongoose.Types.ObjectId(userId),
+                            class: mongoose.Types.ObjectId(classHomeWork.class)
+                        });
+                        categoryUpdateId = newHomeworkCategory._id
+                    }
                 }
+                else{
+                    const homeworkCategory = await HomeworkCategory.findOne({id_homework_category: req.body.categoryId, is_delete: false})
+                    categoryUpdateId = homeworkCategory._id
+                }
+                const homeworkUpdate = await NormalHomework.findOneAndUpdate(
+                    { id_normal_homework: classHomeWork.homework.id_normal_homework, is_delete: false },
+                    { 
+                        description: req.body.description,
+                        title: req.body.title
+                    },
+                    { new : true }
+                )
+                .populate("homework_type", "-_id -__v")
+                                    .populate("create_by", "-_id -__v -password")
+                                    .populate("homework_category", "-_id -__v")
+                                    .populate("document", "name viewLink downloadLink size");
+                // flow của assign
+                // đầu tiên set is_delete của tất cả học sinh được nhận bài tập = true
+                // kiểm tra xem mảng emails được nhận có cái nào trùng ở trên có thì xét lại là false không thì tạo cái mới
+                await HomeworkAssign.updateMany(
+                    { 
+                        class: mongoose.Types.ObjectId(classHomeWork.class),
+                        homework: mongoose.Types.ObjectId(classHomeWork.homework._id)
+                    }
+                )
             }
             else{
                 return res.json({
