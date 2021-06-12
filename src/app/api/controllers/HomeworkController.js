@@ -103,7 +103,7 @@ class HomeWorkController{
                     let flag = false;
                     let allCategoryInClass = await HomeworkCategory.find({class: mongoose.Types.ObjectId(classId), is_delete: false})
                     const allCategoryInClassLengnt = allCategoryInClass.length
-                    if(allCategoryInClassLengnt){
+                    if(allCategoryInClassLengnt > 0){
                         for(let i = 0 ;i< allCategoryInClassLengnt; i++){
                             if(reqCategory.title == allCategoryInClass[0].title.toLowerCase()){
                                 flag = true;
@@ -117,7 +117,7 @@ class HomeWorkController{
                             }
                         }
                     }
-                    if(flag = false){
+                    if(flag == false){
                         const newHomeworkCategory = await HomeworkCategory.create({
                             title: reqCategory.title,
                             user: mongoose.Types.ObjectId(userId),
@@ -423,14 +423,66 @@ class HomeWorkController{
             res_status: "CREATE_SUCCESSFULLY"
         })
     };
-    // Req:  id_class, title, description, deadline, start_date, total_scores, category : { title, id_homework_category}, emails[];
+    // Req:  id_class_homework, title, description, deadline, start_date, total_scores, category : { title, id_homework_category}, emails[];
     async updateNormalHomework(req, res){
-        // các bảng data liên quan, File, Nomarl homework, Home assgin
+        // các bảng data liên quan, File, Nomarl homework, Home assgin, category
+        // Req:  id_class, title, description, deadline, start_date, total_scores, category : { title, id_homework_category}, emails[];
         try{
+            // Những thông tin của bảng homework
+            // Req:  id_class_homework, title, description, deadline, start_date, total_scores;
 
+            //let reqStudent = await JSON.parse(req.body.emails);
+            //let reqCategory = await JSON.parse(req.body.category);
+            // let reqTotalScore = await JSON.parse(req.body.total_scores);
+            // if(req.body.deadline == 'null'){
+            //     req.body.deadline = null;
+            // }
+            const classHomeWork = await ClassHomework.findOne({ id_class_homework: Number(req.body.id_class_homework), is_delete: false})
+            .populate('homework');
+            const user = await User.findOne({email: req.body.email})
+            let userId = user._id;
+            if(classHomeWork.homework.create_by == userId){
+                let flag = false;
+                //flow của category
+                // kiểm tra xem req category.id_category có trong db ? có thì update id vào category của nomarl homework:  không thì tạo mới
+                if(req.body.categoryId == -1){
+                    let allCategoryInClass = await HomeworkCategory.find({class: mongoose.Types.ObjectId(classHomeWork.class), is_delete: false})
+                    const allCategoryInClassLengnt = allCategoryInClass.length
+                    if(allCategoryInClassLengnt > 0){
+                        for(let i = 0 ;i< allCategoryInClassLengnt; i++){
+                            if(req.body.categoryTitle == allCategoryInClass[0].title.toLowerCase()){
+                                flag = true;
+                                res.json({
+                                    success: false,
+                                    message: 'This category already exist!',
+                                    res_code: 422,
+                                    res_status: "SERVER_ERROR"
+                                });
+                                return;
+                            }
+                        }
+                    }
+                }
+            }
+            else{
+                return res.json({
+                    success: false,
+                    message: "No access",
+                    res_code: 403,
+                    res_status: "NO_ACCESS"
+                })
+            }
         }
-        catch{
-
+        catch(err){
+            console.log(err);
+            res.json({
+                success: false,
+                message: 'Server error. Please try again.',
+                error: err,
+                res_code: 500,
+                res_status: "SERVER_ERROR"
+            });
+            return
         }
     }
 }
