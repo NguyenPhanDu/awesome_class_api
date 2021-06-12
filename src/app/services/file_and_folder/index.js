@@ -75,7 +75,6 @@ async function createFolderHomework(userId, classId, classHomework){
         const classHomeworkDatabase = await ClassHomework.findById(classHomework._id).populate('homework');
         const parentFolder = await FolderClass.findOne({ create_by: mongoose.Types.ObjectId(userId), class: mongoose.Types.ObjectId(classId) })
                         .populate('folder');
-        
         // Folder homework
         const folerDrive = response = await drive.files.create({
             resource: {
@@ -84,7 +83,7 @@ async function createFolderHomework(userId, classId, classHomework){
                 parents: [parentFolder.folder.id_folder]
             }
         });
-        let path = parentFolder.folder.path+classHomework.id_class_homework.replace(/\s+/g, '')+'/';
+        let path = parentFolder.folder.path+classHomeworkDatabase.id_class_homework+'/';
         const folderchema = new Folder({
             id_folder: folerDrive.data.id,
             name: folerDrive.data.name,

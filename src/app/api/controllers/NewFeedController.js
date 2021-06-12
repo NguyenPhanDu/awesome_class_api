@@ -3,6 +3,7 @@ const ClassHomework = require('../../models/ClassHomework');
 const ClassNotification =require('../../models/ClassNotification');
 const Class = require('../../models/Class');
 const moment = require('moment');
+const { parseTimeFormMongo } = require('../../../helpers/parse_date');
 class NewFeedController{
     //
     async showNewFeed(req, res){
@@ -41,8 +42,8 @@ class NewFeedController{
                     newfeed.push(arrayNotify[i]);
                 }
             };
-            const sortArrayNotify  = arrayNotify.sort((a,b) => moment(b.create_at, "MM-DD-YYYY HH:mm") - moment(a.create_at, "MM-DD-YYYY HH:mm"))
-            res.json(sortArrayNotify)
+            //const sortNewFeed  = newfeed.sort((a,b) => moment(parseTimeFormMongo(b.create_at), "YYYY-MM-DD HH:mm:ss") - moment(parseTimeFormMongo(a.create_at), "YYYY-MM-DD HH:mm:ss"))
+            res.json(newfeed)
         }
         catch(err){
             console.log(err);
