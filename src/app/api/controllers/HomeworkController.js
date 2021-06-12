@@ -424,14 +424,13 @@ class HomeWorkController{
             res_status: "CREATE_SUCCESSFULLY"
         })
     };
-    // Req:  id_class_homework, title, description, deadline, start_date, total_scores, category : { title, id_homework_category}, emails[];
+    // Req: homework_type : (1, 2, 3), id_class_homework, title, description, deadline, start_date, total_scores, category : { title, id_homework_category}, emails[];
     async updateNormalHomework(req, res){
         // các bảng data liên quan, File, Nomarl homework, Home assgin, category
         // Req:  id_class, title, description, deadline, start_date, total_scores, category : { title, id_homework_category}, emails[];
         try{
             // Những thông tin của bảng homework
             // Req:  id_class_homework, title, description, deadline, start_date, total_scores;
-
             let reqStudent = await JSON.parse(req.body.emails);
             let reqCategory = await JSON.parse(req.body.category);
             let reqTotalScore = await JSON.parse(req.body.total_scores);
@@ -446,7 +445,7 @@ class HomeWorkController{
                 }
             });
             let classId = classHomeWork.class
-            const user = await User.findOne({email: req.body.email})
+            const user = await User.findOne({email: res.locals.email})
             const userId = user._id;
             if(classHomeWork.homework.create_by.email == req.body.email){
                 let flag = false;
@@ -484,20 +483,6 @@ class HomeWorkController{
                     const homeworkCategory = await HomeworkCategory.findOne({id_homework_category: reqCategory.id_homework_category, is_delete: false})
                     categoryUpdateId = homeworkCategory._id
                 }
-                const homeworkUpdate = await NormalHomework.findOneAndUpdate(
-                    { id_normal_homework: classHomeWork.homework.id_normal_homework, is_delete: false },
-                    { 
-                        description: req.body.description,
-                        title: req.body.title,
-                        deadline: req.body.deadline,
-                        total_scores: reqTotalScore
-                    },
-                    { new : true }
-                )
-                .populate("homework_type", "-_id -__v")
-                                    .populate("create_by", "-_id -__v -password")
-                                    .populate("homework_category", "-_id -__v")
-                                    .populate("document", "name viewLink downloadLink size");
                 // flow của assign
                 // đầu tiên set is_delete của tất cả học sinh được nhận bài tập = true
                 // kiểm tra xem mảng emails được nhận có cái nào trùng ở trên có thì xét lại là false không thì tạo cái mới
@@ -512,6 +497,7 @@ class HomeWorkController{
                         is_delete: true
                     }
                 );
+
                 if(reqStudent.length > 0 ){
                     let arrLength = reqStudent.length
                     for(let i = 0; i<arrLength;i++ ){
@@ -602,6 +588,28 @@ class HomeWorkController{
                         }
                     }
                 }
+                const homeworkUpdate = await NormalHomework.findOneAndUpdate(
+                    { id_normal_homework: classHomeWork.homework.id_normal_homework, is_delete: false },
+                    { 
+                        description: req.body.description,
+                        title: req.body.title,
+                        deadline: req.body.deadline,
+                        total_scores: reqTotalScore
+                    },
+                    { new : true }
+                )
+                .populate("homework_type", "-_id -__v")
+                .populate("create_by", "-_id -__v -password")
+                .populate("homework_category", "-_id -__v")
+                .populate("document", "name viewLink downloadLink size");
+
+                return res.json({
+                    success: true,
+                    message: "Update homework successfully!",
+                    data: homeworkUpdate,
+                    res_code: 200,
+                    res_status: "UPDATE_SUCCESSFULLY"
+                })  
             }
             else{
                 return res.json({
