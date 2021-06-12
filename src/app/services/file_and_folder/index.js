@@ -208,7 +208,7 @@ async function uploadHomeworkTeacherFile(userId, classId, classHomework, file, n
             },
             {new: true}
         );
-        await unlinkAsync(file.path);
+        await fs.unlinkSync(file.path);
     }
     catch(err){
         console.log(err);
