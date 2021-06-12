@@ -207,7 +207,8 @@ async function uploadHomeworkTeacherFile(userId, classId, classHomework, file, n
                 $push: {document: newFile._id}
             },
             {new: true}
-        )
+        );
+        await unlinkAsync(file.path);
     }
     catch(err){
         console.log(err);

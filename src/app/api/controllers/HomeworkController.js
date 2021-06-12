@@ -500,7 +500,8 @@ class HomeWorkController{
                 await HomeworkAssign.updateMany(
                     { 
                         class: mongoose.Types.ObjectId(classHomeWork.class),
-                        homework: mongoose.Types.ObjectId(classHomeWork.homework._id)
+                        homework: mongoose.Types.ObjectId(classHomeWork._id),
+                        is_delete: false
                     }
                 )
             }
