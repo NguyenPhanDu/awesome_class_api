@@ -90,7 +90,7 @@ class HomeWorkController{
                                     .populate("homework_type", "-_id -__v")
                                     .populate("create_by", "-_id -__v -password")
                                     .populate("homework_category", "-_id -__v")
-                                    .populate("document", "name viewLink downloadLink size");
+                                    .populate("document", "name viewLink downloadLink size id_files");
                     return res.json({
                         success: true,
                         message: "Create homework successfull!",
@@ -179,7 +179,7 @@ class HomeWorkController{
                                         .populate("homework_type", "-_id -__v")
                                         .populate("create_by", "-_id -__v -password")
                                         .populate("homework_category", "-_id -__v")
-                                        .populate("document", "name viewLink downloadLink size");
+                                        .populate("document", "name viewLink downloadLink size id_files");
                         return res.json({
                             success: true,
                             message: "Create homework successfull!",
@@ -289,7 +289,7 @@ class HomeWorkController{
                 .populate('homework_category',"title id_homework_category")
                 .populate('homework_type',"name id_homework_type")
                 .populate('create_by', "-password")
-                .populate("document", "name viewLink downloadLink size");
+                .populate("document", "name viewLink downloadLink size id_files");
             let arrayStudentAssgined = await HomeworkAssign.find({ homework: mongoose.Types.ObjectId(homeworkNoAssigned._id) })
                                                 .populate('user', '-__v, -password');
             let arrayStudentAssginedEmail = [];
@@ -601,7 +601,7 @@ class HomeWorkController{
                 .populate("homework_type", "-_id -__v")
                 .populate("create_by", "-_id -__v -password")
                 .populate("homework_category", "-_id -__v")
-                .populate("document", "name viewLink downloadLink size");
+                .populate("document", "name viewLink downloadLink size id_files");
 
                 return res.json({
                     success: true,
