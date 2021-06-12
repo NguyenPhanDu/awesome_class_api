@@ -14,7 +14,13 @@ const HomeworkAssignSchema = Schema(
         },
         homework : {
             type: Schema.Types.ObjectId,
-            ref: 'ClassHomework'
+            require: true,
+            refPath: 'onModel'
+        },
+        onModel: {
+            type: String,
+            require: true,
+            enum: ['NormalHomework', 'QuestionHomework']
         },
         status: {
             type: Number,

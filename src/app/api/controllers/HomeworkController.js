@@ -68,7 +68,8 @@ class HomeWorkController{
                             await HomeworkAssign.create({
                                 user: mongoose.Types.ObjectId(arrayUserId[i]),
                                 class: mongoose.Types.ObjectId(classId),
-                                homework: mongoose.Types.ObjectId(classHomework._id),
+                                homework: mongoose.Types.ObjectId(newHomework._id),
+                                onModel: 'NormalHomework'
                             })
                         }
                     }
@@ -155,7 +156,8 @@ class HomeWorkController{
                                 await HomeworkAssign.create({
                                     user: mongoose.Types.ObjectId(arrayUserId[i]),
                                     class: mongoose.Types.ObjectId(classId),
-                                    homework: mongoose.Types.ObjectId(classHomework._id),
+                                    homework: mongoose.Types.ObjectId(newHomework._id),
+                                    onModel: 'NormalHomework'
                                 })
                             }
                         }
@@ -166,7 +168,8 @@ class HomeWorkController{
                                     await HomeworkAssign.create({
                                         user: mongoose.Types.ObjectId(arrStudentInClass[i].user),
                                         class: mongoose.Types.ObjectId(classId),
-                                        homework: mongoose.Types.ObjectId(classHomework._id),
+                                        homework: mongoose.Types.ObjectId(newHomework._id),
+                                        onModel: 'NormalHomework'
                                     })
                                 };
                             }
