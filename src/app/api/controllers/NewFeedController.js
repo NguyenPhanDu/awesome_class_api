@@ -42,8 +42,8 @@ class NewFeedController{
                     newfeed.push(arrayNotify[i]);
                 }
             };
-            //const sortNewFeed  = newfeed.sort((a,b) => moment(parseTimeFormMongo(b.create_at), "YYYY-MM-DD HH:mm:ss") - moment(parseTimeFormMongo(a.create_at), "YYYY-MM-DD HH:mm:ss"))
-            res.json(newfeed)
+            const sortNewFeed  = newfeed.sort((a,b) => moment(parseTimeFormMongo(b.createdAt), "YYYY-MM-DD HH:mm:ss") - moment(parseTimeFormMongo(a.createdAt), "YYYY-MM-DD HH:mm:ss"))
+            res.json(sortNewFeed)
         }
         catch(err){
             console.log(err);

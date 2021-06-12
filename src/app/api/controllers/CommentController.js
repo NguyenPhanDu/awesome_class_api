@@ -19,7 +19,7 @@ class CommentController{
                 model = 'ClassNotification';
                 ref = ClassNotification.findOne({ id_class_notify: id, is_delete: false })
             }
-            const now = moment().format('MM:DD:YYYY HH:mm');
+            const now = moment().format('MM:DD:YYYY HH:mm:ss');
             const user = await User.findOne({ email : res.locals.email});
             const classs = await Class.findOne({ id_class: req.body.id_class, is_delete: false});
             const commentNew = await Comment.create({
@@ -55,6 +55,7 @@ class CommentController{
     // req.body.id_comment
     async delete(req, res){
         try{
+            const now = moment().format('MM:DD:YYYY HH:mm:ss');
             const comment = await Comment.findOne({ id_comment:  req.body.id_comment, is_delete: false})
             .populate('user', '-password');
             const classs = await Class.findById(mongoose.Types.ObjectId(comment.class))
@@ -63,7 +64,7 @@ class CommentController{
             if(res.locals.email == comment.user.email || res.locals.email == classAdmin){
                 await Comment.findOneAndUpdate(
                     { id_comment:  req.body.id_comment, is_delete: false },
-                    { is_delete: true },
+                    { is_delete: true, update_at:now },
                     { new: true }
                 );
                 return res.json({
@@ -97,13 +98,15 @@ class CommentController{
     // req.body.id_comment, content
     async update(req, res){
         try{
+            const now = moment().format('MM:DD:YYYY HH:mm:ss');
             const comment = await Comment.findOne({ id_comment:  req.body.id_comment, is_delete: false})
             .populate('user', '-password');
             if(res.locals.email == comment.user.email){
                 const commentUpdate = await Comment.findOneAndUpdate(
                     { id_comment:  req.body.id_comment, is_delete: false},
                     { 
-                        content: req.body.content
+                        content: req.body.content,
+                        update_at: now
                     },
                     { new: true }
                 )
