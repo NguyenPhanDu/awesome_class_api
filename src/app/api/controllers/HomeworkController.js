@@ -431,6 +431,7 @@ class HomeWorkController{
         try{
             // Những thông tin của bảng homework
             // Req:  id_class_homework, title, description, deadline, start_date, total_scores;
+            let reqAttachments = JSON.parse(req.body.attachments);
             let reqStudent = await JSON.parse(req.body.emails);
             let reqCategory = await JSON.parse(req.body.category);
             let reqTotalScore = await JSON.parse(req.body.total_scores);
@@ -546,45 +547,34 @@ class HomeWorkController{
                         }
                     }
                 }
-                if(req.files > 0){
+                if(reqAttachments.length > 0){
+                    let newDocument = [];
+                    let length = reqAttachments.length
+                    for(let i = 0; i < length; i++){
+                        const file = await File.findOne({ id_files: reqAttachments[i].id_files, is_delete: false });
+                        newDocument.push(file._id);
+                    }
+                    await NormalHomework.findOneAndUpdate(
+                        {_id: mongoose.Types.ObjectId(classHomeWork.homework._id)},
+                        {
+                            document: newDocument
+                        },
+                        {new: true}
+                    );
+                }
+                else{
+                    await NormalHomework.findOneAndUpdate(
+                        {_id: mongoose.Types.ObjectId(classHomeWork.homework._id)},
+                        {
+                            document: []
+                        },
+                        {new: true}
+                    );
+                }
+                if(req.files){
                     if(req.files.length> 0){
-                        // cập nhật toàn bộ file trong bài tập đó thành is_delete true
-                        const normalHomework = await NormalHomework.findById(classHomeWork.homework._id)
-                        .populate('document');
-                        let a = JSON.parse(JSON.stringify(normalHomework.document));
-                        if(a.length > 0){
-                            let arrDocument = [];
-                            for(let i = 0; i< a.length; i++){
-                                arrDocument.push(a[i]._id)
-                            }
-                            for(let i = 0; i< arrDocument.length; i++){
-                                await File.findByIdAndUpdate(arrDocument[i], { is_delete: true });
-                            }
-                        }
-                        // cập nhật document của bài tập đó thành []
-                        await NormalHomework.findOneAndUpdate(
-                            {_id: mongoose.Types.ObjectId(classHomeWork.homework._id)},
-                            {
-                                document: []
-                            },
-                            {new: true}
-                        );
-                        // kiểm tra array files nếu có size và tên trùng trong database thì cập nhật lại is_delete: true không thì up file mới
                         for(let i = 0; i < req.files.length; i++){
-                            let a = await File.findOne({ name: req.files[i].name, class_homework: mongoose.Types.ObjectId(classHomeWork._id), type: 3, level: 5});
-                            if(a){
-                                await File.findByIdAndUpdate(a._id, { is_delete: false });
-                                await NormalHomework.findOneAndUpdate(
-                                    {_id: mongoose.Types.ObjectId(classHomeWork.homework._id)},
-                                    {
-                                        $push: {document: a._id}
-                                    },
-                                    {new: true}
-                                );
-                            }
-                            else{
-                                await FolerServices.uploadHomeworkTeacherFile(userId, classId, classHomeWork,req.files[i], classHomeWork.homework._id);
-                            }
+                            await FolerServices.uploadHomeworkTeacherFile(userId, classId, classHomeWork, req.files[i], classHomeWork.homework._id);
                         }
                     }
                 }
