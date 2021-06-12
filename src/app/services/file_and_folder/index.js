@@ -48,7 +48,7 @@ async function createClassFolder (userId, classs){
             parents: [folderUser.folder.id_folder]
           }
         });
-        let path = folderUser.folder.path+classs.id_class.replace(/\s+/g, '')+'/';
+        let path = folderUser.folder.path+classs.id_class+'/';
         const folderSchema = new Folder({
             id_folder: folerDrive.data.id,
             name: folerDrive.data.name,
