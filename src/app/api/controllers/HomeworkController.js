@@ -105,7 +105,7 @@ class HomeWorkController{
                     const allCategoryInClassLengnt = allCategoryInClass.length
                     if(allCategoryInClassLengnt > 0){
                         for(let i = 0 ;i< allCategoryInClassLengnt; i++){
-                            if(reqCategory.titleflag.toLowerCase() == allCategoryInClass[0].title.toLowerCase()){
+                            if(reqCategory.title.toLowerCase() == allCategoryInClass[0].title.toLowerCase()){
                                 flag = true;
                                 res.json({
                                     success: false,
@@ -129,7 +129,8 @@ class HomeWorkController{
                             start_date: req.body.start_date,
                             deadline: req.body.deadline,
                             total_scores: reqTotalScore,
-                            homework_type: mongoose.Types.ObjectId(newHomeworkCategory._id),
+                            homework_type: mongoose.Types.ObjectId(homeWorkTypeId),
+                            homework_category: mongoose.Types.ObjectId(newHomeworkCategory._id),
                             create_by: mongoose.Types.ObjectId(userId)
                         });
                         let newHomework = await homework.save();
@@ -431,12 +432,12 @@ class HomeWorkController{
             // Những thông tin của bảng homework
             // Req:  id_class_homework, title, description, deadline, start_date, total_scores;
 
-            //let reqStudent = await JSON.parse(req.body.emails);
-            //let reqCategory = await JSON.parse(req.body.category);
-            // let reqTotalScore = await JSON.parse(req.body.total_scores);
-            // if(req.body.deadline == 'null'){
-            //     req.body.deadline = null;
-            // }
+            let reqStudent = await JSON.parse(req.body.emails);
+            let reqCategory = await JSON.parse(req.body.category);
+            let reqTotalScore = await JSON.parse(req.body.total_scores);
+            if(req.body.deadline == 'null'){
+                req.body.deadline = null;
+            }
             const classHomeWork = await ClassHomework.findOne({ id_class_homework: Number(req.body.id_class_homework), is_delete: false})
             .populate({
                 path: 'homework',
@@ -451,15 +452,12 @@ class HomeWorkController{
                 let categoryUpdateId;
                 //flow của category
                 // kiểm tra xem req category.id_category có trong db ? có thì update id vào category của nomarl homework:  không thì tạo mới
-                if(req.body.categoryId == -1){
+                if(reqCategory.id_homework_category == -1){
                     let allCategoryInClass = await HomeworkCategory.find({class: mongoose.Types.ObjectId(classHomeWork.class), is_delete: false})
                     const allCategoryInClassLengnt = allCategoryInClass.length
-                    console.log(allCategoryInClass)
                     if(allCategoryInClassLengnt > 0){
                         for(let i = 0 ;i< allCategoryInClassLengnt; i++){
-                            console.log("db",allCategoryInClass[0].title)
-                            console.log(req.body.categoryTitle)
-                            if(req.body.categoryTitle.toLowerCase() == allCategoryInClass[0].title.toLowerCase()){
+                            if(reqCategory.title.toLowerCase() == allCategoryInClass[0].title.toLowerCase()){
                                 flag = true;
                                 console.log(flag)
                                 res.json({
@@ -474,7 +472,7 @@ class HomeWorkController{
                     }
                     if(flag == false){
                         const newHomeworkCategory = await HomeworkCategory.create({
-                            title: req.body.categoryTitle,
+                            title: reqCategory.title,
                             user: mongoose.Types.ObjectId(userId),
                             class: mongoose.Types.ObjectId(classHomeWork.class)
                         });
@@ -482,7 +480,7 @@ class HomeWorkController{
                     }
                 }
                 else{
-                    const homeworkCategory = await HomeworkCategory.findOne({id_homework_category: req.body.categoryId, is_delete: false})
+                    const homeworkCategory = await HomeworkCategory.findOne({id_homework_category: reqCategory.id_homework_category, is_delete: false})
                     categoryUpdateId = homeworkCategory._id
                 }
                 const homeworkUpdate = await NormalHomework.findOneAndUpdate(
@@ -503,10 +501,14 @@ class HomeWorkController{
                 await HomeworkAssign.updateMany(
                     { 
                         class: mongoose.Types.ObjectId(classHomeWork.class),
-                        homework: mongoose.Types.ObjectId(classHomeWork._id),
+                        homework: mongoose.Types.ObjectId(classHomeWork.homework._id),
                         is_delete: false
+                    },
+                    {
+                        is_delete: true
                     }
-                )
+                );
+                
             }
             else{
                 return res.json({
