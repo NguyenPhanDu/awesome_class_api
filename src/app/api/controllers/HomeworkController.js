@@ -296,9 +296,11 @@ class HomeWorkController{
             arrayStudentAssgined.forEach(student => {
                 arrayStudentAssginedEmail.push(student.user.email);
             });
+
             let finalResult = JSON.parse(JSON.stringify(homeworkNoAssigned));
             finalResult['student_assgined'] = arrayStudentAssginedEmail;
             finalResult['comments'] = arrayCommet;
+            finalResult['id_class_homework'] = classHomework.id_class_homework
             return res.status(200).json({
                 success: true,
                 message: "get detail exercise successfull!",
@@ -426,7 +428,6 @@ class HomeWorkController{
     };
     // Req: homework_type : (1, 2, 3), id_class_homework, title, description, deadline, start_date, total_scores, category : { title, id_homework_category}, emails[];
     async updateNormalHomework(req, res){
-        // các bảng data liên quan, File, Nomarl homework, Home assgin, category
         // Req:  id_class, title, description, deadline, start_date, total_scores, category : { title, id_homework_category}, emails[];
         try{
             // Những thông tin của bảng homework
@@ -451,8 +452,6 @@ class HomeWorkController{
             if(classHomeWork.homework.create_by.email == req.body.email){
                 let flag = false;
                 let categoryUpdateId;
-                //flow của category
-                // kiểm tra xem req category.id_category có trong db ? có thì update id vào category của nomarl homework:  không thì tạo mới
                 if(reqCategory.id_homework_category == -1){
                     let allCategoryInClass = await HomeworkCategory.find({class: mongoose.Types.ObjectId(classHomeWork.class), is_delete: false})
                     const allCategoryInClassLengnt = allCategoryInClass.length
@@ -484,9 +483,6 @@ class HomeWorkController{
                     const homeworkCategory = await HomeworkCategory.findOne({id_homework_category: reqCategory.id_homework_category, is_delete: false})
                     categoryUpdateId = homeworkCategory._id
                 }
-                // flow của assign
-                // đầu tiên set is_delete của tất cả học sinh được nhận bài tập = true
-                // kiểm tra xem mảng emails được nhận có cái nào trùng ở trên có thì xét lại là false không thì tạo cái mới
                 await HomeworkAssign.updateMany(
                     { 
                         class: mongoose.Types.ObjectId(classHomeWork.class),
