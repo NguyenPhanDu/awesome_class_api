@@ -4,6 +4,7 @@ const Class =require('../../models/Class');
 const ClassHomework = require('../../models/ClassHomework');
 const ClassNotification = require('../../models/ClassNotification');
 const Comment = require('../../models/Comment');
+const moment = require('moment');
 
 class CommentController{
     // Req.body: id_class, ref: 1 là comment của bài tập, 2 là notify; id: của bài tập hoặc notify, content: nội dung commet
