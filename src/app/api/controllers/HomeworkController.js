@@ -281,7 +281,7 @@ class HomeWorkController{
             if(Number(req.body.homework_type) == 3){
                 homeworkModel = '';
             }
-            const classHomework = await ClassHomework.findOne({id_class_homework: req.body.id_class_homework, is_delete: false});
+            const classHomework = await ClassHomework.findOne({id_class_homework: req.body.id_class_homework, is_delete: false}).populate('class')
             let homeworkId = classHomework.homework;
             const arrayCommet = await Comment.find({ onModel: 'ClassHomework', is_delete: false, ref: mongoose.Types.ObjectId(classHomework._id) })
             .populate('user', '-password');
@@ -300,7 +300,8 @@ class HomeWorkController{
             let finalResult = JSON.parse(JSON.stringify(homeworkNoAssigned));
             finalResult['student_assgined'] = arrayStudentAssginedEmail;
             finalResult['comments'] = arrayCommet;
-            finalResult['id_class_homework'] = classHomework.id_class_homework
+            finalResult['id_class_homework'] = classHomework.id_class_homework;
+            finalResult['id_class'] = classHomework.class.id_class
             return res.status(200).json({
                 success: true,
                 message: "get detail exercise successfull!",
