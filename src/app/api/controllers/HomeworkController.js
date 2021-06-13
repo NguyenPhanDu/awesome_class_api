@@ -449,7 +449,7 @@ class HomeWorkController{
             let classId = classHomeWork.class
             const user = await User.findOne({email: res.locals.email})
             const userId = user._id;
-            if(classHomeWork.homework.create_by.email == req.body.email){
+            if(classHomeWork.homework.create_by.email == res.locals.email){
                 let flag = false;
                 let categoryUpdateId;
                 if(reqCategory.id_homework_category == -1){
