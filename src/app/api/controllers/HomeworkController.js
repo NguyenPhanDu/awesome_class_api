@@ -430,8 +430,6 @@ class HomeWorkController{
     async updateNormalHomework(req, res){
         // Req:  id_class, title, description, deadline, start_date, total_scores, category : { title, id_homework_category}, emails[];
         try{
-            // Những thông tin của bảng homework
-            // Req:  id_class_homework, title, description, deadline, start_date, total_scores;
             let reqAttachments = JSON.parse(req.body.attachments);
             let reqStudent = await JSON.parse(req.body.emails);
             let reqCategory = await JSON.parse(req.body.category);
@@ -450,38 +448,41 @@ class HomeWorkController{
             const user = await User.findOne({email: res.locals.email})
             const userId = user._id;
             if(classHomeWork.homework.create_by.email == res.locals.email){
-                let flag = false;
-                let categoryUpdateId;
-                if(reqCategory.id_homework_category == -1){
-                    let allCategoryInClass = await HomeworkCategory.find({class: mongoose.Types.ObjectId(classHomeWork.class), is_delete: false})
-                    const allCategoryInClassLengnt = allCategoryInClass.length
-                    if(allCategoryInClassLengnt > 0){
-                        for(let i = 0 ;i< allCategoryInClassLengnt; i++){
-                            if(reqCategory.title.toLowerCase() == allCategoryInClass[0].title.toLowerCase()){
-                                flag = true;
-                                console.log(flag)
-                                res.json({
-                                    success: false,
-                                    message: 'This category already exist!',
-                                    res_code: 422,
-                                    res_status: "SERVER_ERROR"
-                                });
-                                return;
+                if(reqCategory){
+                    let flag = false;
+                    let categoryUpdateId;
+                    if(reqCategory.id_homework_category == -1){
+                        let allCategoryInClass = await HomeworkCategory.find({class: mongoose.Types.ObjectId(classHomeWork.class), is_delete: false})
+                        const allCategoryInClassLengnt = allCategoryInClass.length
+                        if(allCategoryInClassLengnt > 0){
+                            for(let i = 0 ;i< allCategoryInClassLengnt; i++){
+                                if(reqCategory.title.toLowerCase() == allCategoryInClass[0].title.toLowerCase()){
+                                    flag = true;
+                                    console.log(flag)
+                                    res.json({
+                                        success: false,
+                                        message: 'This category already exist!',
+                                        res_code: 422,
+                                        res_status: "SERVER_ERROR"
+                                    });
+                                    return;
+                                }
                             }
                         }
+                        if(flag == false){
+                            const newHomeworkCategory = await HomeworkCategory.create({
+                                title: reqCategory.title,
+                                user: mongoose.Types.ObjectId(userId),
+                                class: mongoose.Types.ObjectId(classHomeWork.class)
+                            });
+                            categoryUpdateId = newHomeworkCategory._id
+                        }
                     }
-                    if(flag == false){
-                        const newHomeworkCategory = await HomeworkCategory.create({
-                            title: reqCategory.title,
-                            user: mongoose.Types.ObjectId(userId),
-                            class: mongoose.Types.ObjectId(classHomeWork.class)
-                        });
-                        categoryUpdateId = newHomeworkCategory._id
+                    else{
+                        const homeworkCategory = await HomeworkCategory.findOne({id_homework_category: reqCategory.id_homework_category, is_delete: false});
+                        console.log(homeworkCategory);
+                        categoryUpdateId = homeworkCategory._id
                     }
-                }
-                else{
-                    const homeworkCategory = await HomeworkCategory.findOne({id_homework_category: reqCategory.id_homework_category, is_delete: false})
-                    categoryUpdateId = homeworkCategory._id
                 }
                 await HomeworkAssign.updateMany(
                     { 
