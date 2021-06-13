@@ -592,11 +592,19 @@ class HomeWorkController{
                 .populate("create_by", "-_id -__v -password")
                 .populate("homework_category", "-_id -__v")
                 .populate("document", "name viewLink downloadLink size id_files");
-
+                
+                let arrayStudentAssgined = await HomeworkAssign.find({ homework: mongoose.Types.ObjectId(classHomeWork.homework._id), class: mongoose.Types.ObjectId(classId) })
+                .populate('user', '-__v, -password');
+                let arrayStudentAssginedEmail = [];
+                arrayStudentAssgined.forEach(student => {
+                    arrayStudentAssginedEmail.push(student.user.email);
+                });
+                let data = JSON.parse(JSON.stringify(homeworkUpdate))
+                data['student_assgined'] = arrayStudentAssginedEmail;
                 return res.json({
                     success: true,
                     message: "Update homework successfully!",
-                    data: homeworkUpdate,
+                    data: data,
                     res_code: 200,
                     res_status: "UPDATE_SUCCESSFULLY"
                 })  
