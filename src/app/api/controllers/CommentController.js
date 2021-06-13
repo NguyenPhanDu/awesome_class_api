@@ -13,11 +13,11 @@ class CommentController{
             let model;
             if(req.body.ref == 1){
                 model = 'ClassHomework';
-                ref = await ClassHomework.findOne({ id_class_homework: id, is_delete : false })
+                ref = await ClassHomework.findOne({ id_class_homework: req.body.id, is_delete : false })
             }
             if(req.body.ref == 2){
                 model = 'ClassNotification';
-                ref = ClassNotification.findOne({ id_class_notify: id, is_delete: false })
+                ref = ClassNotification.findOne({ id_class_notify: req.body.id, is_delete: false })
             }
             const now = moment().toDate().toString();
             const user = await User.findOne({ email : res.locals.email});
