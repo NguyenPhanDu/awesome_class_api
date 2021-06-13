@@ -447,10 +447,16 @@ class HomeWorkController{
             let classId = classHomeWork.class
             const user = await User.findOne({email: res.locals.email})
             const userId = user._id;
+            let categoryUpdateId;
             if(classHomeWork.homework.create_by.email == res.locals.email){
+                let update = { 
+                    description: req.body.description,
+                    title: req.body.title,
+                    deadline: req.body.deadline,
+                    total_scores: reqTotalScore,
+                }
                 if(reqCategory){
                     let flag = false;
-                    let categoryUpdateId;
                     if(reqCategory.id_homework_category == -1){
                         let allCategoryInClass = await HomeworkCategory.find({class: mongoose.Types.ObjectId(classHomeWork.class), is_delete: false})
                         const allCategoryInClassLengnt = allCategoryInClass.length
@@ -483,7 +489,14 @@ class HomeWorkController{
                         console.log(homeworkCategory);
                         categoryUpdateId = homeworkCategory._id
                     }
-                }
+                    update = { 
+                        description: req.body.description,
+                        title: req.body.title,
+                        deadline: req.body.deadline,
+                        total_scores: reqTotalScore,
+                        homework_category: mongoose.Types.ObjectId(categoryUpdateId),
+                    }
+                }  
                 await HomeworkAssign.updateMany(
                     { 
                         class: mongoose.Types.ObjectId(classHomeWork.class),
@@ -577,12 +590,7 @@ class HomeWorkController{
                 }
                 const homeworkUpdate = await NormalHomework.findOneAndUpdate(
                     { id_normal_homework: classHomeWork.homework.id_normal_homework, is_delete: false },
-                    { 
-                        description: req.body.description,
-                        title: req.body.title,
-                        deadline: req.body.deadline,
-                        total_scores: reqTotalScore
-                    },
+                    update,
                     { new : true }
                 )
                 .populate("homework_type", "-_id -__v")
