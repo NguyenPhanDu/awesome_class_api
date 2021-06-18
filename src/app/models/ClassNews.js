@@ -18,7 +18,7 @@ const ClassNewsSchema = Schema({
     document: [
         {
             type: Schema.Types.ObjectId,
-            ref: 'FileNews',
+            ref: 'File',
         }
     ],
     description: {

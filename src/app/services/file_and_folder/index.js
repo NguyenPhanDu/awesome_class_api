@@ -7,6 +7,7 @@ const FolderHomework = require('../../models/FolderHomework');
 const ClassHomework = require('../../models/ClassHomework');
 const File = require('../../models/File');
 const NormalHomework = require('../../models/NormalHomework');
+const FolderClassNews = require('../../models/FolderClassNews');
 const fs = require('fs');
 
 async function createUserFolder(user){
@@ -231,12 +232,16 @@ async function deleteClassFoler(classId){
         if(arrFolderClass.length > 0){
             await FolderHomework.updateMany({ class: mongoose.Types.ObjectId(classId), is_delete: false }, { is_delete: true })
         }
+        const arrFolderNews = await FolderClassNews.find( { class: mongoose.Types.ObjectId(classId),is_delete: false } )
+        if(arrFolderNews.length > 0){
+            await FolderClassNews.updateMany({ class: mongoose.Types.ObjectId(classId), is_delete: false }, { is_delete: true })
+        }
 
         await Folder.updateMany({path: { $regex: '.*' + path + '.*' }, is_delete: false}, { is_delete: true });
         const arrayFile = await File.find({path: { $regex: '.*' + path + '.*' }, is_delete: false});
         if(arrayFile.length > 0){
             await File.updateMany({path: { $regex: '.*' + path + '.*' }, is_delete: false}, { is_delete: true })
-        }      
+        }
     }
     catch(err){
         console.log(err);

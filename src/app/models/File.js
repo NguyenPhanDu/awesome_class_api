@@ -4,9 +4,15 @@ const Schema = mongoose.Schema;
 
 const FileSchema = Schema(
     {
+        class_news: {
+            type: Schema.Types.ObjectId,
+            ref: 'ClassNews',
+            default: null
+        },
         class_homework: {
             type: Schema.Types.ObjectId,
             ref: 'ClassHomework',
+            default: null
         },
         class: {
             type: Schema.Types.ObjectId, 

@@ -15,7 +15,7 @@
                                         =>>> các folder tên student
                                                 6
                                                 => các file
-
+                        => folder news
 
 Type : 0 là foler bài tập lớn chứa giáo viên học sinh 
 Type : 1 là folder file của student homework

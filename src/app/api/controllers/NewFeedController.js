@@ -34,7 +34,8 @@ class NewFeedController{
                     newfeed.push(arrayHomework[i]);
                 }
             }
-            const b = await ClassNews.find({ class: mongoose.Types.ObjectId(classId) }).populate('user', '-password');
+            const b = await ClassNews.find({ class: mongoose.Types.ObjectId(classId) }).populate('user', '-password')
+            .populate("document", "name viewLink downloadLink size id_files");
             let arrayNotify =  JSON.parse(JSON.stringify(b));
             if(arrayNotify.length > 0){
                 let l = arrayNotify.length;

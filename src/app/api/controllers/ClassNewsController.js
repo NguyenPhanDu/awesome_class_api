@@ -4,14 +4,20 @@ const Class =require('../../models/Class');
 const ClassMember = require('../../models/ClassMember');
 const ClassNews = require('../../models/ClassNews');
 const Comment = require('../../models/Comment');
+const ClassNewsFolerSev = require('../../services/file_and_folder/class_news');
+const ClassNewsAssign = require('../../models/ClassNewsAssign');
+const File = require('../../models/File');
 const moment = require('moment');
 
 class ClassNewsController{
     async create(req, res){
         try{
+            let reqStudent = await JSON.parse(req.body.emails);
             const now = moment().toDate().toString();
             const user = await User.findOne({ email : res.locals.email});
-            const classs = await Class.findOne({ id_class: req.body.id_class, is_delete: false});
+            const classs = await Class.findOne({ id_class: Number(req.body.id_class), is_delete: false});
+            const classRole = await ClassRole.findOne({id_class_role : 2})
+            let classRoleStudentId = classRole._id
             const classMember = await ClassMember.findOne({ user :  mongoose.Types.ObjectId(user._id), class : mongoose.Types.ObjectId(classs._id)})
                                         .populate('role');
             if(classMember.role.id_class_role == 1){
@@ -23,12 +29,56 @@ class ClassNewsController{
                     create_at: now,
                     update_at: now
                 });
+                await ClassNewsFolerSev.createFolerClassNews(user._id, classs._id, classNews)
+                if(req.files){
+                    if(req.files.length> 0){
+                        for(let i = 0; i < req.files.length; i++){
+                            await ClassNewsFolerSev.uploadFileNews(user._id, classs._id, classNews,req.files[i]);
+                        }
+                    }
+                }
+                if(reqStudent.length > 0){
+                    let arrayUserId = [];
+                    for(let i = 0; i < reqStudent.length; i++){
+                        let user =  await User.findOne({email: reqStudent[i] })
+                        arrayUserId.push(user._id)
+                    }
+                    for(let i = 0; i< arrayUserId.length; i++){
+                        await ClassNewsAssign.create({
+                            user: mongoose.Types.ObjectId(arrayUserId[i]),
+                            class: mongoose.Types.ObjectId(classs._id),
+                            class_news: mongoose.Types.ObjectId(classNews._id),
+                        })
+                    }
+                }
+                else{
+                    let arrStudentInClass = await ClassMember.find({ class: mongoose.Types.ObjectId(classs._id), role: mongoose.Types.ObjectId(classRoleStudentId), is_delete: false })
+                    if(arrStudentInClass.length > 0){
+                        for(let i =0; i< arrStudentInClass.length; i++){
+                            await ClassNewsAssign.create({
+                                user: mongoose.Types.ObjectId(arrStudentInClass[i].user),
+                                class: mongoose.Types.ObjectId(classs._id),
+                                class_news: mongoose.Types.ObjectId(classNews._id),
+                            })
+                        };
+                    }
+                };
+                let arrayStudentAssgined = await ClassNewsAssign.find({ class: mongoose.Types.ObjectId(classs._id), class_news: mongoose.Types.ObjectId(classNews._id), is_delete: false })
+                                                .populate('user', '-__v, -password');
+                let arrayStudentAssginedEmail = [];
+                arrayStudentAssgined.forEach(student => {
+                    arrayStudentAssginedEmail.push(student.user.email);
+                });
                 const data = await ClassNews.findById(classNews._id)
-                    .populate('user', '-password');
+                    .populate('user', '-password')
+                    .populate('class')
+                    .populate("document", "name viewLink downloadLink size id_files");
+                const result = JSON.parse(JSON.stringify(data));
+                result['student_assgined'] = arrayStudentAssginedEmail;
                 return res.json({
                     success: true,
-                    message: "Create notification successfully!",
-                    data: data,
+                    message: "Create news successfully!",
+                    data: result,
                     res_code: 200,
                     res_status: "CREATE_SUCCESSFULLY"
                 }) 
@@ -54,18 +104,29 @@ class ClassNewsController{
             return;
         }
     };
-    // req.body : id_class_notify
+    // req.body : id_class_news
     async delete(req, res){
         try{
             const now = moment().toDate().toString();
-            const notifyWanDelete = await ClassNews.findOne({ id_class_notify: req.body.id_class_notify, is_delete: false })
-                .populate('user','-password');
-            if(notifyWanDelete.user.email == res.locals.email){
+            const newsWantDelete = await ClassNews.findOne({ id_class_news: Number(req.body.id_class_news), is_delete: false })
+                .populate('user','-password')
+                .populate('class')
+            if(newsWantDelete.user.email == res.locals.email){
+                await ClassNewsFolerSev.deleteFolderClassNews(newsWantDelete.class._id)
                 await ClassNews.findOneAndUpdate(
-                    { id_class_notify: req.body.id_class_notify, is_delete: false },
+                    { id_class_news: Number(req.body.id_class_news), is_delete: false },
                     { is_delete: true, update_at: now },
                     { new : true }
                 );
+                await ClassNewsAssign.updateMany(
+                    {
+                        class_news : mongoose.Types.ObjectId(newsWantDelete._id),
+                        is_delete : false
+                    },
+                    {
+                        is_delete: true,
+                    }
+                )
                 return res.json({
                     success: true,
                     message: "Delete notification successfully!",
@@ -94,24 +155,121 @@ class ClassNewsController{
             return;
         }
     };
-    // req.body : id_class, title, description, id_class_notify
+    // req.body : title, description, id_class_news
     async update(req, res){
         try{
+            let reqStudent = await JSON.parse(req.body.emails);
+            let reqAttachments = JSON.parse(req.body.attachments);
             const now = moment().toDate().toString();
-            const notifyWantUpdate = await ClassNews.findOne({ id_class_notify: req.body.id_class_notify, is_delete: false })
-                .populate('user','-password');
-            if(notifyWantUpdate.user.email == res.locals.email){
-                const notifyUpdate = await ClassNews.findOneAndUpdate(
-                    { id_class_notify: req.body.id_class_notify, is_delete: false },
+            const newsWantUpdate = await ClassNews.findOne({ id_class_news: Number(req.body.id_class_news), is_delete: false })
+                .populate('user','-password')
+            if(newsWantUpdate.user.email == res.locals.email){
+                await ClassNewsAssign.updateMany(
+                    {
+                        is_delete: false,
+                        class: mongoose.Types.ObjectId(newsWantUpdate.class),
+                        class_news : mongoose.Types.ObjectId(newsWantUpdate._id)
+                    },
+                    {
+                        is_delete : true
+                    }
+                )
+                if(reqStudent.length > 0 ){
+                    let arrLength = reqStudent.length
+                    for(let i = 0; i<arrLength;i++ ){
+                        let ddd = await User.findOne({email: reqStudent[i]})
+                        let userIds = ddd._id;
+                        let a = await ClassNewsAssign.findOne({
+                            class: mongoose.Types.ObjectId(newsWantUpdate.class),
+                            class_news : mongoose.Types.ObjectId(newsWantUpdate._id),
+                            user: mongoose.Types.ObjectId(userIds)
+                        });
+                        if(a){
+                            await HomeworkAssign.findByIdAndUpdate(a._id, { is_delete : false });
+                        }
+                        else{
+                            await ClassNewsAssign.create({
+                                user: mongoose.Types.ObjectId(userIds),
+                                class: mongoose.Types.ObjectId(newsWantUpdate.class),
+                                class_news : mongoose.Types.ObjectId(newsWantUpdate._id),
+                            }) 
+                        }
+                    }
+                }
+                else{
+                    let arrLength = reqStudent.length
+                    for(let i = 0; i<arrLength;i++ ){
+                        let ddd = await User.findOne({email: reqStudent[i]})
+                        let userIds = ddd._id;
+                        let a = await ClassNewsAssign.findOne({
+                            class: mongoose.Types.ObjectId(newsWantUpdate.class),
+                            class_news : mongoose.Types.ObjectId(newsWantUpdate._id),
+                            user: mongoose.Types.ObjectId(userIds)
+                        });
+                        if(a){
+                            await HomeworkAssign.findByIdAndUpdate(a._id, { is_delete : false });
+                        }
+                        else{
+                            await ClassNewsAssign.create({
+                                user: mongoose.Types.ObjectId(userIds),
+                                class: mongoose.Types.ObjectId(newsWantUpdate.class),
+                                class_news : mongoose.Types.ObjectId(newsWantUpdate._id),
+                            })  
+                        }
+                    }
+                }
+                if(reqAttachments.length > 0){
+                    let newDocument = [];
+                    let length = reqAttachments.length
+                    for(let i = 0; i < length; i++){
+                        const file = await File.findOne({ id_files: reqAttachments[i].id, is_delete: false });
+                        newDocument.push(file._id);
+                    }
+                    await ClassNews.findOneAndUpdate(
+                        {_id: mongoose.Types.ObjectId(newsWantUpdate._id)},
+                        {
+                            document: newDocument
+                        },
+                        {new: true}
+                    );
+                }
+                else{
+                    await ClassNews.findOneAndUpdate(
+                        {_id: mongoose.Types.ObjectId(newsWantUpdate._id)},
+                        {
+                            document: []
+                        },
+                        {new: true}
+                    );
+                }
+                if(req.files){
+                    if(req.files.length> 0){
+                        for(let i = 0; i < req.files.length; i++){
+                            await ClassNewsFolerSev.uploadFileNews(newsWantUpdate.user._id, newsWantUpdate.classs, newsWantUpdate,req.files[i]);
+                        }
+                    }
+                }
+                const newsUpdate = await ClassNews.findOneAndUpdate(
+                    { id_class_news: Number(req.body.id_class_news), is_delete: false },
                     {  
                         title: req.body.title,
                         description: req.body.description,
                         update_at: now
                     },
                     { new : true }
-                );
-                const data = ClassNews.findById(notifyUpdate._id)
-                    .populate('user','-password');
+                )
+                .populate('user', '-password')
+                .populate("document", "name viewLink downloadLink size id_files");
+                
+                const data = JSON.parse(JSON.stringify(newsUpdate));
+
+                let arrayStudentAssgined = await ClassNewsAssign.find({ class: mongoose.Types.ObjectId(newsUpdate.class), class_news: mongoose.Types.ObjectId(newsUpdate._id), is_delete: false })
+                                                .populate('user', '-__v, -password');
+                let arrayStudentAssginedEmail = [];
+                arrayStudentAssgined.forEach(student => {
+                    arrayStudentAssginedEmail.push(student.user.email);
+                });
+                data['student_assgined'] = arrayStudentAssginedEmail;
                 return res.json({
                     success: true,
                     message: "Create notification successfully!",
@@ -141,19 +299,21 @@ class ClassNewsController{
             return;
         }
     };
-    // req.body : id_class_notify
-    async getDetailNotify(req, res){
+    // req.body : id_class_news
+    async getDetailNews(req, res){
         try{
-            const notify =  await ClassNews.findOne({ id_class_notify: req.body.id_class_notify }).populate('user', '-password');
+            const news =  await ClassNews.findOne({ id_class_news: Number(req.body.id_class_news) })
+            .populate('user', '-password')
+            .populate("document", "name viewLink downloadLink size id_files");
             const arrayComment = await Comment.find(
                 { 
                     is_delete: false,
                     onModel: 'ClassNews',
-                    ref: mongoose.Types.ObjectId(notify._id)
+                    ref: mongoose.Types.ObjectId(news._id)
                 }
             )
             .populate('user', '-password');
-            let data = JSON.parse(JSON.stringify(notify));
+            let data = JSON.parse(JSON.stringify(news));
             data['comments'] = arrayComment;
             return res.json({
                 success: true,
