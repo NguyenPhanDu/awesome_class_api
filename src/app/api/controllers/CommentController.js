@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const User = require('../../models/User');
 const Class =require('../../models/Class');
 const ClassHomework = require('../../models/ClassHomework');
-const ClassNotification = require('../../models/ClassNotification');
+const ClassNews = require('../../models/ClassNews');
 const Comment = require('../../models/Comment');
 const moment = require('moment');
 
@@ -17,8 +17,8 @@ class CommentController{
                 ref = await ClassHomework.findOne({ id_class_homework: req.body.id, is_delete : false })
             }
             if(req.body.ref == 2){
-                model = 'ClassNotification';
-                ref = ClassNotification.findOne({ id_class_notify: req.body.id, is_delete: false })
+                model = 'ClassNews';
+                ref = ClassNotification.findOne({ id_class_news: req.body.id, is_delete: false })
             }
             const now = moment().toDate().toString();
             const user = await User.findOne({ email : res.locals.email});

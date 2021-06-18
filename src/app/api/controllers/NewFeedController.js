@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const ClassHomework = require('../../models/ClassHomework');
-const ClassNotification =require('../../models/ClassNotification');
+const ClassNews =require('../../models/ClassNews');
 const Class = require('../../models/Class');
 const moment = require('moment');
 const { parseTimeFormMongo } = require('../../../helpers/parse_date');
@@ -34,7 +34,7 @@ class NewFeedController{
                     newfeed.push(arrayHomework[i]);
                 }
             }
-            const b = await ClassNotification.find({ class: mongoose.Types.ObjectId(classId) }).populate('user', '-password');
+            const b = await ClassNews.find({ class: mongoose.Types.ObjectId(classId) }).populate('user', '-password');
             let arrayNotify =  JSON.parse(JSON.stringify(b));
             if(arrayNotify.length > 0){
                 let l = arrayNotify.length;

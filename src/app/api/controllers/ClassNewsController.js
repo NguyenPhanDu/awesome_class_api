@@ -2,21 +2,20 @@ const mongoose = require('mongoose');
 const User = require('../../models/User');
 const Class =require('../../models/Class');
 const ClassMember = require('../../models/ClassMember');
-const ClassNotification = require('../../models/ClassNotification');
+const ClassNews = require('../../models/ClassNews');
 const Comment = require('../../models/Comment');
 const moment = require('moment');
 
-class ClassNotificationController{
-    // req.body : id_class, title, description
+class ClassNewsController{
     async create(req, res){
         try{
-            const now = moment().format('MM:DD:YYYY HH:mm');
+            const now = moment().toDate().toString();
             const user = await User.findOne({ email : res.locals.email});
             const classs = await Class.findOne({ id_class: req.body.id_class, is_delete: false});
             const classMember = await ClassMember.findOne({ user :  mongoose.Types.ObjectId(user._id), class : mongoose.Types.ObjectId(classs._id)})
                                         .populate('role');
             if(classMember.role.id_class_role == 1){
-                const classNotification = await ClassNotification.create({
+                const classNews = await ClassNews.create({
                     user: mongoose.Types.ObjectId(user._id),
                     class: mongoose.Types.ObjectId(classs._id),
                     title: req.body.title,
@@ -24,7 +23,7 @@ class ClassNotificationController{
                     create_at: now,
                     update_at: now
                 });
-                const data = await ClassNotification.findById(classNotification._id)
+                const data = await ClassNews.findById(classNews._id)
                     .populate('user', '-password');
                 return res.json({
                     success: true,
@@ -58,10 +57,11 @@ class ClassNotificationController{
     // req.body : id_class_notify
     async delete(req, res){
         try{
-            const notifyWanDelete = await ClassNotification.findOne({ id_class_notify: req.body.id_class_notify, is_delete: false })
+            const now = moment().toDate().toString();
+            const notifyWanDelete = await ClassNews.findOne({ id_class_notify: req.body.id_class_notify, is_delete: false })
                 .populate('user','-password');
             if(notifyWanDelete.user.email == res.locals.email){
-                await ClassNotification.findOneAndUpdate(
+                await ClassNews.findOneAndUpdate(
                     { id_class_notify: req.body.id_class_notify, is_delete: false },
                     { is_delete: true, update_at: now },
                     { new : true }
@@ -97,11 +97,11 @@ class ClassNotificationController{
     // req.body : id_class, title, description, id_class_notify
     async update(req, res){
         try{
-            const now = moment().format('MM:DD:YYYY HH:mm');
-            const notifyWantUpdate = await ClassNotification.findOne({ id_class_notify: req.body.id_class_notify, is_delete: false })
+            const now = moment().toDate().toString();
+            const notifyWantUpdate = await ClassNews.findOne({ id_class_notify: req.body.id_class_notify, is_delete: false })
                 .populate('user','-password');
             if(notifyWantUpdate.user.email == res.locals.email){
-                const notifyUpdate = await ClassNotification.findOneAndUpdate(
+                const notifyUpdate = await ClassNews.findOneAndUpdate(
                     { id_class_notify: req.body.id_class_notify, is_delete: false },
                     {  
                         title: req.body.title,
@@ -110,7 +110,7 @@ class ClassNotificationController{
                     },
                     { new : true }
                 );
-                const data = ClassNotification.findById(notifyUpdate._id)
+                const data = ClassNews.findById(notifyUpdate._id)
                     .populate('user','-password');
                 return res.json({
                     success: true,
@@ -144,11 +144,11 @@ class ClassNotificationController{
     // req.body : id_class_notify
     async getDetailNotify(req, res){
         try{
-            const notify =  await ClassNotification.findOne({ id_class_notify: req.body.id_class_notify }).populate('user', '-password');
+            const notify =  await ClassNews.findOne({ id_class_notify: req.body.id_class_notify }).populate('user', '-password');
             const arrayComment = await Comment.find(
                 { 
                     is_delete: false,
-                    onModel: 'ClassNotification',
+                    onModel: 'ClassNews',
                     ref: mongoose.Types.ObjectId(notify._id)
                 }
             )
@@ -179,7 +179,7 @@ class ClassNotificationController{
     async getAllNotifyInClass(req, res){
         try{
             const classs = await Class.findOne({ id_class: req.body.id_class, is_delete: false});
-            const allNotify = await ClassNotification.find({ class: mongoose.Types.ObjectId(classs._id) }).populate('user', '-password');
+            const allNotify = await ClassNews.find({ class: mongoose.Types.ObjectId(classs._id) }).populate('user', '-password');
             return res.json({
                 success: true,
                 message: "get all notification successfully!",
@@ -202,4 +202,4 @@ class ClassNotificationController{
     }
 }
 
-module.exports = new ClassNotificationController;
+module.exports = new ClassNewsController;

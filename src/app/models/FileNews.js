@@ -2,11 +2,11 @@ const mongoose = require('mongoose');
 const AutoIncrement = require('mongoose-sequence')(mongoose);
 const Schema = mongoose.Schema;
 
-const FileSchema = Schema(
+const FileNewsSchema = Schema(
     {
-        class_homework: {
+        class_news: {
             type: Schema.Types.ObjectId,
-            ref: 'ClassHomework',
+            ref: 'ClassNews',
         },
         class: {
             type: Schema.Types.ObjectId, 
@@ -57,10 +57,10 @@ const FileSchema = Schema(
     },
     {
         timestamps :true,
-        collection: 'files'
+        collection: 'file_news'
     }
 );
 
-FileSchema.plugin(AutoIncrement, {inc_field: 'id_files'});
+FileNewsSchema.plugin(AutoIncrement, {inc_field: 'id_file_news'});
 
-module.exports = mongoose.model('File',FileSchema);
+module.exports = mongoose.model('FileNews',FileNewsSchema);

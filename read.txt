@@ -17,6 +17,11 @@
                                                 => các file
 
 
+Type : 0 là foler bài tập lớn chứa giáo viên học sinh 
+Type : 1 là folder file của student homework
+Type : 3 là file của của giáo viên uploadFile omework
+Type : 2 là là folder file của class new
+
 folder(trong folder tự ref tới chính mình, 1 folder có nhiều folder) => bảng folder; user
 file (1 file thuộc 1 folder, của 1 user) => bảng file: _id folder; user
 1 folder class thì có nhiều folder bài tập:  
@@ -61,184 +66,90 @@ file (1 file thuộc 1 folder, của 1 user) => bảng file: _id folder; user
       }  
 }
 
-const mongoose = require('mongoose');
-const AutoIncrement = require('mongoose-sequence')(mongoose);
-const Schema = mongoose.Schema;
+Phân tích chức năng nộp bài: 
 
-const FileSchema = Schema(
-    {
-        class_homework: {
+model : 
+Tất cả những những bài tập trong : trong class, truy vấn được đến chi tiết bài tập, user tạo bài tập
+ClassHomework: {
+    class: {
+        type: Schema.Types.ObjectId, 
+        ref:  'Class'
+    },
+    homework :
+        {
             type: Schema.Types.ObjectId,
-            ref: 'ClassHomework'
+            require: true,
+            refPath: 'onModel'
+        }
+    ,
+    onModel: {
+        type: String,
+        require: true,
+        enum: ['NormalHomework', 'QuestionHomework']
+    },
+    is_delete: {
+        type: Boolean,
+        default: false
+    }
+}
+
+Tất cả những bài tập được phân chia cho từng học sinh, từng lớp, từng bài tập, trạng thái bài tập của sinh viên đó
+HomeworkAssignSchema: {
+    user: {
+            type: Schema.Types.ObjectId, 
+            ref:  'User'
         },
         class: {
             type: Schema.Types.ObjectId, 
             ref:  'Class'
         },
-        create_by: {
-            type: Schema.Types.ObjectId, 
-            ref:  'User'
+        homework : {
+            type: Schema.Types.ObjectId,
+            require: true,
+            refPath: 'onModel'
         },
-        type: {
-            type: Number
-        },
-        id_file: {
-            type: String
-        },
-        name: {
-            type: String
-        },
-        parent : {
-            type: Schema.Types.ObjectId, 
-            ref:  'Folder'
-        },
-        path: {
+        onModel: {
             type: String,
-            default: ''
+            require: true,
+            enum: ['NormalHomework', 'QuestionHomework']
         },
-        mimeType: {
-            type: String
+        status: {
+            type: Number,
+            default: 1,
+        },
+        scores: {
+            type: Number,
+            default: null
         },
         is_delete: {
             type: Boolean,
             default: false
-        },
-        viewLink: {
-            type: String,
-            default: ""
-        },
-        downloadLink: {
-            type: String,
-            default: ""
-        },
-        size: {
-            type: Number,
         }
-    },
-    {
-        timestamps :true,
-        collection: 'files'
-    }
-);
-
-FileSchema.plugin(AutoIncrement, {inc_field: 'id_files'});
-
-module.exports = mongoose.model('File',FileSchema);
-
-
-async function deleteFolderClass(refId){
-    try{
-        let path;
-        await Directory.findOne({refId: refId, is_delete: false})
-            .then(result => {
-                path = result.path;
-                folderId = result.id_folder;
-                return path;
-            })
-            .then(async path => {
-                console.log(path)
-                await Directory.updateMany({path: { $regex: '.*' + path + '.*' }, is_delete: false}, { is_delete: true })
-                .then(result => {
-                    console.log('delete foler!')
-                })
-                .catch(err => {
-                    console.log(err);
-                    return;
-                })
-                return path;
-            })
-            .then(async path => {
-                await File.find({path: { $regex: '.*' + path + '.*' }, is_delete: false})
-                    .then(async result => {
-                        if(result.length > 0){
-                            await File.updateMany({path: { $regex: '.*' + path + '.*' }, is_delete: false}, { is_delete: true })
-                            .then(result => {
-                                console.log('delete file');
-                            })
-                            .catch(err => {
-                                console.log(err);
-                            })
-                        }
-                        console.log('delete file');
-                    })
-            })
-            .catch(err => {
-                console.log(err)
-            });
-    }
-    catch(err){
-        console.log(err)
-    }
 }
 
-// homework: NormalHomework ,,,
-async function uploadFile (files, classHomeWork, homework){
-    for(let i =0; i<files.length;i++){
-        let folderHomework;
-            await Directory.findOne({refId: classHomeWork._id, name: 'Teacher', is_delete: false})
-            .then(result => {
-                folderHomework = result
-            })
-        await drive.files.create({
-            resource: {
-                name: files[i].originalname,
-                mimetype: files[i].mimetype,
-                parents: [folderHomework.id_folder]
-            },
-            media: {
-                mimeType: files[i].mimetype,
-                body: fs.createReadStream(files[i].path)
-            }
-        })
-        .then(async result => {
-            let id = result.data.id;
-            let name = result.data.name;
-            let mineType = result.data.mineType;
-            let path = folderHomework.path+result.data.name
-            let viewLink;
-            let downloadLink;
-            await drive.permissions.create({
-                fileId: result.data.id,
-                requestBody:{
-                    role: 'reader',
-                    type: 'anyone'
-                }
-            });
-            await drive.files.get({
-                fileId: result.data.id,
-                fields: 'webViewLink, webContentLink'
-            })
-            .then(result => {
-                viewLink = result.data.webViewLink,
-                downloadLink = result.data.webContentLink
-            });
-            await File.create({
-                id_file: id,
-                name: name,
-                parent: folderHomework._id,
-                path: path,
-                mimeType: mineType,
-                viewLink: viewLink,
-                downloadLink: downloadLink,
-                size: files[i].size
-            })
-            .then(async result => {
-                console.log("create File!")
-                await NormalHomework.findOneAndUpdate(
-                    {_id: mongoose.Types.ObjectId(homework._id)},
-                    {
-                        $push: {document: result._id}
-                    },
-                    {new: true}
-                )
-                .then(result => {
-                    console.log(result);
-                })
-            })
-        })
-        .catch(err => {
-            console.log(err);
-        })
-        await unlinkAsync(files[i].path);
-    }
-}
+Làm sao để biết đc bài tập còn hay hêt han ??? ko phải chức năng nộp bài
+user là học sinh
+nộp sinh nộp câu trả lời : lưu ở đâu đây bảng mới hay 1 trong bản homeworkAssign ?? (1)
+nộp thêm file: Lưu ở đâu ?? (2)
+Đảm bảo được có thể thay đổi câu trả lời khi đã nộp, nộp nhiều lần (3)
+Làm sao để kiểm tra được là học sinh nộp đúng hạn hay không => Kiểm tra createAt với dealine
+//Thống kê:
+Giáo viên xem bài nộp sinh viên ở đâu => thống kê database ??? databse nào ?
+Xem bài nôpk sinh viên truy vấn ở bảng nào??
+
+(4)Bài tập có trạng thái:
+(giáo viên): đã giao, đã nôp, đã trả (có thể kềm điểm và nhận xết) => chức năng trả bài tập
+học sinh: 
+    + chưa nộp
+    +đã nộp : đúng hạn (giờ nộp < dealine), trễ ( giờ nộp > dealine ), thiếu ( không nộp khi deadline )
+
+flow file của sinh viên nộp bài tạo foler có type: 2 level : 5 có tên của sinh viên lưu các file
+=> database thêm 1 trường document[] như bài tập
+
+Đảm bảo đc là sử dụng được cho cả 3 loại ??
+
+Không tính lưu kết quả các loại bài nộp của sinh viên ở đâu (1)(2)(3) 
+=> bảng khác có liên kết vs bảng bài tập và giao bài chứa nội dung nội bài
+1 bảng lưu , xem xét được tình trạng của bài tập dưới tư các giáo viên và học sinh(4)
+bảng lưu câu trả lời của 1 học sinh có thể dùng cho dạng tập thường và câu hỏi
+

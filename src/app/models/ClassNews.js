@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 const AutoIncrement = require('mongoose-sequence')(mongoose);
 const Schema = mongoose.Schema;
-
-const ClassNotificationSchema = Schema({
+require('./File');
+const ClassNewsSchema = Schema({
     user: {
         type: Schema.Types.ObjectId, 
         ref:  'User'
@@ -13,8 +13,14 @@ const ClassNotificationSchema = Schema({
     },
     title: {
         type: String,
-        required: true,
+        default: ''
     },
+    document: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: 'FileNews',
+        }
+    ],
     description: {
         type: String,
         default: '',
@@ -34,10 +40,10 @@ const ClassNotificationSchema = Schema({
 },
 {
     timestamps :true,
-    collection: 'class_notifications'
+    collection: 'class_news'
 }
     
 );
 
-ClassNotificationSchema.plugin(AutoIncrement,{inc_field: 'id_class_notify'});
-module.exports = mongoose.model("ClassNotification", ClassNotificationSchema);
+ClassNewsSchema.plugin(AutoIncrement,{inc_field: 'id_class_news'});
+module.exports = mongoose.model("ClassNews", ClassNewsSchema);

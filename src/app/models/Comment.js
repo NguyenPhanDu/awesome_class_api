@@ -23,7 +23,7 @@ const CommentSchema = Schema(
         onModel: {
             type: String,
             require: true,
-            enum: ['ClassHomework', 'ClassNotification']
+            enum: ['ClassNews', 'ClassNotification']
         },
         is_delete: {
             type: Boolean,
