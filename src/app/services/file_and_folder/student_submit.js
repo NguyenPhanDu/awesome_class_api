@@ -9,21 +9,40 @@ const fs = require('fs');
 async function createStudentSubmit(classId, classHomework, user){
     try{
         const folderStudent = await FolderHomework.findOne({
-            is_delete: false,
             class: mongoose.Types.ObjectId(classId),
             class_homework: mongoose.Types.ObjectId(classHomework._id),
             level: 4,
             type: 1,
         })
         .populate('folder');
-        const folerStudentSubmitDrive = response = await drive.files.create({
-            resource: {
-                'name': user.id_user,
-                'mimeType': 'application/vnd.google-apps.folder',
-                parents: [folderStudent.folder.id_folder]
-            }
-        });
-        let pathStudentSubmitFolder = folderStudent.folder.path+folerStudentSubmitDrive.data.name+'/';
+
+        const folderStudentss = await FolderHomework.findOne({
+            create_by: mongoose.Types.ObjectId(user._id),
+            class: mongoose.Types.ObjectId(classId),
+            class_homework: mongoose.Types.ObjectId(classHomework._id),
+            level: 5,
+            type: 1,
+        })
+        .populate('folder');
+        if(folderStudentss){
+            await FolderHomework.findOneAndUpdate(
+                { _id: mongoose.Types.ObjectId(folderStudentss._id) },
+                { is_delete: false }
+            )
+            await Folder.findOneAndUpdate(
+                { _id: mongoose.Types.ObjectId(folderStudentss.folder) },
+                { is_delete: false }
+            )
+        }
+        else{
+            const folerStudentSubmitDrive = response = await drive.files.create({
+                resource: {
+                    'name': user.id_user,
+                    'mimeType': 'application/vnd.google-apps.folder',
+                    parents: [folderStudent.folder.id_folder]
+                }
+            });
+            let pathStudentSubmitFolder = folderStudent.folder.path+folerStudentSubmitDrive.data.name+'/';
             const newFolerStudent = await Folder.create({
                 id_folder: folerStudentSubmitDrive.data.id,
                 name: folerStudentSubmitDrive.data.name,
@@ -40,6 +59,7 @@ async function createStudentSubmit(classId, classHomework, user){
                 level: 5,
                 type: 1
             })
+        }
     }
     catch(err){
         console.log(err);

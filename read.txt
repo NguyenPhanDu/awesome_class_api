@@ -192,5 +192,18 @@ HomeworkAssignSchema: {
 }
 
 check công việc: 
-Kiểm tra các phần thêm xóa sữa chi tiết new
-+ Thêm: Ok
+Kiểm tra các phần thêm xóa sữa chi tiết new : Okay
+
+Hiển thị phần submit trong chi tiết bài tập
+
+{
+    is_submit: ,
+    status: ,
+    scores  : ,
+    submitted: {
+        content: ,
+        document: [],
+        submit_at
+    },
+    nếu chưa submit thì submitted: null
+}
