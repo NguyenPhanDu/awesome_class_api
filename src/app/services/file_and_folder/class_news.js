@@ -9,18 +9,17 @@ const fs = require('fs');
 
 async function createFolerClassNews(userId, classId, classNews){
     try{
-        const classNewsData = await ClassNews.findById(classNews._id);
-        const parentFolder = await FolderClass.findOne({ create_by: mongoose.Types.ObjectId(userId), class: mongoose.Types.ObjectId(classId) })
+        const parentFolder = await FolderClass.findOne({ create_by: mongoose.Types.ObjectId(userId), class: mongoose.Types.ObjectId(classId), is_delete: false })
         .populate('folder');
         // create foler in gooler drive
         const folerDrive = response = await drive.files.create({
             resource: {
-                'name': classNewsData.id_class_news,
+                'name': classNews.id_class_news,
                 'mimeType': 'application/vnd.google-apps.folder',
                 parents: [parentFolder.folder.id_folder]
             }
         });
-        let path = parentFolder.folder.path+'/news/'+classNewsData.id_class_news+'/';
+        let path = parentFolder.folder.path+'/news/'+classNews.id_class_news+'/';
         const folderchema = new Folder({
             id_folder: folerDrive.data.id,
             name: folerDrive.data.name,
@@ -47,6 +46,7 @@ async function createFolerClassNews(userId, classId, classNews){
 
 async function uploadFileNews(userId, classId, classNews, file){
     try{
+        // Tìm folder news chứa các file sẽ upload
         const folderClassNews = await FolderClassNews.findOne(
             {
                 is_delete: false,
@@ -56,6 +56,7 @@ async function uploadFileNews(userId, classId, classNews, file){
                 type: 2
             }
         ).populate('folder');
+        // Upload file lên drive
         const fileCreateByDrive = await drive.files.create({
             resource: {
                 name: file.originalname,
@@ -67,6 +68,7 @@ async function uploadFileNews(userId, classId, classNews, file){
                 body: fs.createReadStream(file.path)
             }
         });
+        // Chia sẽ file
         await drive.permissions.create({
             fileId: fileCreateByDrive.data.id,
             requestBody:{
@@ -103,7 +105,7 @@ async function uploadFileNews(userId, classId, classNews, file){
     }
     catch(err){
         console.log(err);
-        return
+        return;
     }
 }
 async function deleteFolderClassNews(classId, classNews){
@@ -118,22 +120,18 @@ async function deleteFolderClassNews(classId, classNews){
             }
         ).populate('folder');
         let path = folderClassNews.folder.path
-        await FolderClassNews.findOneAndUpdate(
-            {
-                class: mongoose.Types.ObjectId(classId),
-                class_news: mongoose.Types.ObjectId(classNews._id),
-                is_delete: false
-            },
+        await FolderClassNews.findByIdAndUpdate(
+            folderClassNews._id,
             {
                 is_delete: true
             }
         );
-        const arrayFoler = await Folder.find({path: { $regex: '.*' + path + '.*' }, is_delete: false})
-        if(arrayFoler.length> 0){
+        const arrayFolerIsFolderClassNews = await Folder.find({path: { $regex: '.*' + path + '.*' }, is_delete: false})
+        if(arrayFolerIsFolderClassNews.length> 0){
             await Folder.updateMany({path: { $regex: '.*' + path + '.*' }, is_delete: false}, { is_delete: true });
         }
-        const arrayFile = await File.find({path: { $regex: '.*' + path + '.*' }, is_delete: false});
-        if(arrayFile.length > 0){
+        const arrayFileOfNews = await File.find({path: { $regex: '.*' + path + '.*' }, is_delete: false});
+        if(arrayFileOfNews.length > 0){
             await File.updateMany({path: { $regex: '.*' + path + '.*' }, is_delete: false}, { is_delete: true })
         }      
 

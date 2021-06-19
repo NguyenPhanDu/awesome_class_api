@@ -236,7 +236,6 @@ async function deleteClassFoler(classId){
         if(arrFolderNews.length > 0){
             await FolderClassNews.updateMany({ class: mongoose.Types.ObjectId(classId), is_delete: false }, { is_delete: true })
         }
-
         await Folder.updateMany({path: { $regex: '.*' + path + '.*' }, is_delete: false}, { is_delete: true });
         const arrayFile = await File.find({path: { $regex: '.*' + path + '.*' }, is_delete: false});
         if(arrayFile.length > 0){

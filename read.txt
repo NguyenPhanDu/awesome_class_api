@@ -191,3 +191,6 @@ HomeworkAssignSchema: {
         },
 }
 
+check công việc: 
+Kiểm tra các phần thêm xóa sữa chi tiết new
++ Thêm: Ok

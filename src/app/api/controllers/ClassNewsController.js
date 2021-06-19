@@ -21,6 +21,7 @@ class ClassNewsController{
             const classMember = await ClassMember.findOne({ user :  mongoose.Types.ObjectId(user._id), class : mongoose.Types.ObjectId(classs._id)})
                                         .populate('role');
             if(classMember.role.id_class_role == 1){
+                // Tạo mới new chưa có file
                 const classNews = await ClassNews.create({
                     user: mongoose.Types.ObjectId(user._id),
                     class: mongoose.Types.ObjectId(classs._id),
@@ -29,7 +30,9 @@ class ClassNewsController{
                     create_at: now,
                     update_at: now
                 });
+                // tạo thư mục của new này trên google, cơ sở dữ liệu
                 await ClassNewsFolerSev.createFolerClassNews(user._id, classs._id, classNews)
+                // nếu có file
                 if(req.files){
                     if(req.files.length> 0){
                         for(let i = 0; i < req.files.length; i++){
@@ -37,13 +40,16 @@ class ClassNewsController{
                         }
                     }
                 }
+                // Chỉ định học sinh
                 if(reqStudent.length > 0){
                     let arrayUserId = [];
-                    for(let i = 0; i < reqStudent.length; i++){
+                    let arrayLength = reqStudent.length;
+                    for(let i = 0; i < arrayLength; i++){
                         let user =  await User.findOne({email: reqStudent[i] })
                         arrayUserId.push(user._id)
                     }
-                    for(let i = 0; i< arrayUserId.length; i++){
+                    let arrUserIdLength  = arrayUserId.length
+                    for(let i = 0; i< arrUserIdLength; i++){
                         await ClassNewsAssign.create({
                             user: mongoose.Types.ObjectId(arrayUserId[i]),
                             class: mongoose.Types.ObjectId(classs._id),
@@ -54,7 +60,8 @@ class ClassNewsController{
                 else{
                     let arrStudentInClass = await ClassMember.find({ class: mongoose.Types.ObjectId(classs._id), role: mongoose.Types.ObjectId(classRoleStudentId), is_delete: false })
                     if(arrStudentInClass.length > 0){
-                        for(let i =0; i< arrStudentInClass.length; i++){
+                        let arrLength = arrStudentInClass.length
+                        for(let i =0; i< arrLength; i++){
                             await ClassNewsAssign.create({
                                 user: mongoose.Types.ObjectId(arrStudentInClass[i].user),
                                 class: mongoose.Types.ObjectId(classs._id),
@@ -112,7 +119,7 @@ class ClassNewsController{
                 .populate('user','-password')
                 .populate('class')
             if(newsWantDelete.user.email == res.locals.email){
-                await ClassNewsFolerSev.deleteFolderClassNews(newsWantDelete.class._id)
+                await ClassNewsFolerSev.deleteFolderClassNews(newsWantDelete.class._id, newsWantDelete)
                 await ClassNews.findOneAndUpdate(
                     { id_class_news: Number(req.body.id_class_news), is_delete: false },
                     { is_delete: true, update_at: now },
@@ -313,8 +320,15 @@ class ClassNewsController{
                 }
             )
             .populate('user', '-password');
+            let arrayStudentAssgined = await ClassNewsAssign.find({ class: mongoose.Types.ObjectId(news.class), class_news: mongoose.Types.ObjectId(news._id), is_delete: false })
+                                                .populate('user', '-__v, -password');
+                let arrayStudentAssginedEmail = [];
+                arrayStudentAssgined.forEach(student => {
+                    arrayStudentAssginedEmail.push(student.user.email);
+                });
             let data = JSON.parse(JSON.stringify(news));
             data['comments'] = arrayComment;
+            data['student_assgined'] = arrayStudentAssginedEmail;
             return res.json({
                 success: true,
                 message: "get detail notification successfully!",
@@ -335,31 +349,6 @@ class ClassNewsController{
             return;
         }
     };
-    // req.body : id_class
-    async getAllNotifyInClass(req, res){
-        try{
-            const classs = await Class.findOne({ id_class: req.body.id_class, is_delete: false});
-            const allNotify = await ClassNews.find({ class: mongoose.Types.ObjectId(classs._id) }).populate('user', '-password');
-            return res.json({
-                success: true,
-                message: "get all notification successfully!",
-                data: allNotify,
-                res_code: 200,
-                res_status: "DELETE_SUCCESSFULLY"
-            }) 
-        }
-        catch(err){
-            console.log(err);
-            res.json({
-                success: false,
-                message: 'Server error. Please try again',
-                error: err,
-                res_code: 500,
-                res_status: "SERVER_ERROR"
-            });
-            return;
-        }
-    }
 }
 
 module.exports = new ClassNewsController;
