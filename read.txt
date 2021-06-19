@@ -152,4 +152,42 @@ Không tính lưu kết quả các loại bài nộp của sinh viên ở đâu 
 => bảng khác có liên kết vs bảng bài tập và giao bài chứa nội dung nội bài
 1 bảng lưu , xem xét được tình trạng của bài tập dưới tư các giáo viên và học sinh(4)
 bảng lưu câu trả lời của 1 học sinh có thể dùng cho dạng tập thường và câu hỏi
+=>
+
+HomeworkAssignSchema: {
+    user: {
+            type: Schema.Types.ObjectId, 
+            ref:  'User'
+        },
+        class: {
+            type: Schema.Types.ObjectId, 
+            ref:  'Class'
+        },
+        homework : {
+            type: Schema.Types.ObjectId,
+            require: true,
+            refPath: 'onModel'
+        },
+        onModel: {
+            type: String,
+            require: true,
+            enum: ['NormalHomework', 'QuestionHomework']
+        },
+        status: {
+            type: Number,
+            default: 0,
+        },
+        scores: {
+            type: Number,
+            default: null
+        },
+        is_submit: {
+            type: Boolean,
+            default: false
+        }
+        is_delete: {
+            type: Boolean,
+            default: false
+        },
+}
 

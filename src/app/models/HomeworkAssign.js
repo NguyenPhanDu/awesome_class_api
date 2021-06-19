@@ -33,6 +33,10 @@ const HomeworkAssignSchema = Schema(
         is_delete: {
             type: Boolean,
             default: false
+        },
+        is_submit: {
+            type: Boolean,
+            default: false
         }
     },
     {
