@@ -65,7 +65,8 @@ class SubmitHomeworkController{
                 {
                     new: true
                 }
-            );
+            )
+            .populate('user','-password');
             const data = await SubmitHomework.findById(mongoose.Types.ObjectId(submit._id))
             .populate('class_homework')
             .populate('assignment')
@@ -118,7 +119,8 @@ class SubmitHomeworkController{
                     user: mongoose.Types.ObjectId(userId),
                     homework: mongoose.Types.ObjectId(homeworkId),
                 }
-            );
+            )
+            .populate('user','-password');
             let submitted;
             const submit = await SubmitHomework.findOne(
                 {

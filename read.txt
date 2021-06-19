@@ -207,3 +207,37 @@ Hiển thị phần submit trong chi tiết bài tập
     },
     nếu chưa submit thì submitted: null
 }
+
+
+THống kê: 
+Chọn sinh viên để chấm Bài
+
+thống kê trả về :
+{
+    amount_submitted: số lượng chưa đã nộp
+    amout_delivered: sô lượng chưa nộp (đã giao)
+    list_submitted: [
+        {
+            thông tin user đã nộp
+        }
+    ],
+    list_delivered: [
+        {
+
+        },
+        {
+            thông tin user chưa nộp
+        }
+    ],
+    // các thông tin về submit bài tập của tất cả học sinh đc giao bài tâp
+    assignment: [
+        các trường trong bảng : HomeworkAssign
+        thêm 1 trường: 
+        submitted: {
+            content: chứa thông tin ,
+            document: [
+                các file của họp sinh nộp bài
+            ]
+        }
+    ]
+}
