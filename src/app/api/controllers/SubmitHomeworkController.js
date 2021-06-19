@@ -16,7 +16,7 @@ class SubmitHomeworkController{
         try{
             const now = moment().toDate().toString();
             const user = await User.findOne({email: res.locals.email})
-                let userId = user._id;
+            let userId = user._id;
             const classHomework = await ClassHomework.findOne({id_class_homework: req.body.id_class_homework, is_delete: false})
             // .populate('class')
             // .populate('homework')
@@ -63,6 +63,9 @@ class SubmitHomeworkController{
         catch(err){
             console.log(err);
         }
+    };
+    checkSubmitInDetailHomework(req, res){
+
     }
 }
 
