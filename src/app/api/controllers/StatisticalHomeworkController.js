@@ -96,6 +96,18 @@ class StatisticalHomework{
                 return item.user
             });
             let response = {}
+            response['amount_submitted'] = amount_submitted;
+            response['amout_delivered'] = amout_delivered;
+            response['list_submitted'] = list_submitted;
+            response['list_delivered'] = list_delivered;
+            response['assignment'] = assignment;
+            return res.json({
+                success: true,
+                message: "Statistical homework homework!",
+                data: response,
+                res_code: 200,
+                res_status: "SUBMIT_SUCCESSFULLY"
+            });
         }
         catch(err){
             console.log(err);
