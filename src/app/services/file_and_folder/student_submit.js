@@ -68,7 +68,7 @@ async function createStudentSubmit(classId, classHomework, user){
     }
 }
 
-async function uploadFileSubmit(classId, classHomework, user, file, submit){
+async function uploadFileSubmit(classId, classHomework, user, file, submitId){
     try{
         const folderStudentSubmit = await FolderHomework.findOne(
             {
@@ -122,7 +122,7 @@ async function uploadFileSubmit(classId, classHomework, user, file, submit){
             size: file.size
         });
         console.log('file in db: ',newFile)
-        await SubmitHomework.findByIdAndUpdate(submit._id, 
+        await SubmitHomework.findByIdAndUpdate(submitId, 
             {
                 $push: {document: newFile._id}
             }

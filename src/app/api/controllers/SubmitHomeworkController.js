@@ -43,7 +43,7 @@ class SubmitHomeworkController{
             if(req.files){
                 if(req.files.length> 0){
                     for(let i = 0; i < req.files.length; i++){
-                        await FolerSer.uploadFileSubmit(classId,classHomework,user, req.files[i],submit);
+                        await FolerSer.uploadFileSubmit(classId,classHomework,user, req.files[i],submit._id);
                     }
                 }
             }
