@@ -13,7 +13,8 @@ class SubmitHomeworkController{
     // status : 1 là đúng hạn, 2 là trễ, 3 là thiếu, 4 là đã trả, 0 là đã giao;
     async submitNormalHomework (req, res){
         try{
-            const now = moment().toDate().toString();
+
+            const now = moment().toDate().toDateString();
             const user = await User.findOne({email: res.locals.email})
             let userId = user._id;
             const classHomework = await ClassHomework.findOne({id_class_homework: Number(req.body.id_class_homework), is_delete: false})
@@ -107,7 +108,7 @@ class SubmitHomeworkController{
     // id_class_homework
     async displaySubmitInDetailHomework(req, res){
         try{
-            const now = moment().toDate().toString();
+            const now = moment().toDate().toDateString();
             const user = await User.findOne({email: res.locals.email})
             let userId = user._id;
             const classHomework = await ClassHomework.findOne({id_class_homework: Number(req.body.id_class_homework), is_delete: false})

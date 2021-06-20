@@ -20,7 +20,7 @@ class CommentController{
                 model = 'ClassNews';
                 ref = await ClassNews.findOne({ id_class_news: req.body.id, is_delete: false })
             }
-            const now = moment().toDate().toString();
+            const now = moment().toDate().toDateString();
             const user = await User.findOne({ email : res.locals.email});
             const classs = await Class.findOne({ id_class: req.body.id_class, is_delete: false});
             const commentNew = await Comment.create({
@@ -56,7 +56,7 @@ class CommentController{
     // req.body.id_comment
     async delete(req, res){
         try{
-            const now = moment().toDate().toString();
+            const now = moment().toDate().toDateString();
             const comment = await Comment.findOne({ id_comment:  req.body.id_comment, is_delete: false})
             .populate('user', '-password');
             const classs = await Class.findById(mongoose.Types.ObjectId(comment.class))
@@ -99,7 +99,7 @@ class CommentController{
     // req.body.id_comment, content
     async update(req, res){
         try{
-            const now = moment().toDate().toString();
+            const now = moment().toDate().toDateString();
             const comment = await Comment.findOne({ id_comment:  req.body.id_comment, is_delete: false})
             .populate('user', '-password');
             if(res.locals.email == comment.user.email){

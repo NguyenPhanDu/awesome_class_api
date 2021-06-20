@@ -14,7 +14,7 @@ class ClassNewsController{
     async create(req, res){
         try{
             let reqStudent = await JSON.parse(req.body.emails);
-            const now = moment().toDate().toString();
+            const now = moment().toDate().toDateString();
             const user = await User.findOne({ email : res.locals.email});
             const classs = await Class.findOne({ id_class: Number(req.body.id_class), is_delete: false});
             const classRole = await ClassRole.findOne({id_class_role : 2})
@@ -115,7 +115,7 @@ class ClassNewsController{
     // req.body : id_class_news
     async delete(req, res){
         try{
-            const now = moment().toDate().toString();
+            const now = moment().toDate().toDateString();
             const newsWantDelete = await ClassNews.findOne({ id_class_news: Number(req.body.id_class_news), is_delete: false })
                 .populate('user','-password')
                 .populate('class')
@@ -168,7 +168,7 @@ class ClassNewsController{
         try{
             let reqStudent = await JSON.parse(req.body.emails);
             let reqAttachments = JSON.parse(req.body.attachments);
-            const now = moment().toDate().toString();
+            const now = moment().toDate().toDateString();
             const newsWantUpdate = await ClassNews.findOne({ id_class_news: Number(req.body.id_class_news), is_delete: false })
                 .populate('user','-password')
             if(newsWantUpdate.user.email == res.locals.email){

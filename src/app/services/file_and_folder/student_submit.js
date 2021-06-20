@@ -15,7 +15,6 @@ async function createStudentSubmit(classId, classHomework, user){
             type: 1,
         })
         .populate('folder');
-        console.log('folderStudent:',folderStudent)
         const folderStudentss = await FolderHomework.findOne({
             create_by: mongoose.Types.ObjectId(user._id),
             class: mongoose.Types.ObjectId(classId),
@@ -24,7 +23,6 @@ async function createStudentSubmit(classId, classHomework, user){
             type: 1,
         })
         .populate('folder');
-        console.log('folde chứa nội dung submit',folderStudentss)
         if(folderStudentss){
             await FolderHomework.findOneAndUpdate(
                 { _id: mongoose.Types.ObjectId(folderStudentss._id) },
@@ -81,7 +79,6 @@ async function uploadFileSubmit(classId, classHomework, user, file, submitId){
             }
         ).populate('folder');
         
-        console.log('fodler upload: ', folderStudentSubmit)
         const fileCreateByDrive = await drive.files.create({
             resource: {
                 name: file.originalname,
@@ -93,7 +90,6 @@ async function uploadFileSubmit(classId, classHomework, user, file, submitId){
                 body: fs.createReadStream(file.path)
             }
         });
-        console.log('file upload in drive:', fileCreateByDrive)
         await drive.permissions.create({
             fileId: fileCreateByDrive.data.id,
             requestBody:{
@@ -121,7 +117,6 @@ async function uploadFileSubmit(classId, classHomework, user, file, submitId){
             downloadLink: linkFileDirve.data.webContentLink,
             size: file.size
         });
-        console.log('file in db: ',newFile)
         await SubmitHomework.findByIdAndUpdate(submitId, 
             {
                 $push: {document: newFile._id}
