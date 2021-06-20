@@ -10,7 +10,7 @@ const Folder = require('../../models/Folder');
 const moment = require('moment');
 class SubmitHomeworkController{
     // id_class_homework
-    // status : 1 là đúng hạn, 2 là trễ, 3 là thiếu, 4 là đã trả, 0 là đã giao
+    // status : 1 là đúng hạn, 2 là trễ, 3 là thiếu, 4 là đã trả, 0 là đã giao;
     async submitNormalHomework (req, res){
         try{
             const now = moment().toDate().toString();
@@ -107,6 +107,7 @@ class SubmitHomeworkController{
     // id_class_homework
     async displaySubmitInDetailHomework(req, res){
         try{
+            const now = moment().toDate().toString();
             const user = await User.findOne({email: res.locals.email})
             let userId = user._id;
             const classHomework = await ClassHomework.findOne({id_class_homework: Number(req.body.id_class_homework), is_delete: false})
@@ -144,7 +145,7 @@ class SubmitHomeworkController{
                 }
             }
             else{
-                const homeworkAssign = await HomeworkAssign.findOne(
+                let homeworkAssign = await HomeworkAssign.findOne(
                     {
                         is_delete: false,
                         user: mongoose.Types.ObjectId(userId),
@@ -152,7 +153,23 @@ class SubmitHomeworkController{
                     }
                 )
                 .populate('user','-password');
+                result = JSON.parse(JSON.stringify(homeworkAssign));
                 let submitted;
+                if( moment(now).isBefore(classHomework.homework.deadline) && homeworkAssign.is_submit == false){
+                    const homeworkAssign2 = await HomeworkAssign.findOneAndUpdate(
+                        {
+                            _id : mongoose.Types.ObjectId(homeworkAssign._id)
+                        },
+                        {
+                            status: 3
+                        },
+                        {
+                            new: true
+                        }
+                    )
+                    .populate('user','-password');
+                    result = JSON.parse(JSON.stringify(homeworkAssign2));
+                }
                 const submit = await SubmitHomework.findOne(
                     {
                         is_delete: false,
@@ -173,7 +190,6 @@ class SubmitHomeworkController{
                 else{
                     submitted = null;
                 }
-                result = JSON.parse(JSON.stringify(homeworkAssign));
                 result['submitted'] = submitted;
                 result['is_author'] = false;
             }
