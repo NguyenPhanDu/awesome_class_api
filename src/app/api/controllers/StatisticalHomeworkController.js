@@ -158,3 +158,4 @@ class StatisticalHomework{
     
 }
 
+module.exports = new StatisticalHomework

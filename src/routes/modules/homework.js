@@ -3,6 +3,7 @@ const router = express.Router();
 const {verifyToken} = require('../../app/middlewares/authJwt');
 const HomeWorkController = require('../../app/api/controllers/HomeworkController');
 const SubmitHomeworkController = require('../../app/api/controllers/SubmitHomeworkController');
+const StatisticalHomewok = require('../../app/api/controllers/StatisticalHomeworkController');
 const upload = require('../../app/middlewares/upload');
 
 router.use(verifyToken);
@@ -14,5 +15,8 @@ router.post('/update-normal-homework',upload, HomeWorkController.updateNormalHom
 router.post('/submit-normal-homework',upload, SubmitHomeworkController.submitNormalHomework);
 router.post('/cancel-submit', SubmitHomeworkController.cancelSubmit);
 router.post('/display-assignment/', SubmitHomeworkController.displaySubmitInDetailHomework);
+
+router.post('/display-statistical-homework', StatisticalHomewok.statisticalHomework);
+router.post('/return-homework', StatisticalHomewok.returnHomework);
 
 module.exports = router;
