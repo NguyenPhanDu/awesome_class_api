@@ -47,7 +47,7 @@ class NewFeedController{
                             onModel: 'ClassNews',
                             ref: mongoose.Types.ObjectId(arrayNotify[i]._id)
                         }
-                    );
+                    ).populate('user','-password')
                     arrayNotify[i].comments = arrayComment
                     newfeed.push(arrayNotify[i]);
                 }
