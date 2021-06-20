@@ -80,7 +80,8 @@ async function uploadFileSubmit(classId, classHomework, user, file, submit){
                 is_delete: false,
             }
         ).populate('folder');
-
+        
+        consolelog('fodler upload: ', folderStudentSubmit)
         const fileCreateByDrive = await drive.files.create({
             resource: {
                 name: file.originalname,
@@ -92,6 +93,7 @@ async function uploadFileSubmit(classId, classHomework, user, file, submit){
                 body: fs.createReadStream(file.path)
             }
         });
+        console.log('file upload in drive:', fileCreateByDrive)
         await drive.permissions.create({
             fileId: fileCreateByDrive.data.id,
             requestBody:{
@@ -107,7 +109,7 @@ async function uploadFileSubmit(classId, classHomework, user, file, submit){
         const newFile = await File.create({
             class_homework: mongoose.Types.ObjectId(classHomework._id),
             class: mongoose.Types.ObjectId(classId),
-            create_by: mongoose.Types.ObjectId(userId),
+            create_by: mongoose.Types.ObjectId(user._id),
             type: 1,
             id_file: fileCreateByDrive.data.id,
             name: fileCreateByDrive.data.name,
@@ -119,6 +121,7 @@ async function uploadFileSubmit(classId, classHomework, user, file, submit){
             downloadLink: linkFileDirve.data.webContentLink,
             size: file.size
         });
+        console.log('file in db: ',newFile)
         await SubmitHomework.findByIdAndUpdate(submit._id, 
             {
                 $push: {document: newFile._id}
