@@ -110,42 +110,56 @@ class SubmitHomeworkController{
             const user = await User.findOne({email: res.locals.email})
             let userId = user._id;
             const classHomework = await ClassHomework.findOne({id_class_homework: Number(req.body.id_class_homework), is_delete: false})
+            .populate({
+                path: 'homework',
+                populate: [
+                    {
+                        path: 'create_by'
+                    }
+                ]
+            })
             let classId = classHomework.class;
             let homeworkId = classHomework.homework;
-
-            const homeworkAssign = await HomeworkAssign.findOne(
-                {
-                    is_delete: false,
-                    user: mongoose.Types.ObjectId(userId),
-                    homework: mongoose.Types.ObjectId(homeworkId),
+            let result;
+            if(classHomework.homework.create_by.email == res.locals.email){
+                result = {
+                    is_author: true
                 }
-            )
-            .populate('user','-password');
-            let submitted;
-            const submit = await SubmitHomework.findOne(
-                {
-                    is_delete: false,
-                    user: mongoose.Types.ObjectId(userId),
-                    assignment: mongoose.Types.ObjectId(homeworkAssign._id),
-                    class_homework: mongoose.Types.ObjectId(classHomework._id),
-                }
-            );
-            if(submit){
-                submitted = JSON.parse(JSON.stringify(submit));
-
-                delete submitted.class_homework;
-                delete submitted.user
-                delete submitted.is_delete
-                delete submitted.assignment
-                delete submitted.updatedAt
-                delete submitted.createdAt
             }
             else{
-                submitted = null;
+                const homeworkAssign = await HomeworkAssign.findOne(
+                    {
+                        is_delete: false,
+                        user: mongoose.Types.ObjectId(userId),
+                        homework: mongoose.Types.ObjectId(homeworkId),
+                    }
+                )
+                .populate('user','-password');
+                let submitted;
+                const submit = await SubmitHomework.findOne(
+                    {
+                        is_delete: false,
+                        user: mongoose.Types.ObjectId(userId),
+                        assignment: mongoose.Types.ObjectId(homeworkAssign._id),
+                        class_homework: mongoose.Types.ObjectId(classHomework._id),
+                    }
+                );
+                if(submit){
+                    submitted = JSON.parse(JSON.stringify(submit));
+                    delete submitted.class_homework;
+                    delete submitted.user
+                    delete submitted.is_delete
+                    delete submitted.assignment
+                    delete submitted.updatedAt
+                    delete submitted.createdAt
+                }
+                else{
+                    submitted = null;
+                }
+                result = JSON.parse(JSON.stringify(homeworkAssign));
+                result['submitted'] = submitted;
+                result['is_author'] = false;
             }
-            let result = JSON.parse(JSON.stringify(homeworkAssign));
-            result['submitted'] = submitted;
-
             return res.json({
                 success: true,
                 message: "Get detail submit successfully!",
