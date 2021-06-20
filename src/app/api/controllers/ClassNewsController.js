@@ -21,7 +21,7 @@ class ClassNewsController{
             const classMember = await ClassMember.findOne({ user :  mongoose.Types.ObjectId(user._id), class : mongoose.Types.ObjectId(classs._id)})
                                         .populate('role');
             if(classMember.role.id_class_role == 1){
-                // Tạo mới new chưa có file
+                // Tạo mới news chưa có file
                 const classNews = await ClassNews.create({
                     user: mongoose.Types.ObjectId(user._id),
                     class: mongoose.Types.ObjectId(classs._id),
@@ -30,7 +30,7 @@ class ClassNewsController{
                     create_at: now,
                     update_at: now
                 });
-                // tạo thư mục của new này trên google, cơ sở dữ liệu
+                // tạo thư mục của news này trên google, cơ sở dữ liệu
                 await ClassNewsFolerSev.createFolerClassNews(user._id, classs._id, classNews)
                 // nếu có file
                 if(req.files){

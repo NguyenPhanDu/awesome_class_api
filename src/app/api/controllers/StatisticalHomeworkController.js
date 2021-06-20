@@ -121,5 +121,40 @@ class StatisticalHomework{
             return
         }
     }
+
+    //req: id_class_homework, students
+    async returnHomework(req, res){
+        try{
+            const classHomework = await ClassHomework.findOne({id_class_homework: Number(req.body.id_class_homework), is_delete: false});
+            for(let i = 0; i< req.body.students; i++){
+                let user = await User.findOne( { email : req.body.students[i].email } )
+                await HomeworkAssign.findOneAndUpdate(
+                    {
+                        is_delete: false,
+                        class: mongoose.Types.ObjectId(classHomework.class),
+                        homework: mongoose.Types.ObjectId(classHomework.homework),
+                        user: mongoose.Types.ObjectId(user._id),
+                        is_submit: true
+                    },
+                    {
+                        status: 4,
+                        scores: req.body.students[i].scores
+                    }
+                )
+            }
+        }
+        catch(err){
+            console.log(err);
+            res.json({
+                success: false,
+                message: 'Server error. Please try again',
+                error: err,
+                res_code: 500,
+                res_status: "SERVER_ERROR"
+            });
+            return
+        }
+    }
+    
 }
 
