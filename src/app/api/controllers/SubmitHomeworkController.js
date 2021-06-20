@@ -155,7 +155,7 @@ class SubmitHomeworkController{
                 .populate('user','-password');
                 result = JSON.parse(JSON.stringify(homeworkAssign));
                 let submitted;
-                if( moment(now).isBefore(classHomework.homework.deadline) && homeworkAssign.is_submit == false){
+                if( moment(now).isAfter(classHomework.homework.deadline) && homeworkAssign.is_submit == false){
                     const homeworkAssign2 = await HomeworkAssign.findOneAndUpdate(
                         {
                             _id : mongoose.Types.ObjectId(homeworkAssign._id)
