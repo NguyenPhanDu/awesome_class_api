@@ -81,7 +81,7 @@ async function uploadFileSubmit(classId, classHomework, user, file, submitId){
             }
         ).populate('folder');
         
-        consolelog('fodler upload: ', folderStudentSubmit)
+        console.log('fodler upload: ', folderStudentSubmit)
         const fileCreateByDrive = await drive.files.create({
             resource: {
                 name: file.originalname,
