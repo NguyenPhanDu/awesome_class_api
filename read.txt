@@ -216,11 +216,13 @@ thống kê trả về :
 {
     amount_submitted: số lượng chưa đã nộp
     amout_delivered: sô lượng chưa nộp (đã giao)
+    // danh sách thông tin học sinh đã nộp;
     list_submitted: [
         {
             thông tin user đã nộp
         }
     ],
+    // danh sách thông tin học sinh chưa nộp;
     list_delivered: [
         {
 
@@ -241,3 +243,17 @@ thống kê trả về :
         }
     ]
 }
+
+Trả bài tập: 
+
+front end gửi lên 
+[
+    {
+        emai: ,
+        scores: ,
+    }
+]
+
+id_class_homework
+
+loop qua từng phần tử truy vấn tới bảng HomeworkAssign của từng email 
