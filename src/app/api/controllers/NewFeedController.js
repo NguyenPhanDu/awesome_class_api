@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const ClassHomework = require('../../models/ClassHomework');
 const ClassNews =require('../../models/ClassNews');
 const Class = require('../../models/Class');
+const Comment = require('../../models/Comment');
 const moment = require('moment');
 const { parseTimeFormMongo } = require('../../../helpers/parse_date');
 class NewFeedController{
