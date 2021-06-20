@@ -7,6 +7,7 @@ const Comment = require('../../models/Comment');
 const ClassNewsFolerSev = require('../../services/file_and_folder/class_news');
 const ClassNewsAssign = require('../../models/ClassNewsAssign');
 const File = require('../../models/File');
+const ClassRole = require('../../models/ClassRole');
 const moment = require('moment');
 
 class ClassNewsController{
