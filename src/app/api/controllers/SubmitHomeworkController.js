@@ -178,7 +178,8 @@ class SubmitHomeworkController{
                         assignment: mongoose.Types.ObjectId(homeworkAssign._id),
                         class_homework: mongoose.Types.ObjectId(classHomework._id),
                     }
-                );
+                )
+                .populate("document", "name viewLink downloadLink size id_files");
                 if(submit){
                     submitted = JSON.parse(JSON.stringify(submit));
                     delete submitted.class_homework;
