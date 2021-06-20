@@ -83,7 +83,7 @@ class SubmitHomeworkController{
             
             let result = JSON.parse(JSON.stringify(homeworkAssignAfterUpdate));
             result['submitted'] = getSubmitObject
-
+            result['is_author'] = false;
             return res.json({
                 success: true,
                 message: "Submit homework successfully!",
