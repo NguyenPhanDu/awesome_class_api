@@ -230,8 +230,10 @@ class ClassNewsController{
                     let newDocument = [];
                     let length = reqAttachments.length
                     for(let i = 0; i < length; i++){
-                        const file = await File.findOne({ id_files: reqAttachments[i].id, is_delete: false });
-                        newDocument.push(file._id);
+                        let file = await File.findOne({ id_files: reqAttachments[i].id_files, is_delete: false });
+                        if(file){
+                            newDocument.push(file._id);
+                        } 
                     }
                     await ClassNews.findOneAndUpdate(
                         {_id: mongoose.Types.ObjectId(newsWantUpdate._id)},
