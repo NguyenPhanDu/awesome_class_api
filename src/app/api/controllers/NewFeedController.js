@@ -40,6 +40,14 @@ class NewFeedController{
             if(arrayNotify.length > 0){
                 let l = arrayNotify.length;
                 for(let i = 0; i< l;i++){
+                    const arrayComment = await Comment.find(
+                        { 
+                            is_delete: false,
+                            onModel: 'ClassNews',
+                            ref: mongoose.Types.ObjectId(arrayNotify[i]._id)
+                        }
+                    );
+                    arrayNotify[i].comments = arrayComment
                     newfeed.push(arrayNotify[i]);
                 }
             };
