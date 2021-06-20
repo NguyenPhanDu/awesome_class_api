@@ -15,7 +15,7 @@ async function createStudentSubmit(classId, classHomework, user){
             type: 1,
         })
         .populate('folder');
-
+        console.log('folderStudent:',folderStudent)
         const folderStudentss = await FolderHomework.findOne({
             create_by: mongoose.Types.ObjectId(user._id),
             class: mongoose.Types.ObjectId(classId),
@@ -24,6 +24,7 @@ async function createStudentSubmit(classId, classHomework, user){
             type: 1,
         })
         .populate('folder');
+        console.log('folde chứa nội dung submit',folderStudentss)
         if(folderStudentss){
             await FolderHomework.findOneAndUpdate(
                 { _id: mongoose.Types.ObjectId(folderStudentss._id) },

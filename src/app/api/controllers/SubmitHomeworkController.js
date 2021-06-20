@@ -285,19 +285,12 @@ class SubmitHomeworkController{
             await SubmitHomework.findOneAndUpdate(
                 {_id: mongoose.Types.ObjectId(sumitUserWantCancel._id) },
                 { 
-                    // submit_at: '',
-                    // content: '',
-                    // document: [],
                     is_delete: true,
                 },
                 {
                     new: true
                 }
             )
-            .populate('class_homework')
-            .populate('assignment')
-            .populate('user', '-password')
-            .populate("document", "name viewLink downloadLink size id_files");
             return res.json({
                 success: true,
                 message: "Cancel submit homework successfully!",
