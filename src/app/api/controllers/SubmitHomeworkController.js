@@ -119,11 +119,28 @@ class SubmitHomeworkController{
                 ]
             })
             let classId = classHomework.class;
-            let homeworkId = classHomework.homework;
+            let homeworkId = classHomework.homework._id;
             let result;
             if(classHomework.homework.create_by.email == res.locals.email){
+                let amount_submitted = await HomeworkAssign.countDocuments(
+                    { 
+                        is_delete: false,
+                        class: mongoose.Types.ObjectId(classId),
+                        homework: mongoose.Types.ObjectId(homeworkId),
+                        is_submit: true
+                    }
+                );
+                let total = await HomeworkAssign.countDocuments(
+                    { 
+                        is_delete: false,
+                        class: mongoose.Types.ObjectId(classId),
+                        homework: mongoose.Types.ObjectId(homeworkId),
+                    }
+                );
                 result = {
-                    is_author: true
+                    is_author: true,
+                    amount_submitted: amount_submitted,
+                    total: total
                 }
             }
             else{

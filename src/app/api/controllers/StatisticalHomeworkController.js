@@ -70,6 +70,13 @@ class StatisticalHomework{
                     is_submit: false
                 }
             );
+            let total = await HomeworkAssign.countDocuments(
+                { 
+                    is_delete: false,
+                    class: mongoose.Types.ObjectId(classHomework.class),
+                    homework: mongoose.Types.ObjectId(classHomework.homework),
+                }
+            );
             const a = await HomeworkAssign.find(
                 {
                     is_delete: false,
@@ -96,6 +103,7 @@ class StatisticalHomework{
                 return item.user
             });
             let response = {}
+            response['total'] = total
             response['amount_submitted'] = amount_submitted;
             response['amout_delivered'] = amout_delivered;
             response['list_submitted'] = list_submitted;
