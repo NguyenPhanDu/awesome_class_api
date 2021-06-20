@@ -18,8 +18,7 @@ class CommentController{
             }
             if(req.body.ref == 2){
                 model = 'ClassNews';
-                ref = ClassNews.findOne({ id_class_news: req.body.id, is_delete: false })
-                console.log(ref);
+                ref = await ClassNews.findOne({ id_class_news: req.body.id, is_delete: false })
             }
             const now = moment().toDate().toString();
             const user = await User.findOne({ email : res.locals.email});
