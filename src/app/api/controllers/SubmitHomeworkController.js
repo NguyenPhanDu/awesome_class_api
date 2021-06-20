@@ -19,7 +19,7 @@ class SubmitHomeworkController{
             const classHomework = await ClassHomework.findOne({id_class_homework: Number(req.body.id_class_homework), is_delete: false})
             let classId = classHomework.class;
             let homeworkId = classHomework.homework;
-            const homeworkAssign = HomeworkAssign.findOne(
+            const homeworkAssign = await HomeworkAssign.findOne(
                 {
                     user: mongoose.Types.ObjectId(userId),
                     homework: mongoose.Types.ObjectId(homeworkId),
