@@ -282,7 +282,7 @@ class SubmitHomeworkController{
                     is_delete: true
                 }
             );
-            const data = SubmitHomework.findOneAndUpdate(
+            await SubmitHomework.findOneAndUpdate(
                 {_id: mongoose.Types.ObjectId(sumitUserWantCancel._id) },
                 { 
                     // submit_at: '',
@@ -298,10 +298,6 @@ class SubmitHomeworkController{
             .populate('assignment')
             .populate('user', '-password')
             .populate("document", "name viewLink downloadLink size id_files");
-            let dataObject = JSON.parse(JSON.stringify(data));
-            delete dataObject.class_homework;
-            delete dataObject.user
-            delete dataObject.is_delete
             return res.json({
                 success: true,
                 message: "Cancel submit homework successfully!",
