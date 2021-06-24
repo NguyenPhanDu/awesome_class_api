@@ -8,13 +8,13 @@ const File = require('../../models/File');
 const FolderHomework = require('../../models/FolderHomework');
 const Folder = require('../../models/Folder');
 const moment = require('moment');
+const TimeHelper = require('../../../helpers/parse_date');
 class SubmitHomeworkController{
     // id_class_homework
     // status : 1 là đúng hạn, 2 là trễ, 3 là thiếu, 4 là đã trả, 0 là đã giao;
     async submitNormalHomework (req, res){
         try{
-
-            const now = moment().toDate().toDateString();
+            const now = moment().toDate().toString();
             const user = await User.findOne({email: res.locals.email})
             let userId = user._id;
             const classHomework = await ClassHomework.findOne({id_class_homework: Number(req.body.id_class_homework), is_delete: false})
@@ -49,11 +49,16 @@ class SubmitHomeworkController{
                 }
             }
             let status;
-            if( moment(submit).isBefore(homeworkAssign.homework.deadline) ){
-                status = 1;
+            if(homeworkAssign.homework.deadline){
+                if( moment(TimeHelper.changeTimeInDBToISOString(submit.submit_at)).isBefore(TimeHelper.changeTimeInDBToISOString(homeworkAssign.homework.deadline))){
+                    status = 1;
+                }
+                else{
+                    status = 2;
+                }
             }
             else{
-                status = 2;
+                status = 1;
             }
             const homeworkAssignAfterUpdate = await HomeworkAssign.findOneAndUpdate(
                 {
@@ -108,7 +113,7 @@ class SubmitHomeworkController{
     // id_class_homework
     async displaySubmitInDetailHomework(req, res){
         try{
-            const now = moment().toDate().toDateString();
+            const now = moment().toDate().toString();
             const user = await User.findOne({email: res.locals.email})
             let userId = user._id;
             const classHomework = await ClassHomework.findOne({id_class_homework: Number(req.body.id_class_homework), is_delete: false})
@@ -156,7 +161,7 @@ class SubmitHomeworkController{
                 .populate('user','-password');
                 result = JSON.parse(JSON.stringify(homeworkAssign));
                 let submitted;
-                if( moment(now).isAfter(classHomework.homework.deadline) && homeworkAssign.is_submit == false){
+                if(classHomework.homework.deadline && moment(TimeHelper.changeTimeInDBToISOString(now)).isAfter(TimeHelper.changeTimeInDBToISOString(classHomework.homework.deadline)) && homeworkAssign.is_submit == false){
                     const homeworkAssign2 = await HomeworkAssign.findOneAndUpdate(
                         {
                             _id : mongoose.Types.ObjectId(homeworkAssign._id)
