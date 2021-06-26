@@ -186,13 +186,16 @@ class StatisticalHomework{
             return
         }
     }
-    // req.body: id_homework_assign;
+    // req.body: id_class_homework, id_user;
     async detailSubmitionOneStudent(req, res){
         try{
+            const classHomework = await ClassHomework.findOne({id_class_homework: Number(req.body.id_class_homework), is_delete: false});
+            const user = await User.findOne({ id_user: Number(req.body.id_user) });
             let homeworkAssign = await HomeworkAssign.findOne(
                 {
                     is_delete: false,
-                    id_homework_assign: Number(req.body.id_homework_assign)
+                    user: mongoose.Types.ObjectId(user._id),
+                    homework: mongoose.Types.ObjectId(classHomework.homework),
                 }
             )
             .populate('user','-password');
@@ -203,6 +206,7 @@ class StatisticalHomework{
                     is_delete: false,
                     user: mongoose.Types.ObjectId(homeworkAssign.user._id),
                     assignment: mongoose.Types.ObjectId(homeworkAssign._id),
+                    class_homework: mongoose.Types.ObjectId(classHomework._id),
                 }
             )
             .populate("document", "name viewLink downloadLink size id_files");
