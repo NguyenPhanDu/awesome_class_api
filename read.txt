@@ -244,6 +244,14 @@ thống kê trả về :
     ]
 }
 
+api list assignment
+trả về : {
+    amount_submitted: số lượng chưa đã nộp
+    amout_delivered: sô lượng chưa nộp (đã giao);
+    
+}
+
+
 Trả bài tập: 
 
 front end gửi lên 

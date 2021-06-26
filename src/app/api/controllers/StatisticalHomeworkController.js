@@ -14,51 +14,52 @@ class StatisticalHomework{
     // id_class_homework
     async statisticalHomework(req, res){
         try{
-            const classHomework = await ClassHomework.findOne({id_class_homework: Number(req.body.id_class_homework), is_delete: false});
+            const classHomework = await ClassHomework.findOne({id_class_homework: Number(req.body.id_class_homework), is_delete: false})
+            .populate('homework');
             const allAssignHomework = await HomeworkAssign.find(
                 { 
                     class: mongoose.Types.ObjectId(classHomework.class),
-                    homework: mongoose.Types.ObjectId(classHomework.homework),
+                    homework: mongoose.Types.ObjectId(classHomework.homework._id),
                     is_delete: false
                 }
             ).populate('user', '-password')
             .populate('homework');
-            let result = JSON.parse(JSON.stringify(allAssignHomework));
-            let resultLength = result.length;
-            if(resultLength > 0){
-                for(let i = 0; i < resultLength; i++){
-                    let submitted;
-                    const submit = await SubmitHomework.findOne(
-                        {
-                            is_delete: false,
-                            user: mongoose.Types.ObjectId(result[i].user._id),
-                            assignment: mongoose.Types.ObjectId(result[i]._id),
-                            class_homework: mongoose.Types.ObjectId(classHomework._id),
-                        }
-                    );
-                    if(submit){
-                        submitted = JSON.parse(JSON.stringify(submit));
+            // let result = JSON.parse(JSON.stringify(allAssignHomework));
+            // let resultLength = result.length;
+            // if(resultLength > 0){
+            //     for(let i = 0; i < resultLength; i++){
+            //         let submitted;
+            //         const submit = await SubmitHomework.findOne(
+            //             {
+            //                 is_delete: false,
+            //                 user: mongoose.Types.ObjectId(result[i].user._id),
+            //                 assignment: mongoose.Types.ObjectId(result[i]._id),
+            //                 class_homework: mongoose.Types.ObjectId(classHomework._id),
+            //             }
+            //         );
+            //         if(submit){
+            //             submitted = JSON.parse(JSON.stringify(submit));
         
-                        delete submitted.class_homework;
-                        delete submitted.user
-                        delete submitted.is_delete
-                        delete submitted.assignment
-                        delete submitted.updatedAt
-                        delete submitted.createdAt
-                    }
-                    else{
-                        submitted = null;
-                    }
-                    result[i].submitted = submitted;
-                }
+            //             delete submitted.class_homework;
+            //             delete submitted.user
+            //             delete submitted.is_delete
+            //             delete submitted.assignment
+            //             delete submitted.updatedAt
+            //             delete submitted.createdAt
+            //         }
+            //         else{
+            //             submitted = null;
+            //         }
+            //         result[i].submitted = submitted;
+            //     }
                 
-            };
-            let assignment = result;
+            // };
+            let assignment = allAssignHomework;
             let amount_submitted = await HomeworkAssign.countDocuments(
                 { 
                     is_delete: false,
                     class: mongoose.Types.ObjectId(classHomework.class),
-                    homework: mongoose.Types.ObjectId(classHomework.homework),
+                    homework: mongoose.Types.ObjectId(classHomework.homework._id),
                     is_submit: true
                 }
             );
@@ -66,7 +67,7 @@ class StatisticalHomework{
                 { 
                     is_delete: false,
                     class: mongoose.Types.ObjectId(classHomework.class),
-                    homework: mongoose.Types.ObjectId(classHomework.homework),
+                    homework: mongoose.Types.ObjectId(classHomework.homework._id),
                     is_submit: false
                 }
             );
@@ -74,41 +75,40 @@ class StatisticalHomework{
                 { 
                     is_delete: false,
                     class: mongoose.Types.ObjectId(classHomework.class),
-                    homework: mongoose.Types.ObjectId(classHomework.homework),
+                    homework: mongoose.Types.ObjectId(classHomework.homework._id),
                 }
             );
-            const a = await HomeworkAssign.find(
-                {
-                    is_delete: false,
-                    class: mongoose.Types.ObjectId(classHomework.class),
-                    homework: mongoose.Types.ObjectId(classHomework.homework),
-                    is_submit: true
-                }
-            ).populate('user', '-password');
-            let list_submitted = JSON.parse(JSON.stringify(a))
-            list_submitted.map(item => {
-                item.user
-            })
+            // const a = await HomeworkAssign.find(
+            //     {
+            //         is_delete: false,
+            //         class: mongoose.Types.ObjectId(classHomework.class),
+            //         homework: mongoose.Types.ObjectId(classHomework.homework._id),
+            //         is_submit: true
+            //     }
+            // ).populate('user', '-password');
+            // let list_submitted = JSON.parse(JSON.stringify(a))
+            // list_submitted.map(item => {
+            //     item.user
+            // })
             
-            const b = await HomeworkAssign.find(
-                {
-                    is_delete: false,
-                    class: mongoose.Types.ObjectId(classHomework.class),
-                    homework: mongoose.Types.ObjectId(classHomework.homework),
-                    is_submit: false
-                }
-            ).populate('user', '-password');
-            let list_delivered = JSON.parse(JSON.stringify(b));
-            list_delivered.map(item => {
-                item.user
-            });
+            // const b = await HomeworkAssign.find(
+            //     {
+            //         is_delete: false,
+            //         class: mongoose.Types.ObjectId(classHomework.class),
+            //         homework: mongoose.Types.ObjectId(classHomework.homework._id),
+            //         is_submit: false
+            //     }
+            // ).populate('user', '-password');
+            // let list_delivered = JSON.parse(JSON.stringify(b));
+            // list_delivered.map(item => {
+            //     item.user
+            // });
             let response = {}
             response['total'] = total
             response['amount_submitted'] = amount_submitted;
             response['amout_delivered'] = amout_delivered;
-            response['list_submitted'] = list_submitted;
-            response['list_delivered'] = list_delivered;
-            response['assignment'] = assignment;
+            response['list_assignment'] = assignment;
+            response['homework'] = classHomework.homework;
             return res.json({
                 success: true,
                 message: "Statistical homework homework!",

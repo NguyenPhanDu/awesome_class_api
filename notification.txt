@@ -4,10 +4,18 @@ Lên ý tưởng:
 Về flow ý tưởng của chức năng thông báo:
 - Thông báo được xuất hiện khi: Người dùng tương tác với người dùng khác
     + Lớp: 
+        - Khi lớp bị xóa;
+        - Khi sinh viên bị kick
     + Bài tập:
-    + Comment:
+        - Khi tạo bài tập thông báo cho tất cả học sinh được giao => click vào đi vào chi tiết bài tập
+            + bạn có bài mới ở lớp abc
+        - Khi bài tập hêt hạn
+        - Khi bài tập sắp hết hạn
+    + Comment: Khi có học sinh bình luận trong bài tập
     + News:
+        - Khi tạo news thông báo đến tất cả học sinh
 - Những loại thông báo nào ??
     + click vào thông báo chuyển trang
-        - 
     + ko chuyển trang đã xem thôi
+
+- Hiển thị: Load ra danh sách thông báo từ database
