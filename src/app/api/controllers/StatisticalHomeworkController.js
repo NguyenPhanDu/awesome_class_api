@@ -15,7 +15,14 @@ class StatisticalHomework{
     async statisticalHomework(req, res){
         try{
             const classHomework = await ClassHomework.findOne({id_class_homework: Number(req.body.id_class_homework), is_delete: false})
-            .populate('homework');
+            .populate({
+                path: 'homework',
+                populate: [
+                    {
+                        path: 'create_by'
+                    }
+                ]
+            })
             const allAssignHomework = await HomeworkAssign.find(
                 { 
                     class: mongoose.Types.ObjectId(classHomework.class),
