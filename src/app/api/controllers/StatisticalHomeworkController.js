@@ -63,7 +63,7 @@ class StatisticalHomework{
                     is_submit: true
                 }
             );
-            let amout_delivered = await HomeworkAssign.countDocuments(
+            let amount_delivered = await HomeworkAssign.countDocuments(
                 { 
                     is_delete: false,
                     class: mongoose.Types.ObjectId(classHomework.class),
@@ -76,6 +76,15 @@ class StatisticalHomework{
                     is_delete: false,
                     class: mongoose.Types.ObjectId(classHomework.class),
                     homework: mongoose.Types.ObjectId(classHomework.homework._id),
+                }
+            );
+            let amount_returned = await HomeworkAssign.countDocuments(
+                {
+                    is_delete: false,
+                    class: mongoose.Types.ObjectId(classHomework.class),
+                    homework: mongoose.Types.ObjectId(classHomework.homework._id),
+                    is_submit: true,
+                    status: 4 
                 }
             );
             // const a = await HomeworkAssign.find(
@@ -106,7 +115,8 @@ class StatisticalHomework{
             let response = {}
             response['total'] = total
             response['amount_submitted'] = amount_submitted;
-            response['amout_delivered'] = amout_delivered;
+            response['amount_returned'] = amount_returned;
+            response['amount_delivered'] = amount_delivered;
             response['list_assignment'] = assignment;
             response['homework'] = classHomework.homework;
             return res.json({
@@ -130,7 +140,7 @@ class StatisticalHomework{
         }
     }
 
-    //req: id_class_homework, students
+    //req: id_class_homework, students:[{ email: , scores:  } ] 
     async returnHomework(req, res){
         try{
             const classHomework = await ClassHomework.findOne({id_class_homework: Number(req.body.id_class_homework), is_delete: false});
@@ -150,6 +160,12 @@ class StatisticalHomework{
                     }
                 )
             }
+            res.json({
+                success: true,
+                message: "sign homework submit successfully!",
+                res_code: 200,
+                res_status: "GET_SUCCESSFULLY"
+            });
         }
         catch(err){
             console.log(err);
