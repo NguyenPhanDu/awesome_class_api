@@ -1,0 +1,13 @@
+Lên ý tưởng: 
+- Sở dụng công nghệ: Socket.io backend và frontend
+
+Về flow ý tưởng của chức năng thông báo:
+- Thông báo được xuất hiện khi: Người dùng tương tác với người dùng khác
+    + Lớp: 
+    + Bài tập:
+    + Comment:
+    + News:
+- Những loại thông báo nào ??
+    + click vào thông báo chuyển trang
+        - 
+    + ko chuyển trang đã xem thôi

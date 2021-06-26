@@ -87,7 +87,7 @@ class StatisticalHomework{
             ).populate('user', '-password');
             let list_submitted = JSON.parse(JSON.stringify(a))
             list_submitted.map(item => {
-                return item.user
+                item.user
             })
             
             const b = await HomeworkAssign.find(
@@ -100,7 +100,7 @@ class StatisticalHomework{
             ).populate('user', '-password');
             let list_delivered = JSON.parse(JSON.stringify(b));
             list_delivered.map(item => {
-                return item.user
+                item.user
             });
             let response = {}
             response['total'] = total

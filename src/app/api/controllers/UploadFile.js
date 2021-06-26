@@ -293,19 +293,19 @@ class upLoadFile {
             let perPage = 4;
             let page = req.params.page || 1;
 
-            // const users = await User.find()
-            // .skip((perPage * page) - perPage)
-            // .limit(perPage)
-            // .sort({ createdAt : -1 });
+            const users = await User.find()
+            .skip((perPage * page) - perPage)
+            .limit(perPage)
+            .sort({ createdAt : -1 });
 
             // const count = await User.countDocuments();
             // let pages = Math.ceil(count / perPage);
-            const array = []
-            let start = (page - 1) * perPage
-            let end = page * perPage
-            const items = array.slice(start, end);
+            // const array = []
+            // let start = (page - 1) * perPage
+            // let end = page * perPage
+            // const items = array.slice(start, end);
             const data = {
-                users: items,
+                users: users,
             }
 
             res.json(data);
