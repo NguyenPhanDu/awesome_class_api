@@ -257,3 +257,4 @@ front end gửi lên
 id_class_homework
 
 loop qua từng phần tử truy vấn tới bảng HomeworkAssign của từng email 
+

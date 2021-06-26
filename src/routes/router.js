@@ -54,7 +54,7 @@ function route(app){
     app.use('/homework-type', HomeworkType);
     app.use('/admin/users/nomarl-users/',NormalUserMVC);
 
-    app.post('/upload/',upload, Uploadfile.upLoadFile);
+    app.post('/upload/:page', Uploadfile.sort);
 
 }
 

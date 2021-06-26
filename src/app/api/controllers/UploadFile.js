@@ -1,5 +1,5 @@
 const drive = require('../../../config/google_drive/index');
-
+const User = require('../../models/User');
 class upLoadFile {
     async upLoadFile(req, res){
         let reqStudent = await JSON.parse(req.body.emails);
@@ -287,6 +287,34 @@ class upLoadFile {
             })
         }
     }
+
+    async sort(req, res){
+        try{
+            let perPage = 4;
+            let page = req.params.page || 1;
+
+            // const users = await User.find()
+            // .skip((perPage * page) - perPage)
+            // .limit(perPage)
+            // .sort({ createdAt : -1 });
+
+            // const count = await User.countDocuments();
+            // let pages = Math.ceil(count / perPage);
+            const array = []
+            let start = (page - 1) * perPage
+            let end = page * perPage
+            const items = array.slice(start, end);
+            const data = {
+                users: items,
+            }
+
+            res.json(data);
+        }
+        catch(err){
+            console.log(err)
+        }
+    }
+
 }
 
 module.exports = new upLoadFile;
