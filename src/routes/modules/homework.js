@@ -17,6 +17,7 @@ router.post('/cancel-submit', SubmitHomeworkController.cancelSubmit);
 router.post('/display-assignment/', SubmitHomeworkController.displaySubmitInDetailHomework);
 
 router.post('/display-statistical-homework', StatisticalHomewok.statisticalHomework);
+router.post('/detail-statistical-homework', StatisticalHomewok.detailSubmitionOneStudent);
 router.post('/return-homework', StatisticalHomewok.returnHomework);
 
 module.exports = router;

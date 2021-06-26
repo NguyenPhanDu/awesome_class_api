@@ -163,7 +163,59 @@ class StatisticalHomework{
             return
         }
     }
-    
+    // req.body: id_homework_assign;
+    async detailSubmitionOneStudent(req, res){
+        try{
+            let homeworkAssign = await HomeworkAssign.findOne(
+                {
+                    is_delete: false,
+                    id_homework_assign: Number(req.body.id_homework_assign)
+                }
+            )
+            .populate('user','-password');
+            result = JSON.parse(JSON.stringify(homeworkAssign));
+            let submitted;
+            const submit = await SubmitHomework.findOne(
+                {
+                    is_delete: false,
+                    user: mongoose.Types.ObjectId(homeworkAssign.user._id),
+                    assignment: mongoose.Types.ObjectId(homeworkAssign._id),
+                }
+            )
+            .populate("document", "name viewLink downloadLink size id_files");
+            if(submit){
+                submitted = JSON.parse(JSON.stringify(submit));
+                delete submitted.class_homework;
+                delete submitted.user
+                delete submitted.is_delete
+                delete submitted.assignment
+                delete submitted.updatedAt
+                delete submitted.createdAt
+            }
+            else{
+                submitted = null;
+            }
+            result['submitted'] = submitted;
+            res.json({
+                success: true,
+                message: "Get detail submit successfully!",
+                data: result,
+                res_code: 200,
+                res_status: "GET_SUCCESSFULLY"
+            });
+        }
+        catch(err){
+            console.log(err);
+            res.json({
+                success: false,
+                message: 'Server error. Please try again',
+                error: err,
+                res_code: 500,
+                res_status: "SERVER_ERROR"
+            });
+            return
+        }
+    }
 }
 
 module.exports = new StatisticalHomework
