@@ -19,3 +19,5 @@ Về flow ý tưởng của chức năng thông báo:
     + ko chuyển trang đã xem thôi
 
 - Hiển thị: Load ra danh sách thông báo từ database
+
+- Xử lý thông báo bài tập mới cho 

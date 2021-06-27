@@ -162,7 +162,7 @@ class StatisticalHomework{
                         is_submit: true
                     },
                     {
-                        status: 4,
+                        is_signed: true,
                         scores: req.body.students[i].scores
                     }
                 )

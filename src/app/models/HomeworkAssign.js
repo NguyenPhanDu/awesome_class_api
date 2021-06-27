@@ -30,6 +30,10 @@ const HomeworkAssignSchema = Schema(
             type: Number,
             default: null
         },
+        is_signed: {
+            type: Boolean,
+            default: false
+        },
         is_delete: {
             type: Boolean,
             default: false
