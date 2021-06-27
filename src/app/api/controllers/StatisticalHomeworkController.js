@@ -199,7 +199,7 @@ class StatisticalHomework{
                 }
             )
             .populate('user','-password');
-            result = JSON.parse(JSON.stringify(homeworkAssign));
+            let result = JSON.parse(JSON.stringify(homeworkAssign));
             let submitted;
             const submit = await SubmitHomework.findOne(
                 {
