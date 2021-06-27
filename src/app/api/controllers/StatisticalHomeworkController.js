@@ -91,7 +91,7 @@ class StatisticalHomework{
                     class: mongoose.Types.ObjectId(classHomework.class),
                     homework: mongoose.Types.ObjectId(classHomework.homework._id),
                     is_submit: true,
-                    status: 4 
+                    is_signed: true
                 }
             );
             // const a = await HomeworkAssign.find(
