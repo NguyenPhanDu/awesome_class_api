@@ -8,6 +8,7 @@ const File = require('../../models/File');
 const FolderHomework = require('../../models/FolderHomework');
 const Folder = require('../../models/Folder');
 const moment = require('moment');
+const Comment = require('../../models/Comment');
 
 class StatisticalHomework{
     //1 api xài cho 2 loại hay sao ??
@@ -31,36 +32,7 @@ class StatisticalHomework{
                 }
             ).populate('user', '-password')
             .populate('homework');
-            // let result = JSON.parse(JSON.stringify(allAssignHomework));
-            // let resultLength = result.length;
-            // if(resultLength > 0){
-            //     for(let i = 0; i < resultLength; i++){
-            //         let submitted;
-            //         const submit = await SubmitHomework.findOne(
-            //             {
-            //                 is_delete: false,
-            //                 user: mongoose.Types.ObjectId(result[i].user._id),
-            //                 assignment: mongoose.Types.ObjectId(result[i]._id),
-            //                 class_homework: mongoose.Types.ObjectId(classHomework._id),
-            //             }
-            //         );
-            //         if(submit){
-            //             submitted = JSON.parse(JSON.stringify(submit));
-        
-            //             delete submitted.class_homework;
-            //             delete submitted.user
-            //             delete submitted.is_delete
-            //             delete submitted.assignment
-            //             delete submitted.updatedAt
-            //             delete submitted.createdAt
-            //         }
-            //         else{
-            //             submitted = null;
-            //         }
-            //         result[i].submitted = submitted;
-            //     }
-                
-            // };
+            
             let assignment = allAssignHomework;
             let amount_submitted = await HomeworkAssign.countDocuments(
                 { 
@@ -94,31 +66,6 @@ class StatisticalHomework{
                     is_signed: true
                 }
             );
-            // const a = await HomeworkAssign.find(
-            //     {
-            //         is_delete: false,
-            //         class: mongoose.Types.ObjectId(classHomework.class),
-            //         homework: mongoose.Types.ObjectId(classHomework.homework._id),
-            //         is_submit: true
-            //     }
-            // ).populate('user', '-password');
-            // let list_submitted = JSON.parse(JSON.stringify(a))
-            // list_submitted.map(item => {
-            //     item.user
-            // })
-            
-            // const b = await HomeworkAssign.find(
-            //     {
-            //         is_delete: false,
-            //         class: mongoose.Types.ObjectId(classHomework.class),
-            //         homework: mongoose.Types.ObjectId(classHomework.homework._id),
-            //         is_submit: false
-            //     }
-            // ).populate('user', '-password');
-            // let list_delivered = JSON.parse(JSON.stringify(b));
-            // list_delivered.map(item => {
-            //     item.user
-            // });
             let response = {}
             response['total'] = total
             response['amount_submitted'] = amount_submitted;
@@ -199,6 +146,7 @@ class StatisticalHomework{
                 }
             )
             .populate('user','-password');
+            let comments = await Comment.find({ onModel: 'HomeworkAssign', is_delete: false, ref: mongoose.Types.ObjectId(homeworkAssign._id) })
             let result = JSON.parse(JSON.stringify(homeworkAssign));
             let submitted;
             const submit = await SubmitHomework.findOne(
@@ -223,6 +171,7 @@ class StatisticalHomework{
                 submitted = null;
             }
             result['submitted'] = submitted;
+            result['comments'] = comments;
             res.json({
                 success: true,
                 message: "Get detail submit successfully!",

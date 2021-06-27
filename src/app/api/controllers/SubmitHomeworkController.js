@@ -9,6 +9,7 @@ const FolderHomework = require('../../models/FolderHomework');
 const Folder = require('../../models/Folder');
 const moment = require('moment');
 const TimeHelper = require('../../../helpers/parse_date');
+const Comment = require('../../models/Comment');
 class SubmitHomeworkController{
     // id_class_homework
     // status : 1 là đúng hạn, 2 là trễ, 3 là thiếu, 4 là đã trả, 0 là đã giao;
@@ -159,6 +160,8 @@ class SubmitHomeworkController{
                     }
                 )
                 .populate('user','-password');
+                let comments = await Comment.find({ onModel: 'HomeworkAssign', is_delete: false, ref: mongoose.Types.ObjectId(homeworkAssign._id) })
+                .populate('user', '-password'); 
                 result = JSON.parse(JSON.stringify(homeworkAssign));
                 let submitted;
                 if(classHomework.homework.deadline && moment(TimeHelper.changeTimeInDBToISOString(now)).isAfter(TimeHelper.changeTimeInDBToISOString(classHomework.homework.deadline)) && homeworkAssign.is_submit == false){
@@ -198,6 +201,7 @@ class SubmitHomeworkController{
                     submitted = null;
                 }
                 result['submitted'] = submitted;
+                result['comments'] = comments;
                 result['is_author'] = false;
             }
             return res.json({

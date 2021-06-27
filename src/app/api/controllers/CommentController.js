@@ -3,11 +3,13 @@ const User = require('../../models/User');
 const Class =require('../../models/Class');
 const ClassHomework = require('../../models/ClassHomework');
 const ClassNews = require('../../models/ClassNews');
+const HomeworkAssign = require('../../models/HomeworkAssign');
 const Comment = require('../../models/Comment');
 const moment = require('moment');
 
 class CommentController{
-    // Req.body: id_class, ref: 1 là comment của bài tập, 2 là notify; id: của bài tập hoặc notify, content: nội dung commet
+    // Req.body: id_class, ref: 1 là comment của bài tập, 2 là notify; id: của bài tập hoặc notify, content: nội dung comment
+    // ref: 3 , id: id của assignment đó là trường: id_homework_assign
     async create(req, res){
         try{
             let ref;
@@ -19,6 +21,10 @@ class CommentController{
             if(req.body.ref == 2){
                 model = 'ClassNews';
                 ref = await ClassNews.findOne({ id_class_news: req.body.id, is_delete: false })
+            }
+            if(req.body.ref == 3){
+                model = 'HomeworkAssign';
+                ref = await HomeworkAssign.findOne({ id_homework_assign: req.body.id, is_delete: false });
             }
             const now = moment().toDate().toString();
             const user = await User.findOne({ email : res.locals.email});
