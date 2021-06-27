@@ -98,7 +98,7 @@ class StatisticalHomework{
     async returnHomework(req, res){
         try{
             const classHomework = await ClassHomework.findOne({id_class_homework: Number(req.body.id_class_homework), is_delete: false});
-            for(let i = 0; i< req.body.students; i++){
+            for(let i = 0; i< req.body.students.length; i++){
                 let user = await User.findOne( { email : req.body.students[i].email } )
                 await HomeworkAssign.findOneAndUpdate(
                     {
