@@ -27,6 +27,9 @@ thông tin của nofication cần có:
 bài tập: ClassHomework(class, homework(thời gian))
 user: truy vấn tất cả thông báo của user
 
+
+
+
 Ví dụ flow của thông báo bài tập:
 1 Hiển thị tất cả thông báo của user: api
 1. Mỗi lần tạo bài tập sẽ thông báo cho user được chỉ định
@@ -35,3 +38,47 @@ Ví dụ flow của thông báo bài tập:
    -> emit event truyền thông tin thông báo lên 
    -> frontend nhận data hiển thị
 frontend click vào chuông thông báo -> emit event ->
+
+
+Phan Du đã bình luận trong bài tập Nodejs
+Phan Du đã bình luận trong tin tức ABCXYZ
+Phan Du đã bình luận/nhận xét bài tập của bạn
+Kiện đã bình luận trong bài tập của anh ấy
+
+Bạn có bài tập mới trong lớp Đồ án
+Bài tập của bạn đã chấm điểm
+
+Bạn đã bị đuổi khỏi lớp học
+Kiện đã tham gia lớp học lớp 
+loại thông báo: 
+    comment: 
+        + comment trong news (data new)
+        + trong classhomework (data classhomework)
+        + assign (assgin)
+    bài tập:
+        + (data classhomework) trả bài,
+        + nhận bài
+
+Schema bảng nofication:{
+    is_read: bool : xem hay chưa
+    người gửi: 
+    create_at: thời gian
+    người nhận: []
+    ref : oMnodel
+    oMnodel: [ commentNotify, homeworkNotify ]
+} 
+
+
+
+
+
+commentNotify{
+    type: [ ClassNews, ClassHomework, HomeworkAssign ]
+    class: model class,
+    ref: type
+}
+
+homeworkNotify{
+    
+}
+

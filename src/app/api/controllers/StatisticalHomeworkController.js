@@ -133,16 +133,14 @@ class StatisticalHomework{
             return
         }
     }
-    // req.body: id_class_homework, id_user;
+    // req.body: id_class_homework, id_homework_assign;
     async detailSubmitionOneStudent(req, res){
         try{
             const classHomework = await ClassHomework.findOne({id_class_homework: Number(req.body.id_class_homework), is_delete: false});
-            const user = await User.findOne({ id_user: Number(req.body.id_user) });
             let homeworkAssign = await HomeworkAssign.findOne(
                 {
                     is_delete: false,
-                    user: mongoose.Types.ObjectId(user._id),
-                    homework: mongoose.Types.ObjectId(classHomework.homework),
+                    id_homework_assign: Number(req.body.id_homework_assign)
                 }
             )
             .populate('user','-password');

@@ -12,7 +12,7 @@ const TimeHelper = require('../../../helpers/parse_date');
 const Comment = require('../../models/Comment');
 class SubmitHomeworkController{
     // id_class_homework
-    // status : 1 là đúng hạn, 2 là trễ, 3 là thiếu, 4 là đã trả, 0 là đã giao;
+    // status : 1 là đúng hạn, 2 là trễ, 3 là thiếu, 0 là đã giao;
     async submitNormalHomework (req, res){
         try{
             const now = moment().toDate().toString();
