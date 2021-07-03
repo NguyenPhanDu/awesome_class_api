@@ -6,7 +6,8 @@ const Class =require('../../models/Class');
 const ClassHomework = require('../../models/ClassHomework');
 const ClassNews = require('../../models/ClassNews');
 const HomeworkAssign = require('../../models/HomeworkAssign');
-
+const User = require('../../models/User');
+const { populate } = require('../../models/HomeworkNotification');
 async function createAssignNotify(classes, ref, sender, receiver){
     try{
         const homeworkNotificationSchema = new HomeworkNotification({
@@ -31,13 +32,12 @@ async function createAssignNotify(classes, ref, sender, receiver){
     }
 }
 
-async function createCommentNotify(model, classes, ref, sender, receiver, comment, create_at){
+async function createCommentNotify(model, classes, ref, sender, receiver, create_at){
     try{
         const CommentNotificationSchema = new CommentNotification({
             class: mongoose.Types.ObjectId(classes),
             ref: mongoose.Types.ObjectId(ref),
             type: model,
-            comment: mongoose.Types.ObjectId(comment)
         });
         const commentNotification = await CommentNotificationSchema.save();
         await Notification.create({
@@ -56,10 +56,25 @@ async function createCommentNotify(model, classes, ref, sender, receiver, commen
 }
 
 async function getAllNotifyOfUser(req, res){
-
+    const user = await User.findOne( { email: res.locals.email })
+    //const amount = req.query.amount
+    const a = Notification.find({ receiver: mongoose.Types.ObjectId(user) })
+    .populate('sender', '-password')
+    .populate('receiver', '-password')
+    .populate({
+        path: 'ref',
+        populate:  [{
+            path: 'class',
+        },
+        {
+            path: 'ref',
+        }
+        ]
+    })
 }
 
 module.exports = {
     createAssignNotify,
-    createCommentNotify
+    createCommentNotify,
+    getAllNotifyOfUser
 }

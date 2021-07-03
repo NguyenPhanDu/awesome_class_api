@@ -83,7 +83,6 @@ class CommentController{
                         ref._id,
                         user._id,
                         listUserComment[i],
-                        commentNew._id,
                         now
                     )
                 }

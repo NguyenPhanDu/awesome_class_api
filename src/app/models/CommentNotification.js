@@ -20,10 +20,6 @@ const CommentNotification = Schema(
         is_delete: {
             type: Boolean,
             default: false
-        },
-        comment: {
-            type: Schema.Types.ObjectId, 
-            ref:  'Comment'
         }
     },
     {
