@@ -14,7 +14,7 @@ const HomeworkCategoryRouter = require('./modules/homework_category');
 const ClassNewsRouter = require('./modules/class_news');
 const CommentRouter = require('./modules/comment');
 const NewFeedRouter = require('./modules/new_feed');
-
+const NotificationRouter = require('./modules/notification');
 // MVC
 const siteRouter = require('./mvc/site');
 const AuthMVCRouter = require('./mvc/auth');
@@ -22,7 +22,7 @@ const HomeworkType = require('./mvc/homework_type');
 const UserRouter = require('./mvc/user');
 const NormalUserMVC = require('./mvc/nomarl_user');
 
-const Uploadfile = require('../app/api/controllers/UploadFile');
+const cccc = require('../app/controllers/TestController');
 
 function route(app){
     // API ROUTER
@@ -42,14 +42,14 @@ function route(app){
     app.use('/api/class-news',ClassNewsRouter);
     app.use('/api/comment', CommentRouter);
     app.use('/api/newfeed',NewFeedRouter);
-    
+    app.use('/api/notification', NotificationRouter)
     //MVC ROUTER
     app.use('/admin/',siteRouter);
     app.use('/admin/',AuthMVCRouter);
     app.use('/homework-type', HomeworkType);
     app.use('/admin/users/nomarl-users/',NormalUserMVC);
 
-    app.post('/upload/:page', Uploadfile.sort);
+    app.use('/cc', cccc.cc);
 
 }
 

@@ -88,4 +88,19 @@ commentNotify thông báo khi có người khác(sender) comment vào bài tập
 bảng comment có model ref tới HomeworkAssign => trong HomeworkAssign có user đc giao bài tập, người giao bài tập
 làm sao tạo thông báo đc cho cả 2 có người khi người kia comment vào bài tập đó
 
-
+[
+    {
+        is_read: bool : xem hay chưa
+        người gửi: 
+        create_at: thời gian
+        người nhận:
+        ref : {
+            class:
+            ref: {
+                
+            }
+        }
+        type: [ commentNotify, homeworkNotify ]
+    }
+]
+    

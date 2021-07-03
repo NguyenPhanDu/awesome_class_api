@@ -44,10 +44,9 @@ async function createCommentNotify(model, classes, ref, sender, receiver, create
             sender: mongoose.Types.ObjectId(sender),
             receiver: mongoose.Types.ObjectId(receiver),
             create_at: create_at,
-            ref: mongoose.Types.ObjectId(commentNotification),
+            ref: mongoose.Types.ObjectId(commentNotification._id),
             onModel: 'CommentNotification'
         })
-        console.log('tạo thành công')
     }
     catch(err){
         console.log(err);
@@ -56,21 +55,49 @@ async function createCommentNotify(model, classes, ref, sender, receiver, create
 }
 
 async function getAllNotifyOfUser(req, res){
-    const user = await User.findOne( { email: res.locals.email })
-    //const amount = req.query.amount
-    const a = Notification.find({ receiver: mongoose.Types.ObjectId(user) })
-    .populate('sender', '-password')
-    .populate('receiver', '-password')
-    .populate({
-        path: 'ref',
-        populate:  [{
-            path: 'class',
-        },
-        {
+    try{
+        const user = await User.findOne( { email: res.locals.email })
+        //const amount = req.query.amount
+        const a = Notification.find({ receiver: mongoose.Types.ObjectId(user._id) })
+        .populate('sender', '-password')
+        .populate('receiver', '-password')
+        .populate({
             path: 'ref',
-        }
-        ]
-    })
+            populate:  [{
+                path: 'class',
+            },
+            {
+                path: 'ref',
+                populate: [
+                    {
+                        path: 'homework'
+                    }
+                ]
+            }
+            ]
+        })
+        .limit(10)
+        .sort({ createdAt : -1 });
+        
+        res.json({
+            success: true,
+            message: "get all notify of users successfull!",
+            data: a,
+            res_code: 200,
+            res_status: "GET_SUCCESSFULLY"
+        })
+    }
+    catch(err){
+        console.log(err)
+            return res.json({
+                success: false,
+                message: 'Server error. Please try again.',
+                error: error,
+                res_code: 500,
+                res_status: "SERVER_ERROR"
+            });
+    }
+    
 }
 
 module.exports = {

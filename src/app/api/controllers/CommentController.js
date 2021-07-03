@@ -197,6 +197,46 @@ class CommentController{
             });
             return;
         }
+    };
+    // ref: 1 là comment của bài tập, 2 là notify; id: của bài tập hoặc notify, content: nội dung comment
+    // ref: 3 , id: id của assignment đó là trường: id_homework_assign
+    async getAllComment(req, res){
+        try{
+            if(req.body.ref == 1){
+                model = 'ClassHomework';
+                ref = await ClassHomework.findOne({ id_class_homework: req.body.id, is_delete : false })
+            }
+            if(req.body.ref == 2){
+                model = 'ClassNews';
+                ref = await ClassNews.findOne({ id_class_news: req.body.id, is_delete: false })
+            }
+            if(req.body.ref == 3){
+                model = 'HomeworkAssign';
+                ref = await HomeworkAssign.findOne({ id_homework_assign: req.body.id, is_delete: false })
+            }
+            const comments = await Comment.find({ onModel: model, is_delete: false, ref: mongoose.Types.ObjectId(ref._id) })
+            .populate('user', '-password');
+
+            return res.json({
+                success: true,
+                message: "get all Comment successfully!",
+                data: comments,
+                res_code: 200,
+                res_status: "GET_SUCCESSFULLY"
+            }) 
+            
+        }
+        catch(err){
+            console.log(err);
+            res.json({
+                success: false,
+                message: 'Server error. Please try again',
+                error: err,
+                res_code: 500,
+                res_status: "SERVER_ERROR"
+            });
+            return;
+        } 
     }
 }
 
