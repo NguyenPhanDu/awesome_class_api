@@ -1,8 +1,3 @@
-const path = require('path');
-const express = require('express');
-
-const upload = require('../app/middlewares/upload');
-
 const userTypeRouter = require('./modules/user_type');
 const authRouter = require('./modules/auth');
 const activeRouter = require('./modules/active_mail');

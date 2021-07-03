@@ -19,5 +19,19 @@ Về flow ý tưởng của chức năng thông báo:
     + ko chuyển trang đã xem thôi
 
 - Hiển thị: Load ra danh sách thông báo từ database
+=> api lấy tất cả thông báo của user đó
 
-- Xử lý thông báo bài tập mới cho 
+Ví dụ: - Khi tạo bài tập thông báo cho tất cả học sinh được giao => click vào đi vào chi tiết bài tập
+            + bạn có bài mới ở lớp abc .. thời gian
+thông tin của nofication cần có: 
+bài tập: ClassHomework(class, homework(thời gian))
+user: truy vấn tất cả thông báo của user
+
+Ví dụ flow của thông báo bài tập:
+1 Hiển thị tất cả thông báo của user: api
+1. Mỗi lần tạo bài tập sẽ thông báo cho user được chỉ định
+  backend tạo bài tập 
+   -> tạo thông báo cho các user đc chỉ định bài tập vào db 
+   -> emit event truyền thông tin thông báo lên 
+   -> frontend nhận data hiển thị
+frontend click vào chuông thông báo -> emit event ->

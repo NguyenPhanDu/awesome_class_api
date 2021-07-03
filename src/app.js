@@ -19,6 +19,10 @@ const db = require('./config/db/index');
 db.connect();
 
 const app = express();
+// Socketio
+var server = require('http').createServer(app);  
+var io = require('socket.io')(server);
+app.set('socketio', io);
 // CORS
 app.use(cors())
 // HELMET
@@ -50,9 +54,12 @@ app.engine('hbs', handlebars({extname: '.hbs'}));
 app.set('view engine', 'hbs');
 app.set('views', path.join(__dirname,'resources', 'views'))
 //Route
-const route = require('./routes/router')
+const route = require('./routes/router');
 route(app);
 
-app.listen(process.env.PORT, () => {
+const socketIo = require('./app/services/socket/index');
+socketIo(io);
+
+server.listen(process.env.PORT, () => {
   console.log(`App listening at http://localhost:${process.env.PORT}/admin/login`);
 })
