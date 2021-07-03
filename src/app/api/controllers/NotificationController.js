@@ -6,6 +6,7 @@ const Class =require('../../models/Class');
 const ClassHomework = require('../../models/ClassHomework');
 const ClassNews = require('../../models/ClassNews');
 const HomeworkAssign = require('../../models/HomeworkAssign');
+
 async function createAssignNotify(classes, ref, sender, receiver){
     try{
         const homeworkNotificationSchema = new HomeworkNotification({
@@ -22,6 +23,7 @@ async function createAssignNotify(classes, ref, sender, receiver){
             ref: mongoose.Types.ObjectId(homeworkNotification._id),
             onModel: 'HomeworkNotification'
         })
+        console.log('tạo thành công')
     }
     catch(err){
         console.log(err)
@@ -45,11 +47,16 @@ async function createCommentNotify(model, classes, ref, sender, receiver, commen
             ref: mongoose.Types.ObjectId(commentNotification),
             onModel: 'CommentNotification'
         })
+        console.log('tạo thành công')
     }
     catch(err){
         console.log(err);
         return;
     }
+}
+
+async function getAllNotifyOfUser(req, res){
+
 }
 
 module.exports = {
