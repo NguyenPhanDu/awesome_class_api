@@ -11,6 +11,7 @@ const HomeworkCategory = require('../../models/HomeworkCategory');
 const FolerServices = require('../../services/file_and_folder/index');
 const Comment = require('../../models/Comment');
 const File = require('../../models/File');
+const NotificationController = require('./NotificationController');
 class HomeWorkController{
     // Req:  id_class, title, description, deadline, start_date, total_scores, category : { title, id_homework_category}, emails[];
     async createNormalHomework(req, res){
@@ -172,6 +173,12 @@ class HomeWorkController{
                                         homework: mongoose.Types.ObjectId(newHomework._id),
                                         onModel: 'NormalHomework'
                                     })
+                                    await NotificationController.createAssignNotify(
+                                        classId,
+                                        classHomework._id,
+                                        userId,
+                                        arrStudentInClass[i].user
+                                    )
                                 };
                             }
                         };

@@ -25,10 +25,10 @@ const NotificationSchema = Schema(
             type: Schema.Types.ObjectId,
             refPath: 'type'
         },
-        onModel: {
+        type: {
             type: String,
             require: true,
-            enum: [ 'HomeworkNotification', 'CommentNotification']
+            enum: [ 'HomeworkNotification', 'CommentNotification', 'NomarlNotification']
         },
     },
     {

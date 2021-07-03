@@ -83,3 +83,9 @@ homeworkNotify{
 
 flow: 
 Chỉ thông báo cho những ai đang kết nối và được chỉ định bài tập
+
+commentNotify thông báo khi có người khác(sender) comment vào bài tập/news/ mình đã comment
+bảng comment có model ref tới HomeworkAssign => trong HomeworkAssign có user đc giao bài tập, người giao bài tập
+làm sao tạo thông báo đc cho cả 2 có người khi người kia comment vào bài tập đó
+
+
