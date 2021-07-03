@@ -17,22 +17,25 @@ const NotificationSchema = Schema(
             ref:  'User'
         },
         create_at: String,
-        content: {
-            type: String,
-            default: ""
+        is_delete: {
+            type: Boolean,
+            default: false
+        },
+        ref: {
+            type: Schema.Types.ObjectId,
+            refPath: 'type'
         },
         onModel: {
             type: String,
             require: true,
-            enum: ['ClassNews', 'ClassHomework', 'HomeworkAssign']
-        },
-        data: {
-            type: Schema.Types.ObjectId,
-            refPath: 'onModel'
+            enum: [ 'HomeworkNotification', 'CommentNotification']
         },
     },
     {
         timestamps :true,
         collection: 'notifications'
     }
-)
+);
+
+NotificationSchema.plugin(AutoIncrement,{inc_field: 'id_notification'});
+module.exports = mongoose.model("Notification", NotificationSchema);

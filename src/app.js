@@ -21,7 +21,11 @@ db.connect();
 const app = express();
 // Socketio
 var server = require('http').createServer(app);  
-var io = require('socket.io')(server);
+var io = require('socket.io')(server, {
+  cors: {
+    origin: '*',
+  }
+});
 app.set('socketio', io);
 // CORS
 app.use(cors())

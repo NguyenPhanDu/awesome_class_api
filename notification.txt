@@ -63,14 +63,10 @@ Schema bảng nofication:{
     is_read: bool : xem hay chưa
     người gửi: 
     create_at: thời gian
-    người nhận: []
+    người nhận:
     ref : oMnodel
     oMnodel: [ commentNotify, homeworkNotify ]
 } 
-
-
-
-
 
 commentNotify{
     type: [ ClassNews, ClassHomework, HomeworkAssign ]
@@ -79,6 +75,11 @@ commentNotify{
 }
 
 homeworkNotify{
-    
+    type: [ ClassHomework, HomeworkAssign ]
+    class: model class,
+    ref: type
 }
 
+
+flow: 
+Chỉ thông báo cho những ai đang kết nối và được chỉ định bài tập
