@@ -97,9 +97,10 @@ làm sao tạo thông báo đc cho cả 2 có người khi người kia comment 
         ref : {
             class:
             ref: {
-                ten
+                
+                id:
             }
-            type: c
+            type: ClassHomework| assgin | news
         }
         type: [ commentNotify, homeworkNotify ]
     }

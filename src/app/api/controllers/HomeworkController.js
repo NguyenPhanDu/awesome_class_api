@@ -161,6 +161,12 @@ class HomeWorkController{
                                     homework: mongoose.Types.ObjectId(newHomework._id),
                                     onModel: 'NormalHomework'
                                 })
+                                await NotificationController.createAssignNotify(
+                                    classId,
+                                    classHomework._id,
+                                    userId,
+                                    arrayUserId[i]
+                                )
                             }
                         }
                         else{

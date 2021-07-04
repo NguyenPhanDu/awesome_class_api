@@ -95,7 +95,7 @@ class CommentController{
                         classs._id,
                         ref._id,
                         user._id,
-                        listUserComment[i],
+                        listfilerUserId[i],
                         now
                     )
                 }
