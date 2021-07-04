@@ -3,11 +3,13 @@ const ClassNews = require('../models/ClassNews');
 const Comment = require('../models/Comment')
 async function cc(req, res){
     try{
-        const a = await Comment.aggregate([
+        let a =[]
+        a = await Comment.aggregate([
                 {
                     "$match": {
                         "ref": mongoose.Types.ObjectId('60d86fe1c70d0f36e0ebca16'),
-                        'is_delete': false
+                        'is_delete': false,
+                            'onModel': 'ClassHomework'
                     }
                 },
                {
@@ -22,7 +24,8 @@ async function cc(req, res){
         const d = c.filter(item => {
             return item != '60c40f6df6966008d82459af'
         })
-        res.json(d)
+        console.log(a.length)
+        res.json(a)
     }
     catch(err){
         console.log(err)

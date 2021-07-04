@@ -22,7 +22,7 @@ class CommentController{
                 model = 'ClassHomework';
                 ref = await ClassHomework.findOne({ id_class_homework: req.body.id, is_delete : false })
                 // Tìm user đã comment trong bài tập đó list
-                listUserCommentObject = await Comment.aggregate[
+                listUserCommentObject = await Comment.aggregate([
                     {
                         "$match": {
                             "ref": mongoose.Types.ObjectId(ref._id),
@@ -35,12 +35,12 @@ class CommentController{
                             _id: '$user' 
                         }
                     }
-                ]
+                ])
             }
             if(req.body.ref == 2){
                 model = 'ClassNews';
                 ref = await ClassNews.findOne({ id_class_news: req.body.id, is_delete: false })
-                listUserCommentObject = await Comment.aggregate[
+                listUserCommentObject = await Comment.aggregate([
                     {
                         "$match": {
                             "ref": mongoose.Types.ObjectId(ref._id),
@@ -53,7 +53,7 @@ class CommentController{
                             _id: '$user' 
                         }
                     }
-                ]
+                ])
             }
             if(req.body.ref == 3){
                 model = 'HomeworkAssign';
@@ -80,6 +80,7 @@ class CommentController{
                 update_at: now
             });
             // list ra comment ở news// homework đó => list ra userId => tạo notify cho mỗi user trong list đó
+            let listUserCommentObjectParse = JSON.parse(JSON.stringify(listUserCommentObject))
             if(listUserCommentObject.length > 0){
                 // mảng user._id
                 let listUserComment  = listUserCommentObject.map(item => {
