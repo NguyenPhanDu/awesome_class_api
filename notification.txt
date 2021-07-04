@@ -97,8 +97,9 @@ làm sao tạo thông báo đc cho cả 2 có người khi người kia comment 
         ref : {
             class:
             ref: {
-                
+                ten
             }
+            type: c
         }
         type: [ commentNotify, homeworkNotify ]
     }

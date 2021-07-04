@@ -49,7 +49,7 @@ function route(app){
     app.use('/homework-type', HomeworkType);
     app.use('/admin/users/nomarl-users/',NormalUserMVC);
 
-    app.use('/cc', cccc.cc);
+    //app.use('/cc', cccc.cc);
 
 }
 

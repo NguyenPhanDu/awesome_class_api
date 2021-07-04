@@ -3,15 +3,10 @@ const User = require('../../models/User');
 const ClassHomework = require('../../models/ClassHomework');
 const HomeworkAssign = require('../../models/HomeworkAssign');
 const SubmitHomework = require('../../models/SubmitHomework');
-const FolerSer = require('../../services/file_and_folder/student_submit');
-const File = require('../../models/File');
-const FolderHomework = require('../../models/FolderHomework');
-const Folder = require('../../models/Folder');
 const moment = require('moment');
 const Comment = require('../../models/Comment');
-
+const NotificationController = require('./NotificationController');
 class StatisticalHomework{
-    //1 api xài cho 2 loại hay sao ??
     // id_class_homework
     async statisticalHomework(req, res){
         try{
@@ -97,10 +92,11 @@ class StatisticalHomework{
     //req: id_class_homework, students:[{ email: , scores:  } ] 
     async returnHomework(req, res){
         try{
+            const sender = await User.findOne({ email: res.locals.email });
             const classHomework = await ClassHomework.findOne({id_class_homework: Number(req.body.id_class_homework), is_delete: false});
             for(let i = 0; i< req.body.students.length; i++){
                 let user = await User.findOne( { email : req.body.students[i].email } )
-                await HomeworkAssign.findOneAndUpdate(
+                const a =  await HomeworkAssign.findOneAndUpdate(
                     {
                         is_delete: false,
                         class: mongoose.Types.ObjectId(classHomework.class),
@@ -111,8 +107,12 @@ class StatisticalHomework{
                     {
                         is_signed: true,
                         scores: req.body.students[i].scores
+                    },
+                    {
+                        new: true
                     }
                 )
+                await NotificationController.createReturnHomeworkNotity(classHomework.class,a._id, sender._id,user._id)
             }
             res.json({
                 success: true,

@@ -2,12 +2,8 @@ const mongoose = require('mongoose');
 const HomeworkNotification = require('../../models/HomeworkNotification');
 const Notification = require('../../models/Notification');
 const CommentNotification = require('../../models/CommentNotification');
-const Class =require('../../models/Class');
-const ClassHomework = require('../../models/ClassHomework');
-const ClassNews = require('../../models/ClassNews');
-const HomeworkAssign = require('../../models/HomeworkAssign');
 const User = require('../../models/User');
-const { populate } = require('../../models/HomeworkNotification');
+
 async function createAssignNotify(classes, ref, sender, receiver){
     try{
         const homeworkNotificationSchema = new HomeworkNotification({
@@ -32,6 +28,32 @@ async function createAssignNotify(classes, ref, sender, receiver){
     }
 }
 
+async function createReturnHomeworkNotity(classes, ref, sender, receiver){
+    try{
+        const now = moment().toDate().toString();
+        const homeworkNotificationSchema = new HomeworkNotification({
+            class : mongoose.Types.ObjectId(classes),
+            ref: mongoose.Types.ObjectId(ref),
+            type: 'HomeworkAssign'
+        }); 
+        const homeworkNotification = await homeworkNotificationSchema.save();
+        const notify =  await Notification.create({
+            sender: mongoose.Types.ObjectId(sender),
+            receiver: mongoose.Types.ObjectId(receiver),
+            create_at: now,
+            ref: mongoose.Types.ObjectId(homeworkNotification._id),
+            onModel: 'HomeworkNotification'
+        })
+        if(notify){
+            console.log('tạo thành công')
+        }
+    }   
+    catch(err){
+        console.log(err);
+        return;
+    } 
+}
+
 async function createCommentNotify(model, classes, ref, sender, receiver, create_at){
     try{
         const CommentNotificationSchema = new CommentNotification({
@@ -40,13 +62,16 @@ async function createCommentNotify(model, classes, ref, sender, receiver, create
             type: model,
         });
         const commentNotification = await CommentNotificationSchema.save();
-        await Notification.create({
+        const notify = await Notification.create({
             sender: mongoose.Types.ObjectId(sender),
             receiver: mongoose.Types.ObjectId(receiver),
             create_at: create_at,
             ref: mongoose.Types.ObjectId(commentNotification._id),
             onModel: 'CommentNotification'
         })
+        if(notify){
+            console.log('Tạo notify thành công')
+        }
     }
     catch(err){
         console.log(err);
@@ -57,7 +82,7 @@ async function createCommentNotify(model, classes, ref, sender, receiver, create
 async function getAllNotifyOfUser(req, res){
     try{
         const user = await User.findOne( { email: res.locals.email })
-        //const amount = req.query.amount
+        const amount = req.query.amount || 10;
         const a = Notification.find({ receiver: mongoose.Types.ObjectId(user._id) })
         .populate('sender', '-password')
         .populate('receiver', '-password')
@@ -76,7 +101,7 @@ async function getAllNotifyOfUser(req, res){
             }
             ]
         })
-        .limit(10)
+        .limit(amount)
         .sort({ createdAt : -1 });
         
         res.json({
@@ -103,5 +128,6 @@ async function getAllNotifyOfUser(req, res){
 module.exports = {
     createAssignNotify,
     createCommentNotify,
+    createReturnHomeworkNotity,
     getAllNotifyOfUser
 }
