@@ -17,8 +17,8 @@ async function cc(req, res){
                } 
                 
         ])
-        const b = JSON.parse(JSON.stringify(a))
-        const c = a.map(item => {return item._id})
+        const b = JSON.parse(JSON.stringify([]))
+        const c = b.map(item => {return item._id})
         const d = c.filter(item => {
             return item != '60c40f6df6966008d82459af'
         })

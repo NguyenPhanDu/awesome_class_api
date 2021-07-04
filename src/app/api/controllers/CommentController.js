@@ -80,10 +80,9 @@ class CommentController{
                 update_at: now
             });
             // list ra comment ở news// homework đó => list ra userId => tạo notify cho mỗi user trong list đó
-            let listUserCommentObjectParse = JSON.parse(JSON.stringify(listUserCommentObject));
-            if(listUserCommentObjectParse.length > 0){
+            if(listUserCommentObject.length > 0){
                 // mảng user._id
-                let listUserComment  = listUserCommentObjectParse.map(item => {
+                let listUserComment  = listUserCommentObject.map(item => {
                     return item._id
                 }); 
                 let listfilerUserId = listUserComment.filter(item => {
