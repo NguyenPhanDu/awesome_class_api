@@ -83,7 +83,7 @@ class NotificationController{
     async getAllNotifyOfUser(req, res){
         try{
             const user = await User.findOne( { email: res.locals.email })
-            const amount = req.query.amount || 10;
+            const amount = Number(req.query.amount) || 10;
             const a = await Notification.find({ receiver: mongoose.Types.ObjectId(user._id) })
             .populate('sender', '-password')
             .populate('receiver', '-password')

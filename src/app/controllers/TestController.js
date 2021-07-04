@@ -40,18 +40,18 @@ async function ccc(req, res){
         .populate('receiver', '-password')
         .populate({
             path: 'ref',
-            // populate:  [{
-            //     path: 'class',
-            // },
-            // {
-            //     path: 'ref',
-            //     populate: [
-            //         {
-            //             path: 'homework'
-            //         }
-            //     ]
-            // }
-            // ]
+            populate:  [{
+                path: 'class',
+            },
+            {
+                path: 'ref',
+                populate: [
+                    {
+                        path: 'homework'
+                    }
+                ]
+            }
+            ]
         })
         .sort({ createdAt : -1 });
 
