@@ -14,33 +14,46 @@ class CommentController{
         try{
             let ref;
             let model;
-            let listComment = [];
+            let listUserCommentObject = [];
             let submitSenderComment;
             let submitReceiverComment;
             const user = await User.findOne({ email : res.locals.email});
             if(req.body.ref == 1){
                 model = 'ClassHomework';
                 ref = await ClassHomework.findOne({ id_class_homework: req.body.id, is_delete : false })
-                listComment = await Comment.find(
-                    { 
-                        onModel: model, 
-                        is_delete: false, 
-                        ref: mongoose.Types.ObjectId(ref._id) 
+                // Tìm user đã comment trong bài tập đó list
+                listUserCommentObject = await Comment.aggregate[
+                    {
+                        "$match": {
+                            "ref": mongoose.Types.ObjectId(ref._id),
+                            'is_delete': false,
+                            'onModel': model
+                        }
+                    },
+                    {
+                        "$group": {
+                            _id: '$user' 
+                        }
                     }
-                )
-                .populate('user', '-password');
+                ]
             }
             if(req.body.ref == 2){
                 model = 'ClassNews';
                 ref = await ClassNews.findOne({ id_class_news: req.body.id, is_delete: false })
-                listComment = await Comment.find(
-                    { 
-                        onModel: model, 
-                        is_delete: false, 
-                        ref: mongoose.Types.ObjectId(ref._id) 
+                listUserCommentObject = await Comment.aggregate[
+                    {
+                        "$match": {
+                            "ref": mongoose.Types.ObjectId(ref._id),
+                            'is_delete': false,
+                            'onModel': model
+                        }
+                    },
+                    {
+                        "$group": {
+                            _id: '$user' 
+                        }
                     }
-                )
-                .populate('user', '-password');
+                ]
             }
             if(req.body.ref == 3){
                 model = 'HomeworkAssign';
@@ -67,16 +80,16 @@ class CommentController{
                 update_at: now
             });
             // list ra comment ở news// homework đó => list ra userId => tạo notify cho mỗi user trong list đó
-            let listCommentParse = JSON.parse(JSON.stringify(listComment));
-            if(listCommentParse.length > 0){
+            let listUserCommentObjectParse = JSON.parse(JSON.stringify(listUserCommentObject));
+            if(listUserCommentObjectParse.length > 0){
                 // mảng user._id
-                let listUserComment  = listCommentParse.map(item => {
-                    return item.user._id
+                let listUserComment  = listUserCommentObjectParse.map(item => {
+                    return item._id
                 }); 
                 let listfilerUserId = listUserComment.filter(item => {
                     return item != user._id
                 })
-                for(let i = 0; i < listUserComment.length; i++){
+                for(let i = 0; i < listfilerUserId.length; i++){
                     await NotificationController.createCommentNotify(
                         model,
                         classs._id,
@@ -87,7 +100,7 @@ class CommentController{
                     )
                 }
             }
-            else{
+            if(req.body.ref == 3){
                 await NotificationController.createCommentNotify(
                     model,
                     classs._id,
