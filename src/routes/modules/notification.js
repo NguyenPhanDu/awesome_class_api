@@ -4,4 +4,5 @@ const {verifyToken} = require('../../app/middlewares/authJwt');
 const NotificationController = require('../../app/api/controllers/NotificationController')
 router.use(verifyToken);
 router.post('/',NotificationController.getAllNotifyOfUser);
+router.post('/read/',NotificationController.readNotity)
 module.exports = router
