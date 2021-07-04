@@ -19,7 +19,7 @@ class NotificationController{
                 receiver: mongoose.Types.ObjectId(receiver),
                 create_at: now,
                 ref: mongoose.Types.ObjectId(homeworkNotification._id),
-                onModel: 'HomeworkNotification'
+                type: 'HomeworkNotification'
             })
             console.log('tạo thành công')
         }
@@ -43,7 +43,7 @@ class NotificationController{
                 receiver: mongoose.Types.ObjectId(receiver),
                 create_at: now,
                 ref: mongoose.Types.ObjectId(homeworkNotification._id),
-                onModel: 'HomeworkNotification'
+                type: 'HomeworkNotification'
             })
             if(notify){
                 console.log('tạo thành công')
@@ -68,7 +68,7 @@ class NotificationController{
                 receiver: mongoose.Types.ObjectId(receiver),
                 create_at: create_at,
                 ref: mongoose.Types.ObjectId(commentNotification._id),
-                onModel: 'CommentNotification'
+                type: 'CommentNotification'
             })
             if(notify){
                 console.log('Tạo notify thành công')
