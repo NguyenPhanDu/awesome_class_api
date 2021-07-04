@@ -125,6 +125,35 @@ class NotificationController{
         }
         
     }
+    // req.body.id_notification
+    async readNotity(req, res){
+        try{
+            await Notification.findOneAndUpdate(
+                {
+                    id_notification: Number(req.body.id_notification)
+                },
+                {
+                    is_read: true
+                }
+            )
+            res.json({
+                success: true,
+                message: "read notify of users successfull!",
+                res_code: 200,
+                res_status: "UPDATE_SUCCESSFULLY"
+            })
+        }
+        catch(err){
+                console.log(err)
+                return res.json({
+                    success: false,
+                    message: 'Server error. Please try again.',
+                    error: err,
+                    res_code: 500,
+                    res_status: "SERVER_ERROR"
+                });
+        }
+    }
 }
 
 module.exports = new NotificationController
