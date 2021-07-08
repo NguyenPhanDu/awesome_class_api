@@ -286,11 +286,21 @@ async function deleteHomeworkFolder(classId, classHomework){
     }
 }
 
+async function deleteFileWhenUpdate(classHomeWork){
+    try{
+        await File.updateMany({ class_homework: mongoose.Types.ObjectId(classHomeWork._id) }, { is_delete: true })
+    }
+    catch(err){
+        console.log(err);
+    }
+}
+
 module.exports = {
     createUserFolder,
     createClassFolder,
     createFolderHomework,
     uploadHomeworkTeacherFile,
     deleteClassFoler,
-    deleteHomeworkFolder
+    deleteHomeworkFolder,
+    deleteFileWhenUpdate
 }

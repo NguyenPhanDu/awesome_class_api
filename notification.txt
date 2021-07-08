@@ -97,12 +97,40 @@ làm sao tạo thông báo đc cho cả 2 có người khi người kia comment 
         ref : {
             class:
             ref: {
-                
-                id:
+                -Nếu type: ClassNews
+                 + id_classnews
+                 + user: người tạo ra các class 
+                 + title
+                 + description
+                 + bla bla
+                -Nếu type: ClassHomework
+                 + id_class_homework
+                 + homework: {
+                     thông tin của hôm work
+                 }
+                -Nếu type: assgin
+                + id_assgin
+                + scores
+                + is_submit
+                + blalal
+                + homework{
+                    thông tin của homework
+                }
             }
             type: ClassHomework| assgin | news
         }
         type: [ commentNotify, homeworkNotify ]
     }
 ]
-    
+
+Nofication: {
+    ref: onModel,
+    onModel: [2 model],
+    type: String đc quy định
+}
+
+commentNotify: {
+    ref: onModel
+    onModel: [3 model],
+    type: String đc quy định sẳn
+}

@@ -10,12 +10,16 @@ const CommentNotification = Schema(
         },
         ref: {
             type: Schema.Types.ObjectId,
-            refPath: 'type'
+            refPath: 'onModel'
         },
-        type: {
+        onModel: {
             type: String,
             require: true,
             enum: ['ClassNews', 'ClassHomework', 'HomeworkAssign']
+        },
+        // ClassNews, ClassHomework, HomeworkAssign
+        type: {
+            type: String
         },
         is_delete: {
             type: Boolean,

@@ -536,14 +536,16 @@ class HomeWorkController{
                         });
                         if(a){
                             await HomeworkAssign.findByIdAndUpdate(a._id, { is_delete : false });
+                            await NotificationController.createUpdateHomeworkNotify(classId, classHomework._id, userId, userIds)
                         }
                         else{
-                            await HomeworkAssign.create({
+                            const b = await HomeworkAssign.create({
                                 user: mongoose.Types.ObjectId(userIds),
                                 class: mongoose.Types.ObjectId(classHomeWork.class),
                                 homework: mongoose.Types.ObjectId(classHomeWork.homework._id),
                                 onModel: 'NormalHomework'
-                            }) 
+                            })
+                            await NotificationController.createUpdateHomeworkNotify(classId, classHomework._id, userId, userIds)
                         }
                     }
                 }
@@ -560,6 +562,8 @@ class HomeWorkController{
                         });
                         if(a){
                             await HomeworkAssign.findByIdAndUpdate(a._id, { is_delete : false });
+                            await NotificationController.createUpdateHomeworkNotify(classId, classHomework._id, userId, userIds)
+
                         }
                         else{
                             await HomeworkAssign.create({
@@ -567,7 +571,8 @@ class HomeWorkController{
                                 class: mongoose.Types.ObjectId(classHomeWork.class),
                                 homework: mongoose.Types.ObjectId(classHomeWork.homework._id),
                                 onModel: 'NormalHomework'
-                            }) 
+                            })
+                            await NotificationController.createUpdateHomeworkNotify(classId, classHomework._id, userId, userIds)
                         }
                     }
                 }

@@ -10,7 +10,8 @@ class NotificationController{
             const homeworkNotificationSchema = new HomeworkNotification({
                 class : mongoose.Types.ObjectId(classes),
                 ref: mongoose.Types.ObjectId(ref),
-                type: 'ClassHomework'
+                type: 'ClassHomework',
+                onModel: 'ClassHomework'
             });
             const homeworkNotification = await homeworkNotificationSchema.save();
             const now = moment().toDate().toString();
@@ -19,9 +20,9 @@ class NotificationController{
                 receiver: mongoose.Types.ObjectId(receiver),
                 create_at: now,
                 ref: mongoose.Types.ObjectId(homeworkNotification._id),
-                type: 'HomeworkNotification'
+                type: 'HomeworkNotification',
+                onModel: 'HomeworkNotification'
             })
-            console.log('tạo thành công')
         }
         catch(err){
             console.log(err)
@@ -35,7 +36,8 @@ class NotificationController{
             const homeworkNotificationSchema = new HomeworkNotification({
                 class : mongoose.Types.ObjectId(classes),
                 ref: mongoose.Types.ObjectId(ref),
-                type: 'HomeworkAssign'
+                type: 'HomeworkAssign',
+                onModel: 'HomeworkAssign'
             }); 
             const homeworkNotification = await homeworkNotificationSchema.save();
             const notify =  await Notification.create({
@@ -43,11 +45,9 @@ class NotificationController{
                 receiver: mongoose.Types.ObjectId(receiver),
                 create_at: now,
                 ref: mongoose.Types.ObjectId(homeworkNotification._id),
-                type: 'HomeworkNotification'
+                type: 'HomeworkNotification',
+                onModel: 'HomeworkNotification'
             })
-            if(notify){
-                console.log('tạo thành công')
-            }
         }   
         catch(err){
             console.log(err);
@@ -55,12 +55,38 @@ class NotificationController{
         } 
     }
     
+    async createUpdateHomeworkNotify(classes, ref, sender, receiver){
+        try{
+            const now = moment().toDate().toString();
+            const homeworkNotificationSchema = new HomeworkNotification({
+                class : mongoose.Types.ObjectId(classes),
+                ref: mongoose.Types.ObjectId(ref),
+                type: 'HomeworkUpdate',
+                onModel: 'ClassHomework'
+            }); 
+            const homeworkNotification = await homeworkNotificationSchema.save();
+            await Notification.create({
+                sender: mongoose.Types.ObjectId(sender),
+                receiver: mongoose.Types.ObjectId(receiver),
+                create_at: now,
+                ref: mongoose.Types.ObjectId(homeworkNotification._id),
+                type: 'HomeworkNotification',
+                onModel: 'HomeworkNotification'
+            })
+        }
+        catch(err){
+            console.log(err);
+            return;
+        }
+    }
+
     async createCommentNotify(model, classes, ref, sender, receiver, create_at){
         try{
             const CommentNotificationSchema = new CommentNotification({
                 class: mongoose.Types.ObjectId(classes),
                 ref: mongoose.Types.ObjectId(ref),
                 type: model,
+                onModel: model
             });
             const commentNotification = await CommentNotificationSchema.save();
             const notify = await Notification.create({
@@ -68,7 +94,8 @@ class NotificationController{
                 receiver: mongoose.Types.ObjectId(receiver),
                 create_at: create_at,
                 ref: mongoose.Types.ObjectId(commentNotification._id),
-                type: 'CommentNotification'
+                type: 'CommentNotification',
+                onModel: 'CommentNotification'
             })
             if(notify){
                 console.log('Tạo notify thành công')

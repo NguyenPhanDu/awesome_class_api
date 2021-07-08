@@ -301,7 +301,7 @@ class ClassController{
                     res_code: 500,
                     res_status: "SERVER_ERROR"
                 });
-            })
+            });
     };
 
     async getClass(req, res){

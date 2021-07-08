@@ -23,13 +23,17 @@ const NotificationSchema = Schema(
         },
         ref: {
             type: Schema.Types.ObjectId,
-            refPath: 'type'
+            refPath: 'onModel'
         },
+        // HomeworkNotification, CommentNotification, NomarlNotification
         type: {
+            type: String,
+        },
+        onModel: {
             type: String,
             require: true,
             enum: [ 'HomeworkNotification', 'CommentNotification', 'NomarlNotification']
-        },
+        }
     },
     {
         timestamps :true,

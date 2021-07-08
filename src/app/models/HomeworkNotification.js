@@ -10,12 +10,16 @@ const HomeworkNotification = Schema(
         },
         ref: {
             type: Schema.Types.ObjectId,
-            refPath: 'type'
+            refPath: 'onModel'
         },
-        type: {
+        onModel: {
             type: String,
             require: true,
             enum: [ 'ClassHomework', 'HomeworkAssign']
+        },
+        // ClassHomework == tạo, HomeworkAssign == trả, update
+        type: {
+            type: String
         },
         is_delete: {
             type: Boolean,
