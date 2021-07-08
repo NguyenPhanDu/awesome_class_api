@@ -285,10 +285,15 @@ async function deleteHomeworkFolder(classId, classHomework){
         return;
     }
 }
-
-async function deleteFileWhenUpdate(classHomeWork){
+// type: 'news' == 1 || 'homework' == 2, id:  của bài tâp hoặc news đó hoặc bài tập đó
+async function deleteFileWhenUpdate(id, type){
     try{
-        await File.updateMany({ class_homework: mongoose.Types.ObjectId(classHomeWork._id) }, { is_delete: true })
+        if(type == 1){
+            await File.updateMany({ class_news: mongoose.Types.ObjectId(id) }, { is_delete: true })
+        }
+        if(type == 2){
+            await File.updateMany({ class_homework: mongoose.Types.ObjectId(id) }, { is_delete: true })
+        }    
     }
     catch(err){
         console.log(err);

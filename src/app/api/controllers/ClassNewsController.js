@@ -9,7 +9,7 @@ const ClassNewsAssign = require('../../models/ClassNewsAssign');
 const File = require('../../models/File');
 const ClassRole = require('../../models/ClassRole');
 const moment = require('moment');
-
+const FolerServices = require('../../services/file_and_folder/index');
 class ClassNewsController{
     async create(req, res){
         try{
@@ -229,8 +229,12 @@ class ClassNewsController{
                 if(reqAttachments.length > 0){
                     let newDocument = [];
                     let length = reqAttachments.length
+                    // Xóa tất cả file trong news đi
+                    // làm document rỗng
+                    // Lặp qua reqAttachment nếu có trong đó thì update trở lại thành false push lại database
+                    await FolerServices.deleteFileWhenUpdate(newsWantUpdate._id, 1);
                     for(let i = 0; i < length; i++){
-                        let file = await File.findOne({ id_files: reqAttachments[i].id_files, is_delete: false });
+                        let file = await File.findOneAndUpdate({ id_files: reqAttachments[i].id_files }, { is_delete: false }, { new: true });
                         if(file){
                             newDocument.push(file._id);
                         } 
@@ -244,6 +248,7 @@ class ClassNewsController{
                     );
                 }
                 else{
+                    await FolerServices.deleteFileWhenUpdate(newsWantUpdate._id, 1);
                     await ClassNews.findOneAndUpdate(
                         {_id: mongoose.Types.ObjectId(newsWantUpdate._id)},
                         {
