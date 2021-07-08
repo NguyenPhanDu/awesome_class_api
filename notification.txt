@@ -122,7 +122,6 @@ làm sao tạo thông báo đc cho cả 2 có người khi người kia comment 
         type: [ commentNotify, homeworkNotify ]
     }
 ]
-
 Nofication: {
     ref: onModel,
     onModel: [2 model],
@@ -134,3 +133,8 @@ commentNotify: {
     onModel: [3 model],
     type: String đc quy định sẳn
 }
+
+
+list lỗi :
+
+remove Socket io client

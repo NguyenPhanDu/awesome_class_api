@@ -42,7 +42,7 @@ async function createClassFolder (userId, classs){
     try{
         const folderUser = await FolerUser.findOne({user: mongoose.Types.ObjectId(userId)})
                                     .populate('folder');
-        const folerDrive = response = await drive.files.create({
+        const folerDrive = await drive.files.create({
           resource: {
             'name': classs.name,
             'mimeType': 'application/vnd.google-apps.folder',
