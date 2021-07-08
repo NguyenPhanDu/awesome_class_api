@@ -28,7 +28,7 @@ async function sendInviteMemberEmail(req,user,classObj,classMember){
     var mailOptions = {
         from: 'awesomeclass.work@gmail.com',
         to: req.body.email_invite,
-        subject: 'Test Nodemailer',
+        subject: 'Awesome Class',
         template: 'invite_member',
         context: {
             from: req.body.email,

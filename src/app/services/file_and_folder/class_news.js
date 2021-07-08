@@ -56,7 +56,8 @@ async function uploadFileNews(userId, classId, classNews, file){
                 type: 2
             }
         ).populate('folder');
-        // Upload file lên drive
+        
+        //Upload file lên drive
         const fileCreateByDrive = await drive.files.create({
             resource: {
                 name: file.originalname,

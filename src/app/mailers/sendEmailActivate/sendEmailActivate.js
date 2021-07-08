@@ -27,7 +27,7 @@ async function sendActiveMail(req,user){
     var mailOptions = {
         from: 'awesomeclass.work@gmail.com',
         to: req.body.email,
-        subject: 'Test Nodemailer',
+        subject: 'Awesome Class',
         template: 'email_actived',
         context: {
             userId: user.id_user,

@@ -255,7 +255,7 @@ class ClassNewsController{
                 if(req.files){
                     if(req.files.length> 0){
                         for(let i = 0; i < req.files.length; i++){
-                            await ClassNewsFolerSev.uploadFileNews(newsWantUpdate.user._id, newsWantUpdate.classs, newsWantUpdate,req.files[i]);
+                            await ClassNewsFolerSev.uploadFileNews(newsWantUpdate.user._id, newsWantUpdate.class, newsWantUpdate,req.files[i]);
                         }
                     }
                 }
