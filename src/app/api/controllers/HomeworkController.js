@@ -71,7 +71,13 @@ class HomeWorkController{
                                 class: mongoose.Types.ObjectId(classId),
                                 homework: mongoose.Types.ObjectId(newHomework._id),
                                 onModel: 'NormalHomework'
-                            })
+                            });
+                            await NotificationController.createAssignNotify(
+                                classId,
+                                classHomework._id,
+                                userId,
+                                arrayUserId[i]
+                            )
                         }
                     }
                     else{
@@ -84,6 +90,12 @@ class HomeWorkController{
                                     homework: mongoose.Types.ObjectId(newHomework._id),
                                     onModel: 'NormalHomework'
                                 });
+                                await NotificationController.createAssignNotify(
+                                    classId,
+                                    classHomework._id,
+                                    userId,
+                                    arrStudentInClass[i].user
+                                );
                             };
                         }
                     };
@@ -390,8 +402,8 @@ class HomeWorkController{
             .then(async result => {
                 let resultLength = result.length;
                 if(resultLength > 0){
-                    for(let i = 0 ; i< result.length; i++){
-                        await ClassHomework.findOne({ homework: mongoose.Types.ObjectId(result[i].homework) })
+                    for(let i = 0 ; i< resultLength; i++){
+                        await ClassHomework.findOne({ homework: mongoose.Types.ObjectId(result[i].homework) , is_delete: false},)
                         .populate({
                             path: 'homework',
                             populate: [
@@ -413,8 +425,10 @@ class HomeWorkController{
                             }]
                         })
                         .then(homeworks => {
-                            let homeworksParte = JSON.parse(JSON.stringify(homeworks));
-                            arrayHomework.push(homeworksParte)
+                            if(homeworks){
+                                let homeworksParte = JSON.parse(JSON.stringify(homeworks));
+                                arrayHomework.push(homeworksParte)
+                            }
                         })
                         .catch(err => {
                             console.log(err);
@@ -536,7 +550,7 @@ class HomeWorkController{
                         });
                         if(a){
                             await HomeworkAssign.findByIdAndUpdate(a._id, { is_delete : false });
-                            await NotificationController.createUpdateHomeworkNotify(classId, classHomework._id, userId, userIds)
+                            await NotificationController.createUpdateHomeworkNotify(classId, classHomeWork._id, userId, userIds)
                         }
                         else{
                             const b = await HomeworkAssign.create({
@@ -545,7 +559,7 @@ class HomeWorkController{
                                 homework: mongoose.Types.ObjectId(classHomeWork.homework._id),
                                 onModel: 'NormalHomework'
                             })
-                            await NotificationController.createUpdateHomeworkNotify(classId, classHomework._id, userId, userIds)
+                            await NotificationController.createUpdateHomeworkNotify(classId, classHomeWork._id, userId, userIds)
                         }
                     }
                 }
@@ -578,9 +592,10 @@ class HomeWorkController{
                 }
                 if(reqAttachments.length > 0){
                     let newDocument = [];
+                    await FolerServices.deleteFileWhenUpdate(classHomeWork._id, 2);
                     let length = reqAttachments.length
                     for(let i = 0; i < length; i++){
-                        const file = await File.findOne({ id_files: reqAttachments[i].id, is_delete: false });
+                        const file = await File.findOneAndUpdate({ id_files: reqAttachments[i].id}, { is_delete: false }, { new: true});
                         newDocument.push(file._id);
                     }
                     await NormalHomework.findOneAndUpdate(
@@ -592,6 +607,7 @@ class HomeWorkController{
                     );
                 }
                 else{
+                    await FolerServices.deleteFileWhenUpdate(classHomeWork._id, 2);
                     await NormalHomework.findOneAndUpdate(
                         {_id: mongoose.Types.ObjectId(classHomeWork.homework._id)},
                         {

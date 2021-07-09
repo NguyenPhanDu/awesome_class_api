@@ -6,7 +6,6 @@ const Comment = require('../../models/Comment');
 const moment = require('moment');
 const { parseTimeFormMongo } = require('../../../helpers/parse_date');
 class NewFeedController{
-    //
     async showNewFeed(req, res){
         try{
             const classs = await Class.findOne({id_class : Number(req.body.id_class)})

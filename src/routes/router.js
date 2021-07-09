@@ -15,6 +15,8 @@ const ClassNewsRouter = require('./modules/class_news');
 const CommentRouter = require('./modules/comment');
 const NewFeedRouter = require('./modules/new_feed');
 const NotificationRouter = require('./modules/notification');
+const BookMarkRouter = require('./modules/book_mark');
+
 // MVC
 const siteRouter = require('./mvc/site');
 const AuthMVCRouter = require('./mvc/auth');
@@ -42,7 +44,9 @@ function route(app){
     app.use('/api/class-news',ClassNewsRouter);
     app.use('/api/comment', CommentRouter);
     app.use('/api/newfeed',NewFeedRouter);
-    app.use('/api/notification', NotificationRouter)
+    app.use('/api/notification', NotificationRouter);
+    app.use('/api/book-mark', BookMarkRouter);
+
     //MVC ROUTER
     app.use('/admin/',siteRouter);
     app.use('/admin/',AuthMVCRouter);
