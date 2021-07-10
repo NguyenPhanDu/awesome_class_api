@@ -3,6 +3,8 @@ const Class = require('../../models/Class');
 const ClassMember = require('../../models/ClassMember');
 const ClassRole = require('../../models/ClassRole');
 const User = require('../../models/User');
+const HomeworkAssgin = require('../../models/HomeworkAssign');
+const ClassNewsAssign = require('../../models/ClassNewsAssign');
 const sendInviteMemberEmail = require('../../mailers/sendEmailActivate/sendEmailInviteMember');
 
 class ClassMemberController{
@@ -47,13 +49,13 @@ class ClassMemberController{
     async inviteMember(req, res){
         let class_role;
         if(req.body.role == 1){
-            await ClassRole.findOne({id_class_role: 1})
+            await ClassRole.findOne({id_class_role: 2})
             .then(classRole => {
                 class_role = classRole._id
             })
         }
         if(req.body.role == 2){
-            await ClassRole.findOne({id_class_role: 2})
+            await ClassRole.findOne({id_class_role: 1})
             .then(classRole => {
                 class_role = classRole._id
             })
@@ -185,36 +187,29 @@ class ClassMemberController{
             res.redirect('http://localhost:3000')
         })
     };
+
     async deleteMember(req, res){
-        // _id của member bị xóa
-        let id_user_deleted;
-        await User.findOne({email : req.body.email})
-            .then(user => {
-                id_user_deleted = user._id
-            });
-        
-        // _id của class member bị xóa
-        let id_class;
-        await Class.findOne({id_class: req.body.id_class})
-            .then(classs => {
-                id_class = classs._id;
-            });
+        try{
+            // _id của member bị xóa
+            const user = await User.findOne({email : req.body.email})
+            let id_user_deleted = user._id;
+            
+            // _id của class member bị xóa
+            const classes = await Class.findOne({id_class: req.body.id_class})
+            let id_class = classes._id;
 
-        // quyền của member xóa
-        let statusMember;
-        await ClassMember.findOne({class: mongoose.Types.ObjectId(id_class), user: mongoose.Types.ObjectId(res.locals._id)})
-            .then(classMember => {
-                statusMember = classMember.status;
-            })
+            // quyền của member xóa
+            const classMember =  await ClassMember.findOne({class: mongoose.Types.ObjectId(id_class), user: mongoose.Types.ObjectId(res.locals._id)})
+            let statusMember = classMember.status;
 
-        let query = {class: mongoose.Types.ObjectId(id_class), user: mongoose.Types.ObjectId(id_user_deleted), is_delete: false};
-        let update = 
-            {
-                is_delete: true
-            };
-        let option = {new: true};
+            let query = {class: mongoose.Types.ObjectId(id_class), user: mongoose.Types.ObjectId(id_user_deleted), is_delete: false};
+            let update = 
+                {
+                    is_delete: true
+                };
+            let option = {new: true};
 
-        await ClassMember.findOne({ class: mongoose.Types.ObjectId(id_class), user: mongoose.Types.ObjectId(id_user_deleted), is_delete: false })
+            const memberWantDelete = await ClassMember.findOne({ class: mongoose.Types.ObjectId(id_class), user: mongoose.Types.ObjectId(id_user_deleted), is_delete: false })
             .populate('role')
             .populate({
                 path:'user',
@@ -222,53 +217,60 @@ class ClassMemberController{
                 populate: {
                     path: 'user_type'
                 }
-            })
-            .then(async classMember => {
-                if(classMember.user.email == res.locals.email){
-                    return res.json({
-                        success: false,
-                        message: "You cant delete yourself!",
-                        res_code: 403,
-                        res_status: "FAILED"
-                    }) 
-                }
-                if(statusMember == 1 || classMember.status == 0){
-                    return res.json({
-                        success: false,
-                        message: "No access",
-                        res_code: 403,
-                        res_status: "NO_ACCESS"
-                    })
-                }
-                await ClassMember.findOneAndUpdate(query, update, option)
-                    .then(classMember => {
-                        return res.status(200).json({
-                            success: true,
-                            message: "Delete member successfull!",
-                            res_code: 200,
-                            res_status: "DELETE_SUCCESSFULLY"
-                        })
-                    })
-                    .catch(err => {
-                        return res.json({
-                            success: false,
-                            message: 'Server error. Please try again.',
-                            error: err,
-                            res_code: 500,
-                            res_status: "SERVER_ERROR"
-                        });
-                    })
-            })
-            .catch(err=>{
+            });
+
+            if(memberWantDelete.user.email == res.locals.email){
                 return res.json({
                     success: false,
-                    message: 'Server error. Please try again. update failed',
-                    error: err,
-                    res_code: 500,
-                    res_status: "SERVER_ERROR"
-                });
+                    message: "You cant delete yourself!",
+                    res_code: 403,
+                    res_status: "FAILED"
+                }) 
+            }
+            if(statusMember == 1 || memberWantDelete.status == 0){
+                return res.json({
+                    success: false,
+                    message: "No access",
+                    res_code: 403,
+                    res_status: "NO_ACCESS"
+                })
+            }
+            await ClassMember.findOneAndUpdate(query, update, option);
+            await HomeworkAssgin.updateMany(
+                {
+                    user: mongoose.Types.ObjectId(id_user_deleted), 
+                    class: mongoose.Types.ObjectId(id_class),  
+                },
+                {
+                    is_delete: true
+                }
+            );
+            await ClassNewsAssign.updateMany(
+                {
+                    user: mongoose.Types.ObjectId(id_user_deleted),
+                    class: mongoose.Types.ObjectId(id_class), 
+                },
+                {
+                    is_delete: true
+                }
+            );
+            res.status(200).json({
+                success: true,
+                message: "Delete member successfull!",
+                res_code: 200,
+                res_status: "DELETE_SUCCESSFULLY"
             })
-    };
+        }
+        catch(err){
+            return res.json({
+                success: false,
+                message: 'Server error. Please try again.',
+                error: err,
+                res_code: 500,
+                res_status: "SERVER_ERROR"
+            });
+        }
+    }
     async getMemberProfile(req, res){
         let userId;
         await User.findOne({email : req.body.email})

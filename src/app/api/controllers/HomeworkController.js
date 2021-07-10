@@ -317,7 +317,7 @@ class HomeWorkController{
                 .populate('homework_type',"name id_homework_type")
                 .populate('create_by', "-password")
                 .populate("document", "name viewLink downloadLink size id_files");
-            let arrayStudentAssgined = await HomeworkAssign.find({ homework: mongoose.Types.ObjectId(homeworkNoAssigned._id) })
+            let arrayStudentAssgined = await HomeworkAssign.find({ homework: mongoose.Types.ObjectId(homeworkNoAssigned._id), is_delete: false })
                                                 .populate('user', '-__v, -password');
             let arrayStudentAssginedEmail = [];
             arrayStudentAssgined.forEach(student => {
