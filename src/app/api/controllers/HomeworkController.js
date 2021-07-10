@@ -12,6 +12,8 @@ const FolerServices = require('../../services/file_and_folder/index');
 const Comment = require('../../models/Comment');
 const File = require('../../models/File');
 const NotificationController = require('./NotificationController');
+const moment = require('moment');
+const { parseTimeFormMongo } = require('../../../helpers/parse_date');
 class HomeWorkController{
     // Req:  id_class, title, description, deadline, start_date, total_scores, category : { title, id_homework_category}, emails[];
     async createNormalHomework(req, res){
@@ -349,8 +351,11 @@ class HomeWorkController{
 
     // Get all homework of user login create and assgined
     async getAllHomewworkOfUser(req, res){
-        let arrayHomework  = [];
-        await ClassHomework.find({is_delete: false})
+        try{
+            let list  = [];
+            const user = await User.findOne({email: res.locals.email})
+            let user_id = user._id
+            const arrHomework = await ClassHomework.find({is_delete: false})
             .populate({
                 path: 'homework',
                 populate: [
@@ -371,89 +376,73 @@ class HomeWorkController{
                     select: ["-password"],
                     match: { email : { $eq : res.locals.email } }
                 }]
-            })
-            
-            .then(homeworks => {
-                let homeworksParte = JSON.parse(JSON.stringify(homeworks));
-                if(homeworksParte.length > 0){
-                    homeworksParte = homeworksParte.filter(homework => {
-                        return homework.homework.create_by != null
-                    });
-                    homeworksParte.forEach(homework => {
-                        arrayHomework.push(homework);
-                    })
-                }
-            })
-            .catch(err => {
-                return res.json({
-                    success: false,
-                    message: 'Server error. Please try again.',
-                    error: error,
-                    res_code: 500,
-                    res_status: "SERVER_ERROR"
+            });
+            let homeworksParte = JSON.parse(JSON.stringify(arrHomework));
+            if(homeworksParte.length > 0){
+                homeworksParte = homeworksParte.filter(homework => {
+                    return homework.homework.create_by != null
                 });
-            })
-        let user_id;
-        await User.findOne({email: res.locals.email})
-            .then(user => {
-                user_id = user._id
-            })
-        await HomeworkAssign.find({user: mongoose.Types.ObjectId(user_id), is_delete: false})
-            .then(async result => {
-                let resultLength = result.length;
-                if(resultLength > 0){
-                    for(let i = 0 ; i< resultLength; i++){
-                        await ClassHomework.findOne({ homework: mongoose.Types.ObjectId(result[i].homework) , is_delete: false},)
-                        .populate({
-                            path: 'homework',
-                            populate: [
-                                {
-                                    path: 'homework_type',
-                                    select: ['name', 'id_homework_type']
-                                },
-                                {
-                                    path: 'homework_category',
-                                    select: ['title', 'id_homework_category']
-                                },
-                                {
-                                    path: 'document',
-                                    select: ["name", "viewLink", "downloadLink", "size"]
-                                },
-                                {
-                                path: 'create_by',
-                                select: ["-password"],
-                            }]
-                        })
-                        .then(homeworks => {
-                            if(homeworks){
-                                let homeworksParte = JSON.parse(JSON.stringify(homeworks));
-                                arrayHomework.push(homeworksParte)
-                            }
-                        })
-                        .catch(err => {
-                            console.log(err);
-                        })
+                homeworksParte.forEach(homework => {
+                    list.push(homework);
+                })
+            }
+            
+            const arrHomeworkAssgin = await HomeworkAssign.find({user: mongoose.Types.ObjectId(user_id), is_delete: false})
+            
+            let lenght = arrHomeworkAssgin.length;
+            if(lenght > 0){
+                for(let i = 0 ; i< lenght; i++){
+                    let a = await ClassHomework.findOne({ homework: mongoose.Types.ObjectId(arrHomeworkAssgin[i].homework) , is_delete: false},)
+                    .populate({
+                        path: 'homework',
+                        populate: [
+                            {
+                                path: 'homework_type',
+                                select: ['name', 'id_homework_type']
+                            },
+                            {
+                                path: 'homework_category',
+                                select: ['title', 'id_homework_category']
+                            },
+                            {
+                                path: 'document',
+                                select: ["name", "viewLink", "downloadLink", "size"]
+                            },
+                            {
+                            path: 'create_by',
+                            select: ["-password"],
+                        }]
+                    })
+                    
+                    if(a){
+                        let homeworksParte = JSON.parse(JSON.stringify(a));
+                        list.push(homeworksParte)
                     }
                 }
+            }
+
+            const sortListHomework  = list.sort((a,b) => moment(parseTimeFormMongo(b.createdAt), "YYYY-MM-DD HH:mm:ss") - moment(parseTimeFormMongo(a.createdAt), "YYYY-MM-DD HH:mm:ss"));
+            return res.json({
+                success: true,
+                message: "get all homework successfull!",
+                data: sortListHomework,
+                res_code: 200,
+                res_status: "CREATE_SUCCESSFULLY"
             })
-            .catch(err => {
-                console.log(err);
-                return res.json({
-                    success: false,
-                    message: 'Server error. Please try again.',
-                    error: error,
-                    res_code: 500,
-                    res_status: "SERVER_ERROR"
-                });
+        }
+        catch(err){
+            console.log(err);
+            res.json({
+                success: false,
+                message: 'Server error. Please try again.',
+                error: err,
+                res_code: 500,
+                res_status: "SERVER_ERROR"
             });
-        return res.json({
-            success: true,
-            message: "get all homework successfull!",
-            data: arrayHomework,
-            res_code: 200,
-            res_status: "CREATE_SUCCESSFULLY"
-        })
-    };
+            return
+        }
+    }
+
     // Req: homework_type : (1, 2, 3), id_class_homework, title, description, deadline, start_date, total_scores, category : { title, id_homework_category}, emails[];
     async updateNormalHomework(req, res){
         // Req:  id_class, title, description, deadline, start_date, total_scores, category : { title, id_homework_category}, emails[];

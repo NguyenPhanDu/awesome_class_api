@@ -139,7 +139,6 @@ commentNotify: {
 list lỗi :
 
 remove Socket io client
-lỗi phần front end lẫn backend
 update ảnh bìa
 các chức năng còn lại của phần nofication
 load loại trang khi cập nhật newsfeed
