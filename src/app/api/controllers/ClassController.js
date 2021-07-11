@@ -8,6 +8,7 @@ const ClassHomework = require('../../models/ClassHomework');
 const ClassNews = require('../../models/ClassNews');
 const ClassNewsAssgin = require('../../models/ClassNewsAssign');
 const HomeworkAssgin = require('../../models/HomeworkAssign');
+const FavourateClass = require('../../models/FavouriteClass');
 const generateRandomCode = require('../../../helpers/index');
 const FolerServices = require('../../services/file_and_folder/index');
 
@@ -209,7 +210,8 @@ class ClassController{
                 await ClassHomework.updateMany({class: mongoose.Types.ObjectId(classFinded._id)}, update);
                 await HomeworkAssgin.updateMany({ class: mongoose.Types.ObjectId(classFinded._id), update });
                 await ClassNews.updateMany({ class: mongoose.Types.ObjectId(classFinded._id), update });
-                await ClassNewsAssgin.updateMany({ class: mongoose.Types.ObjectId(classFinded._id), update })
+                await ClassNewsAssgin.updateMany({ class: mongoose.Types.ObjectId(classFinded._id), update });
+                await FavourateClass.updateMany({ class: mongoose.Types.ObjectId(classFinded._id), update });
                 return res.status(200).json({
                             success: true,
                             message: "Delete classroom successfull!",

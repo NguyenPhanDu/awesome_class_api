@@ -35,26 +35,7 @@ async function cc(req, res){
 
 async function ccc(req, res){
     try{
-        const a = await Notification.find()
-        .populate('sender', '-password')
-        .populate('receiver', '-password')
-        .populate({
-            path: 'ref',
-            populate:  [{
-                path: 'class',
-            },
-            {
-                path: 'ref',
-                populate: [
-                    {
-                        path: 'homework'
-                    }
-                ]
-            }
-            ]
-        })
-        .sort({ createdAt : -1 });
-
+        const a = await User.find();
         res.json(a)
     }
     catch(err){

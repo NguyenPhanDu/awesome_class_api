@@ -150,4 +150,18 @@ xóa member xóa lun homework assgin của member đó news assgin == xong
 xóa class xóa lun tất cả HomeworkAssign == xong
 lỗi newfeed vẫn hiện bài tập thông báo dành cho user khi bị kick vào lại lớp học == xong
 khi member bị kick có nhận bài tập == xong
-gửi mail mời sai
+gửi mail mời sai == đã xong
+
+xóa class xóa lun tất cả class favourate là class đó
+xóa bài tập là xóa lun tất cả bài tập có favourate
+
+hiển thị tất cả bài tập
+
+bài tập đc nhận
+bài tập tạo
+
+model class homework
+model HomeworkAssign
+model classmember
+
+kiểm tra xem trong từng cái bài tập đó mình có bị xóa khỏi class chưa

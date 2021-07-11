@@ -12,6 +12,7 @@ const FolerServices = require('../../services/file_and_folder/index');
 const Comment = require('../../models/Comment');
 const File = require('../../models/File');
 const NotificationController = require('./NotificationController');
+const FavourateHomework = require('../../models/FavouriteHomework');
 const moment = require('moment');
 const { parseTimeFormMongo } = require('../../../helpers/parse_date');
 class HomeWorkController{
@@ -267,6 +268,7 @@ class HomeWorkController{
                     { is_delete : true },
                     {new: true}
                 );
+                await FavourateHomework.updateMany({ class_homework: mongoose.Types.ObjectId(classHomeWork.homework._id) }, { is_delete : true })
                 await HomeworkAssign.updateMany({homework: mongoose.Types.ObjectId(classHomeWork.homework._id), is_delete: false}, {is_delete: true});
                 await homeworkModel.findOneAndUpdate({_id: mongoose.Types.ObjectId(classHomeWork.homework._id), is_delete: false},{is_delete : true}, {new : true} );
                 return res.status(200).json({
