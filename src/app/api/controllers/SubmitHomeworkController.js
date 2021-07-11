@@ -10,6 +10,8 @@ const Folder = require('../../models/Folder');
 const moment = require('moment');
 const TimeHelper = require('../../../helpers/parse_date');
 const Comment = require('../../models/Comment');
+const ClassMember = require('../../models/ClassMember');
+const ClassRole = require('../../models/ClassRole');
 class SubmitHomeworkController{
     // id_class_homework
     // status : 1 là đúng hạn, 2 là trễ, 3 là thiếu, 0 là đã giao;
@@ -117,6 +119,8 @@ class SubmitHomeworkController{
             const now = moment().toDate().toString();
             const user = await User.findOne({email: res.locals.email})
             let userId = user._id;
+            const classRole  = await ClassRole.findOne({id_class_role: 1})
+            let teacherRole_id = classRole._id
             const classHomework = await ClassHomework.findOne({id_class_homework: Number(req.body.id_class_homework), is_delete: false})
             .populate({
                 path: 'homework',
@@ -125,11 +129,12 @@ class SubmitHomeworkController{
                         path: 'create_by'
                     }
                 ]
-            })
+            });
             let classId = classHomework.class;
             let homeworkId = classHomework.homework._id;
             let result;
-            if(classHomework.homework.create_by.email == res.locals.email){
+            const classMember = await ClassMember.findOne({ class: mongoose.Types.ObjectId(classId), user: mongoose.Types.ObjectId(userId), is_delete: false })
+            if(classHomework.homework.create_by.email == res.locals.email || classMember.role.toString() == teacherRole_id.toString()){
                 let amount_submitted = await HomeworkAssign.countDocuments(
                     { 
                         is_delete: false,

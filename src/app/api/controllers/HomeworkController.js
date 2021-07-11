@@ -83,7 +83,7 @@ class HomeWorkController{
                         }
                     }
                     else{
-                        let arrStudentInClass = await ClassMember.find({ class: mongoose.Types.ObjectId(classId), role: mongoose.Types.ObjectId(classRoleStudentId), is_delete: false })
+                        let arrStudentInClass = await ClassMember.find({ class: mongoose.Types.ObjectId(classId), role: mongoose.Types.ObjectId(classRoleStudentId), is_delete: false, status: 1 })
                         if(arrStudentInClass.length > 0){
                             for(let i =0; i< arrStudentInClass.length; i++){
                                 await HomeworkAssign.create({

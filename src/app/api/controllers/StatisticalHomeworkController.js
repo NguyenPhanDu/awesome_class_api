@@ -93,33 +93,51 @@ class StatisticalHomework{
     async returnHomework(req, res){
         try{
             const sender = await User.findOne({ email: res.locals.email });
-            const classHomework = await ClassHomework.findOne({id_class_homework: Number(req.body.id_class_homework), is_delete: false});
-            for(let i = 0; i< req.body.students.length; i++){
-                let user = await User.findOne( { email : req.body.students[i].email } )
-                const a =  await HomeworkAssign.findOneAndUpdate(
+            const classHomework = await ClassHomework.findOne({id_class_homework: Number(req.body.id_class_homework), is_delete: false})
+            .populate({
+                path: 'homework',
+                populate: [
                     {
-                        is_delete: false,
-                        class: mongoose.Types.ObjectId(classHomework.class),
-                        homework: mongoose.Types.ObjectId(classHomework.homework),
-                        user: mongoose.Types.ObjectId(user._id),
-                        is_submit: true
-                    },
-                    {
-                        is_signed: true,
-                        scores: req.body.students[i].scores
-                    },
-                    {
-                        new: true
+                        path: 'create_by'
                     }
-                )
-                await NotificationController.createReturnHomeworkNotity(classHomework.class,a._id, sender._id,user._id)
-            }
-            res.json({
-                success: true,
-                message: "sign homework submit successfully!",
-                res_code: 200,
-                res_status: "GET_SUCCESSFULLY"
+                ]
             });
+            if(classHomework.homework.create_by.email == res.locals.email){
+                for(let i = 0; i< req.body.students.length; i++){
+                    let user = await User.findOne( { email : req.body.students[i].email } )
+                    const a =  await HomeworkAssign.findOneAndUpdate(
+                        {
+                            is_delete: false,
+                            class: mongoose.Types.ObjectId(classHomework.class),
+                            homework: mongoose.Types.ObjectId(classHomework.homework._id),
+                            user: mongoose.Types.ObjectId(user._id),
+                            is_submit: true
+                        },
+                        {
+                            is_signed: true,
+                            scores: req.body.students[i].scores
+                        },
+                        {
+                            new: true
+                        }
+                    )
+                    await NotificationController.createReturnHomeworkNotity(classHomework.class,a._id, sender._id,user._id)
+                }
+                res.json({
+                    success: true,
+                    message: "sign homework submit successfully!",
+                    res_code: 200,
+                    res_status: "GET_SUCCESSFULLY"
+                });
+            }
+            else{
+                return res.json({
+                    success: false,
+                    message: "No access",
+                    res_code: 403,
+                    res_status: "NO_ACCESS"
+                })
+            }
         }
         catch(err){
             console.log(err);

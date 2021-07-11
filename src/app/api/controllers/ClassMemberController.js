@@ -14,7 +14,7 @@ class ClassMemberController{
             .then(classs => {
                 class_id = classs._id
             });
-        ClassMember.find({ class: mongoose.Types.ObjectId(class_id), is_delete: false })
+        ClassMember.find({ class: mongoose.Types.ObjectId(class_id), is_delete: false, $or: [{ status: 0 }, {status : 1}] })
             .populate('role')
             .populate({
                 path:'user',
@@ -54,7 +54,6 @@ class ClassMemberController{
             let class_role;
             if(req.body.class_role == 1){
                 let classRole  = await ClassRole.findOne({id_class_role: 2})
-
                 class_role = classRole._id
             }
             if(req.body.class_role == 2){
@@ -260,7 +259,7 @@ class ClassMemberController{
     }
     async getMemberProfile(req, res){
         let userId;
-        await User.findOne({email : req.body.email})
+        await User.findOne({email : res.locals.email})
             .then(user => {
                 userId = user._id
             });
@@ -374,7 +373,7 @@ class ClassMemberController{
             .then(classs => {
                 class_id = classs._id
             });
-        ClassMember.find({ class: mongoose.Types.ObjectId(class_id),role: mongoose.Types.ObjectId(classRole) ,is_delete: false })
+        ClassMember.find({ class: mongoose.Types.ObjectId(class_id),role: mongoose.Types.ObjectId(classRole) ,is_delete: false, status: 1 })
             .populate('role')
             .populate({
                 path:'user',

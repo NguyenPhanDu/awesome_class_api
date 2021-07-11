@@ -59,7 +59,7 @@ class ClassNewsController{
                     }
                 }
                 else{
-                    let arrStudentInClass = await ClassMember.find({ class: mongoose.Types.ObjectId(classs._id), role: mongoose.Types.ObjectId(classRoleStudentId), is_delete: false })
+                    let arrStudentInClass = await ClassMember.find({ class: mongoose.Types.ObjectId(classs._id), role: mongoose.Types.ObjectId(classRoleStudentId), is_delete: false, status: 1 })
                     if(arrStudentInClass.length > 0){
                         let arrLength = arrStudentInClass.length
                         for(let i =0; i< arrLength; i++){
