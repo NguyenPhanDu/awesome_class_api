@@ -45,117 +45,104 @@ class ClassMemberController{
             })
     };
     // req.body: id_class, email, email_invite, class_role
-    // status: 0 = admin, 1= actived, 2= pending, 3= disable
+    // status: 0 = admin, 1= actived, 2= pending, 3= giáo viên trong lớp
+
     async inviteMember(req, res){
-        let class_role;
-        if(req.body.role == 1){
-            await ClassRole.findOne({id_class_role: 2})
-            .then(classRole => {
+        try{
+            // teacher: 609b8123f7510b2328795fd4
+            // student: 609b812bf7510b2328795fd5
+            let class_role;
+            if(req.body.class_role == 1){
+                let classRole  = await ClassRole.findOne({id_class_role: 2})
+
                 class_role = classRole._id
-            })
-        }
-        if(req.body.role == 2){
-            await ClassRole.findOne({id_class_role: 1})
-            .then(classRole => {
+            }
+            if(req.body.class_role == 2){
+                let classRole = await ClassRole.findOne({id_class_role: 1})
                 class_role = classRole._id
-            })
-        }
-        let classObj;
-        await Class.findOne({id_class: req.body.id_class})
-            .then(classs => {
-                classObj = classs;
-            })
-        let user_id;
-        let useraa;
-        await User.findOne({ email: req.body.email_invite })
-            .then(user => {
-                if(!user){
-                    return res.json({
-                        success: false,
-                        message: "Email Not found.",
-                        res_code: 403,
-                        res_status: "EMAIL_NOT_FOUND"
-                    })
+            }
+            const classObj = await Class.findOne({id_class: req.body.id_class})
+            const userInvite = await User.findOne({ email: req.body.email_invite })
+            // tìm tài khoản mời trong database
+            // nếu có
+            if(userInvite){
+                let user_Invite_id = userInvite._id;
+                const classMemberInvite = await ClassMember.findOne({ 
+                    user: mongoose.Types.ObjectId(user_Invite_id),
+                    class: mongoose.Types.ObjectId(classObj._id),
+                });
+                //tìm kiếm xem tài khoản đã từng là thành viên của lớp hay chưa
+                //nếu có rồi mà trong db đã xóa thì cập nhật lại
+                if(classMemberInvite && classMemberInvite.is_delete == true){
+                    const classMemberInviteUpdate = await ClassMember.findOneAndUpdate(
+                        {
+                            _id: mongoose.Types.ObjectId(classMemberInvite._id)
+                        },
+                        {
+                            status: 2,
+                            is_delete: false,
+                            role: mongoose.Types.ObjectId(class_role)
+                        },
+                        {
+                            new: true
+                        }
+                    );
+                    res.json({
+                        success: true,
+                        message: "Invite member successfull!",
+                        res_code: 200,
+                        res_status: "INVITE_MEMBER_SUCCESSFULLY"
+                    });
+                    await sendInviteMemberEmail(req,userInvite,classObj,classMemberInviteUpdate);
                 }
-                user_id = user._id;
-                useraa= user;
-            })
-        await ClassMember.findOne({ 
-            user: mongoose.Types.ObjectId(user_id),
-            class: mongoose.Types.ObjectId(classObj._id),
-        })
-            .then(async classMember =>{
-                if(!classMember){
-                    const newClassMember = new ClassMember({
-                        user: mongoose.Types.ObjectId(user_id),
-                        role: mongoose.Types.ObjectId(class_role),
-                        class: mongoose.Types.ObjectId(classObj._id),
-                        status: 2
-                    })
-                    newClassMember.save()
-                        .then(result => {
-                            res.json({
-                                success: true,
-                                message: "Invite member successfull!",
-                                res_code: 200,
-                                res_status: "INVITE_MEMBER_SUCCESSFULLY"
-                            })
-                            sendInviteMemberEmail(req,useraa,classObj,result);
-                        })
-                        .catch(err => {
-                            return res.json({
-                                success: false,
-                                message: 'Server error. Please try again.',
-                                error: err,
-                                res_code: 500,
-                                res_status: "SERVER_ERROR"
-                            });
-                        })
-                }
-                if(classMember && classMember.is_delete == true){
-                    await ClassMember.findOneAndUpdate(
-                        { _id: mongoose.Types.ObjectId(classMember._id) }, 
-                        {status: 2, is_delete: false},
-                        { new: true }
-                    )
-                    .then(result => {
-                        res.json({
-                            success: true,
-                            message: "Invite member successfull!",
-                            res_code: 200,
-                            res_status: "INVITE_MEMBER_SUCCESSFULLY"
-                        })
-                        sendInviteMemberEmail(req,useraa,classObj,result);
-                    })
-                    .catch(err => {
-                        return res.json({
-                            success: false,
-                            message: 'Server error. Please try again.',
-                            error: err,
-                            res_code: 500,
-                            res_status: "SERVER_ERROR"
-                        });
-                    })
-                }
-                if(classMember && classMember.is_delete == false){
+                // nếu không xóa thì thông báo đã join rồi
+                else if(classMemberInvite && classMemberInvite.is_delete == false){
                     return res.json({
                         success: false,
                         message: "This member is joined class.",
                         res_code: 403,
                         res_status: "NOT_FOUND"
                     })
-                } 
-            })
-            .catch(err => {
+                }
+                // chưa có trong data thì tạo mới
+                else{
+                    const newClassMember = await ClassMember.create({
+                        user: mongoose.Types.ObjectId(user_Invite_id),
+                        role: mongoose.Types.ObjectId(class_role),
+                        class: mongoose.Types.ObjectId(classObj._id),
+                        status: 2
+                    });
+                    res.json({
+                        success: true,
+                        message: "Invite member successfull!",
+                        res_code: 200,
+                        res_status: "INVITE_MEMBER_SUCCESSFULLY"
+                    });
+                    await sendInviteMemberEmail(req,userInvite,classObj,newClassMember);
+                }
+            }
+            // nếu không thông báo không tìm thấy
+            else{
                 return res.json({
                     success: false,
-                    message: 'Server error. Please try again.',
-                    error: err,
-                    res_code: 500,
-                    res_status: "SERVER_ERROR"
-                });
-            })
-    };
+                    message: "Email Not found.",
+                    res_code: 403,
+                    res_status: "EMAIL_NOT_FOUND"
+                })
+            }
+        }
+        catch(err){
+            console.log(err);
+            res.json({
+                success: false,
+                message: 'Server error. Please try again.',
+                error: err,
+                res_code: 500,
+                res_status: "SERVER_ERROR"
+            });
+            return;
+        }
+    }
     async accpetInvited(req, res){
         let statusRole;
         await ClassMember.findOne({id_class_member: Number(req.query.idClass)})
@@ -170,7 +157,7 @@ class ClassMemberController{
                     })
                 }
                 if(classMember.role.id_class_role == 1){
-                    statusRole = 3;
+                    statusRole = 1;
                 }
                 if(classMember.role.id_class_role == 2){
                     statusRole = 1;

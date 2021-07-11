@@ -1,6 +1,7 @@
 const nodemailer =  require('nodemailer');
 const path = require('path');
 const hbs = require('nodemailer-express-handlebars');
+require('dotenv').config();
 
 async function sendInviteMemberEmail(req,user,classObj,classMember){
     try{
@@ -33,7 +34,8 @@ async function sendInviteMemberEmail(req,user,classObj,classMember){
         context: {
             from: req.body.email,
             className: classObj.name,
-            classMemberId: classMember.id_class_member
+            classMemberId: classMember.id_class_member,
+            endpoint: process.env.ENDPOINT
         } 
     }
     await transport.sendMail(mailOptions, (err, info) => {
