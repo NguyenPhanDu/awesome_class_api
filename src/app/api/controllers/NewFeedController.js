@@ -8,7 +8,7 @@ const User = require('../../models/User');
 const ClassMember = require('../../models/ClassMember');
 const HomeworkAssign = require('../../models/HomeworkAssign');
 const moment = require('moment');
-const { parseTimeFormMongo } = require('../../../helpers/parse_date');
+const { parseTimeFormMongo, changeTimeInDBToISOString } = require('../../../helpers/parse_date');
 class NewFeedController{
     async showNewFeed(req, res){
         try{
@@ -137,7 +137,7 @@ class NewFeedController{
                         }
                     }
                 }
-                const sortNewFeed  = newfeed.sort((a,b) => moment(parseTimeFormMongo(b.createdAt), "YYYY-MM-DD HH:mm:ss") - moment(parseTimeFormMongo(a.createdAt), "YYYY-MM-DD HH:mm:ss"));
+                const sortNewFeed  = newfeed.sort((a,b) => moment(changeTimeInDBToISOString(b.createdAt), "YYYY-MM-DD HH:mm:ss") - moment(changeTimeInDBToISOString(a.createdAt), "YYYY-MM-DD HH:mm:ss"));
                 res.json({
                     success: true,
                     message: "get newfeed successfull!",
