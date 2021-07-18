@@ -35,7 +35,7 @@ async function cc(req, res){
 
 async function ccc(req, res){
     try{
-        const a = await User.find();
+        const a = await ClassNews.find();
         res.json(a)
     }
     catch(err){

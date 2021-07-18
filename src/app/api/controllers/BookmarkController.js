@@ -5,7 +5,7 @@ const moment = require('moment');
 const User = require('../../models/User');
 const FavourateHomework = require('../../models/FavouriteHomework');
 const FavourateClass = require('../../models/FavouriteClass');
-const { parseTimeFormMongo } = require('../../../helpers/parse_date');
+const { parseTimeFormMongo, changeTimeInDBToISOString } = require('../../../helpers/parse_date');
 const FavouriteClass = require('../../models/FavouriteClass');
 
 class BookmarkController{
@@ -342,7 +342,7 @@ class BookmarkController{
 
     async getAll(req, res){
         try{
-            const user = await User.findOne({ email : res.locals.email })
+            const user = await User.findOne({ email : req.body.email })
             let list = [];
             let a = await FavourateHomework.find( { user: mongoose.Types.ObjectId(user._id), is_delete: false} )
             .populate({
@@ -385,7 +385,7 @@ class BookmarkController{
                     list.push(d[i]);
                 }
             }
-            const sortBookMark  = list.sort((a,b) => moment(parseTimeFormMongo(b.createdAt), "YYYY-MM-DD HH:mm:ss") - moment(parseTimeFormMongo(a.createdAt), "YYYY-MM-DD HH:mm:ss"));
+            const sortBookMark  = list.sort((a,b) => moment(changeTimeInDBToISOString(b.createdAt), "YYYY-MM-DD HH:mm:ss") - moment(changeTimeInDBToISOString(a.createdAt), "YYYY-MM-DD HH:mm:ss"));
             res.json({
                 success: true,
                 message: "get book mark successfull!",

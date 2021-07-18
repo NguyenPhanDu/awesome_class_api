@@ -165,3 +165,5 @@ model HomeworkAssign
 model classmember
 
 kiểm tra xem trong từng cái bài tập đó mình có bị xóa khỏi class chưa
+
+khi tạo bài tập gửi mail cho sinh viên nhận

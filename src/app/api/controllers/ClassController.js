@@ -462,6 +462,7 @@ class ClassController{
                                     })
                             }
                             if(classMember.is_delete == true){
+                                console.log("eeee")
                                 let query = {class: mongoose.Types.ObjectId(classMember.class), user: mongoose.Types.ObjectId(classMember.user)};
                                 let update = 
                                     {
