@@ -110,33 +110,50 @@ class NewFeedController{
                         }
                     }
                 }
-                let classNewsAssgin = await ClassNewsAssign.find(
-                    {
-                        user: mongoose.Types.ObjectId(userId),
-                        class: mongoose.Types.ObjectId(classId),
-                        is_delete: false
+                // let classNewsAssgin = await ClassNewsAssign.find(
+                //     {
+                //         user: mongoose.Types.ObjectId(userId),
+                //         class: mongoose.Types.ObjectId(classId),
+                //         is_delete: false
+                //     }
+                // );
+                // if(classNewsAssgin.length > 0){
+                //     let b = JSON.parse(JSON.stringify(classNewsAssgin));
+                //     for(let i = 0; i < b.length; i++){
+                //         let classNews = await ClassNews.findOne({_id: mongoose.Types.ObjectId(b[i].class_news), is_delete: false})
+                //         .populate('user', '-password')
+                //         .populate("document", "name viewLink downloadLink size id_files");
+                //         if(classNews){
+                //             const c = JSON.parse(JSON.stringify(classNews));
+                //             const arrayComment = await Comment.find(
+                //                 { 
+                //                     is_delete: false,
+                //                     onModel: 'ClassNews',
+                //                     ref: mongoose.Types.ObjectId(c._id)
+                //                 }
+                //             ).populate('user','-password')
+                //             c['comments'] = arrayComment
+                //             newfeed.push(c);
+                //         }
+                //     }
+                // }
+                const b = await ClassNews.find({ class: mongoose.Types.ObjectId(classId), is_delete: false }).populate('user', '-password')
+                .populate("document", "name viewLink downloadLink size id_files");
+                let arrayNotify =  JSON.parse(JSON.stringify(b));
+                if(arrayNotify.length > 0){
+                    let l = arrayNotify.length;
+                    for(let i = 0; i< l;i++){
+                        const arrayComment = await Comment.find(
+                            { 
+                                is_delete: false,
+                                onModel: 'ClassNews',
+                                ref: mongoose.Types.ObjectId(arrayNotify[i]._id)
+                            }
+                        ).populate('user','-password')
+                        arrayNotify[i].comments = arrayComment
+                        newfeed.push(arrayNotify[i]);
                     }
-                );
-                if(classNewsAssgin.length > 0){
-                    let b = JSON.parse(JSON.stringify(classNewsAssgin));
-                    for(let i = 0; i < b.length; i++){
-                        let classNews = await ClassNews.findOne({_id: mongoose.Types.ObjectId(b[i].class_news), is_delete: false})
-                        .populate('user', '-password')
-                        .populate("document", "name viewLink downloadLink size id_files");
-                        if(classNews){
-                            const c = JSON.parse(JSON.stringify(classNews));
-                            const arrayComment = await Comment.find(
-                                { 
-                                    is_delete: false,
-                                    onModel: 'ClassNews',
-                                    ref: mongoose.Types.ObjectId(c._id)
-                                }
-                            ).populate('user','-password')
-                            c['comments'] = arrayComment
-                            newfeed.push(c);
-                        }
-                    }
-                }
+                };
                 const sortNewFeed  = newfeed.sort((a,b) => moment(changeTimeInDBToISOString(b.createdAt), "YYYY-MM-DD HH:mm:ss") - moment(changeTimeInDBToISOString(a.createdAt), "YYYY-MM-DD HH:mm:ss"));
                 res.json({
                     success: true,

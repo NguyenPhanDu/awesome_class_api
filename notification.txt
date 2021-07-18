@@ -140,9 +140,9 @@ list lỗi :
 
 remove Socket io client
 update ảnh bìa == chưa kiểm
-các chức năng còn lại của phần nofication
+các chức năng còn lại của phần nofication == chưa xong
 load loại trang khi cập nhật newsfeed
-total scores khi tạo bài tập ko nhập đc
+total scores khi tạo bài tập ko nhập đc == xong
 tài khoản facebook ko đc đổi mặt khẩu == chưa test
 thiếu giờ ở dealine
 
@@ -162,5 +162,5 @@ bài tập tạo
 
 kiểm tra xem trong từng cái bài tập đó mình có bị xóa khỏi class chưa
 gửi mail khi chấm điểm, tạo bài tập, thông báo
-newfeed ko chỉ định
+newfeed ko chỉ định, sửa lại hiện newfeed
 getnews của user

@@ -42,47 +42,47 @@ class ClassNewsController{
                     }
                 }
                 // Chỉ định học sinh
-                if(reqStudent.length > 0){
-                    let arrayUserId = [];
-                    let arrayLength = reqStudent.length;
-                    for(let i = 0; i < arrayLength; i++){
-                        let user =  await User.findOne({email: reqStudent[i] })
-                        arrayUserId.push(user._id)
-                    }
-                    let arrUserIdLength  = arrayUserId.length
-                    for(let i = 0; i< arrUserIdLength; i++){
-                        await ClassNewsAssign.create({
-                            user: mongoose.Types.ObjectId(arrayUserId[i]),
-                            class: mongoose.Types.ObjectId(classs._id),
-                            class_news: mongoose.Types.ObjectId(classNews._id),
-                        })
-                    }
-                }
-                else{
-                    let arrStudentInClass = await ClassMember.find({ class: mongoose.Types.ObjectId(classs._id), role: mongoose.Types.ObjectId(classRoleStudentId), is_delete: false, status: 1 })
-                    if(arrStudentInClass.length > 0){
-                        let arrLength = arrStudentInClass.length
-                        for(let i =0; i< arrLength; i++){
-                            await ClassNewsAssign.create({
-                                user: mongoose.Types.ObjectId(arrStudentInClass[i].user),
-                                class: mongoose.Types.ObjectId(classs._id),
-                                class_news: mongoose.Types.ObjectId(classNews._id),
-                            })
-                        };
-                    }
-                };
-                let arrayStudentAssgined = await ClassNewsAssign.find({ class: mongoose.Types.ObjectId(classs._id), class_news: mongoose.Types.ObjectId(classNews._id), is_delete: false })
-                                                .populate('user', '-__v, -password');
-                let arrayStudentAssginedEmail = [];
-                arrayStudentAssgined.forEach(student => {
-                    arrayStudentAssginedEmail.push(student.user.email);
-                });
+                // if(reqStudent.length > 0){
+                //     let arrayUserId = [];
+                //     let arrayLength = reqStudent.length;
+                //     for(let i = 0; i < arrayLength; i++){
+                //         let user =  await User.findOne({email: reqStudent[i] })
+                //         arrayUserId.push(user._id)
+                //     }
+                //     let arrUserIdLength  = arrayUserId.length
+                //     for(let i = 0; i< arrUserIdLength; i++){
+                //         await ClassNewsAssign.create({
+                //             user: mongoose.Types.ObjectId(arrayUserId[i]),
+                //             class: mongoose.Types.ObjectId(classs._id),
+                //             class_news: mongoose.Types.ObjectId(classNews._id),
+                //         })
+                //     }
+                // }
+                // else{
+                //     let arrStudentInClass = await ClassMember.find({ class: mongoose.Types.ObjectId(classs._id), role: mongoose.Types.ObjectId(classRoleStudentId), is_delete: false, status: 1 })
+                //     if(arrStudentInClass.length > 0){
+                //         let arrLength = arrStudentInClass.length
+                //         for(let i =0; i< arrLength; i++){
+                //             await ClassNewsAssign.create({
+                //                 user: mongoose.Types.ObjectId(arrStudentInClass[i].user),
+                //                 class: mongoose.Types.ObjectId(classs._id),
+                //                 class_news: mongoose.Types.ObjectId(classNews._id),
+                //             })
+                //         };
+                //     }
+                // };
+                // let arrayStudentAssgined = await ClassNewsAssign.find({ class: mongoose.Types.ObjectId(classs._id), class_news: mongoose.Types.ObjectId(classNews._id), is_delete: false })
+                //                                 .populate('user', '-__v, -password');
+                // let arrayStudentAssginedEmail = [];
+                // arrayStudentAssgined.forEach(student => {
+                //     arrayStudentAssginedEmail.push(student.user.email);
+                // });
                 const data = await ClassNews.findById(classNews._id)
                     .populate('user', '-password')
                     .populate('class')
                     .populate("document", "name viewLink downloadLink size id_files");
                 const result = JSON.parse(JSON.stringify(data));
-                result['student_assgined'] = arrayStudentAssginedEmail;
+                // result['student_assgined'] = arrayStudentAssginedEmail;
                 return res.json({
                     success: true,
                     message: "Create news successfully!",
@@ -328,15 +328,15 @@ class ClassNewsController{
                 }
             )
             .populate('user', '-password');
-            let arrayStudentAssgined = await ClassNewsAssign.find({ class: mongoose.Types.ObjectId(news.class), class_news: mongoose.Types.ObjectId(news._id), is_delete: false })
-                                                .populate('user', '-__v, -password');
-                let arrayStudentAssginedEmail = [];
-                arrayStudentAssgined.forEach(student => {
-                    arrayStudentAssginedEmail.push(student.user.email);
-                });
+            // let arrayStudentAssgined = await ClassNewsAssign.find({ class: mongoose.Types.ObjectId(news.class), class_news: mongoose.Types.ObjectId(news._id), is_delete: false })
+            //                                     .populate('user', '-__v, -password');
+            //     let arrayStudentAssginedEmail = [];
+            //     arrayStudentAssgined.forEach(student => {
+            //         arrayStudentAssginedEmail.push(student.user.email);
+            //     });
             let data = JSON.parse(JSON.stringify(news));
             data['comments'] = arrayComment;
-            data['student_assgined'] = arrayStudentAssginedEmail;
+            //data['student_assgined'] = arrayStudentAssginedEmail;
             return res.json({
                 success: true,
                 message: "get detail notification successfully!",
