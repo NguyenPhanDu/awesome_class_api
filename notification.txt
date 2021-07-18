@@ -152,18 +152,15 @@ lỗi newfeed vẫn hiện bài tập thông báo dành cho user khi bị kick v
 khi member bị kick có nhận bài tập == xong
 gửi mail mời sai == đã xong
 
-xóa class xóa lun tất cả class favourate là class đó
-xóa bài tập là xóa lun tất cả bài tập có favourate
+xóa class xóa lun tất cả class favourate là class đó = xong
+xóa bài tập là xóa lun tất cả bài tập có favourate = xong
 
 hiển thị tất cả bài tập
 
 bài tập đc nhận
 bài tập tạo
 
-model class homework
-model HomeworkAssign
-model classmember
-
 kiểm tra xem trong từng cái bài tập đó mình có bị xóa khỏi class chưa
-
-khi tạo bài tập gửi mail cho sinh viên nhận
+gửi mail khi chấm điểm, tạo bài tập, thông báo
+newfeed ko chỉ định
+getnews của user

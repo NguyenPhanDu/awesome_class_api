@@ -152,6 +152,29 @@ class NotificationController{
         }
         
     }
+
+    async readAllNotifyOfUser(req, res){
+        try{
+            const user = await User.findOne( { email: res.locals.email });
+            await Notification.updateMany({ receiver: mongoose.Types.ObjectId(user._id) }, { is_read: true })
+            res.json({
+                success: true,
+                message: "Read all the notices successfull",
+                res_code: 200,
+                res_status: "GET_SUCCESSFULLY"
+            })
+        }
+        catch(err){
+            console.log(err)
+                return res.json({
+                    success: false,
+                    message: 'Server error. Please try again.',
+                    error: err,
+                    res_code: 500,
+                    res_status: "SERVER_ERROR"
+                });
+        }
+    }
     // req.body.id_notification
     async readNotity(req, res){
         try{
