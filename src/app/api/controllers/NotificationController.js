@@ -3,6 +3,7 @@ const HomeworkNotification = require('../../models/HomeworkNotification');
 const Notification = require('../../models/Notification');
 const CommentNotification = require('../../models/CommentNotification');
 const User = require('../../models/User');
+const ClassNewsNotication = require('../../models/ClassNewsNotification');
 const moment = require('moment');
 class NotificationController{
     async createAssignNotify(classes, ref, sender, receiver){
@@ -106,7 +107,37 @@ class NotificationController{
             return;
         }
     }
-    
+    async createClassNewsNotify(classes, ref, sender, receiver, type){
+        try{
+            let type;
+            if(type == 1){
+                type = 'create'
+            }
+            else{
+                type = 'update'
+            }
+            const ClassNewsNoticationSchem = new ClassNewsNotication({
+                class : mongoose.Types.ObjectId(classes),
+                ref: mongoose.Types.ObjectId(ref),
+                type: type,
+                onModel: 'ClassNews'
+            });
+            const classNewsNotification = await ClassNewsNoticationSchem.save();
+            const now = moment().toDate().toString();
+            await Notification.create({
+                sender: mongoose.Types.ObjectId(sender),
+                receiver: mongoose.Types.ObjectId(receiver),
+                create_at: now,
+                ref: mongoose.Types.ObjectId(classNewsNotification._id),
+                type: 'ClassNewsNotication',
+                onModel: 'ClassNewsNotication'
+            });
+        }
+        catch(err){
+            console.log(err);
+            return;
+        }
+    }
     async getAllNotifyOfUser(req, res){
         try{
             const user = await User.findOne( { email: res.locals.email })

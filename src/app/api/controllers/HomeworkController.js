@@ -357,6 +357,7 @@ class HomeWorkController{
             let list  = [];
             const user = await User.findOne({email: res.locals.email})
             let user_id = user._id
+            // user tạo
             const arrHomework = await ClassHomework.find({is_delete: false})
             .populate({
                 path: 'homework',
@@ -384,9 +385,17 @@ class HomeWorkController{
                 homeworksParte = homeworksParte.filter(homework => {
                     return homework.homework.create_by != null
                 });
-                homeworksParte.forEach(homework => {
-                    list.push(homework);
-                })
+                for(let i = 0; i < homeworksParte.length; i++){
+                    let a = await ClassMember.findOne(
+                        { 
+                            user: mongoose.Types.ObjectId(user_id), 
+                            class: mongoose.Types.ObjectId(homeworksParte[i].class),
+                            is_delete: true
+                        })
+                    if(!a){
+                        list.push(homeworksParte[i]);
+                    }
+                }
             }
             
             const arrHomeworkAssgin = await HomeworkAssign.find({user: mongoose.Types.ObjectId(user_id), is_delete: false})
