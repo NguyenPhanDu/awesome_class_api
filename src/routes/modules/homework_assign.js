@@ -5,5 +5,5 @@ const HomeworkAssignController = require('../../app/api/controllers/HomeworkAssi
 
 router.use(verifyToken);
 router.post('/',HomeworkAssignController.getAllHomeworkAssignInClass);
-
+router.get('/get-all-assgin',HomeworkAssignController.getAllHomeworkHaveDueDate);
 module.exports = router;

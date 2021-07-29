@@ -24,7 +24,7 @@ class ActiveEmail{
                 if(req.query.active_code == user.activated_code){
                     User.updateOne({id_user: user.id_user},{activated: true})
                         .then(userUpdated =>{
-                            res.redirect('http://localhost:3000')
+                            res.redirect('https://localhost:3000')
                         })
                 }
             })

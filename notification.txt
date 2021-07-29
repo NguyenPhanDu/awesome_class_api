@@ -164,3 +164,12 @@ kiểm tra xem trong từng cái bài tập đó mình có bị xóa khỏi clas
 gửi mail khi chấm điểm, tạo bài tập, thông báo
 newfeed ko chỉ định, sửa lại hiện newfeed
 getnews của user
+
+lỗi không hiện thị báo sai mật khẩu khi đăng nhập
+chưa có comment riêng tư
+lỗi sinh viên chưa xem đc bài nộp của mình
+thiếu notify
+
+
+
+thông báo không có 

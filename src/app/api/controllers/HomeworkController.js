@@ -261,7 +261,8 @@ class HomeWorkController{
                                                             }
                                                             ]
                                                         });
-            if(classHomeWork.homework.create_by.email == res.locals.email){
+            const classss = await Class.findOne({_id: mongoose.Types.ObjectId(classHomeWork.class)})
+            if(classHomeWork.homework.create_by.email == res.locals.email || classss.admin == res.locals._id){
                 await FolerServices.deleteHomeworkFolder(classHomeWork.class,classHomeWork);
                 await ClassHomework.findOneAndUpdate(
                     {id_class_homework: req.body.id_class_homework, is_delete: false},
@@ -288,6 +289,7 @@ class HomeWorkController{
             }
         }
         catch(err){
+            console.log(err)
             return res.json({
                 success: false,
                 message: 'Server error. Please try again.',
