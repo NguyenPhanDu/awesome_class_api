@@ -215,6 +215,8 @@ class CommentController{
     // ref: 3 , id: id của assignment đó là trường: id_homework_assign
     async getAllComment(req, res){
         try{
+            let ref;
+            let model;
             if(req.body.ref == 1){
                 model = 'ClassHomework';
                 ref = await ClassHomework.findOne({ id_class_homework: req.body.id, is_delete : false })
