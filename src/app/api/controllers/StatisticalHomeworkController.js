@@ -19,9 +19,10 @@ class StatisticalHomework{
                     }
                 ]
             })
+            .populate('class','-__v')
             const allAssignHomework = await HomeworkAssign.find(
                 { 
-                    class: mongoose.Types.ObjectId(classHomework.class),
+                    class: mongoose.Types.ObjectId(classHomework.class._id),
                     homework: mongoose.Types.ObjectId(classHomework.homework._id),
                     is_delete: false
                 }
@@ -32,7 +33,7 @@ class StatisticalHomework{
             let amount_submitted = await HomeworkAssign.countDocuments(
                 { 
                     is_delete: false,
-                    class: mongoose.Types.ObjectId(classHomework.class),
+                    class: mongoose.Types.ObjectId(classHomework.class._id),
                     homework: mongoose.Types.ObjectId(classHomework.homework._id),
                     is_submit: true
                 }
@@ -40,7 +41,7 @@ class StatisticalHomework{
             let amount_delivered = await HomeworkAssign.countDocuments(
                 { 
                     is_delete: false,
-                    class: mongoose.Types.ObjectId(classHomework.class),
+                    class: mongoose.Types.ObjectId(classHomework.class._id),
                     homework: mongoose.Types.ObjectId(classHomework.homework._id),
                     is_submit: false
                 }
@@ -48,14 +49,14 @@ class StatisticalHomework{
             let total = await HomeworkAssign.countDocuments(
                 { 
                     is_delete: false,
-                    class: mongoose.Types.ObjectId(classHomework.class),
+                    class: mongoose.Types.ObjectId(classHomework.class._id),
                     homework: mongoose.Types.ObjectId(classHomework.homework._id),
                 }
             );
             let amount_returned = await HomeworkAssign.countDocuments(
                 {
                     is_delete: false,
-                    class: mongoose.Types.ObjectId(classHomework.class),
+                    class: mongoose.Types.ObjectId(classHomework.class._id),
                     homework: mongoose.Types.ObjectId(classHomework.homework._id),
                     is_submit: true,
                     is_signed: true
@@ -68,6 +69,7 @@ class StatisticalHomework{
             response['amount_delivered'] = amount_delivered;
             response['list_assignment'] = assignment;
             response['homework'] = classHomework.homework;
+            response['class'] = ClassHomework.class;
             return res.json({
                 success: true,
                 message: "Statistical homework homework!",
