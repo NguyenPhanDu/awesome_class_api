@@ -7,7 +7,7 @@ const ClassMember = require('../../models/ClassMember');
 const ClassHomework = require('../../models/ClassHomework');
 const HomeworkAssign = require('../../models/HomeworkAssign');
 const moment = require('moment');
-const { parseTimeFormMongo, changeTimeInDBToISOString } = require('../../../helpers/parse_date');
+const { changeTimeInDBToISOString } = require('../../../helpers/parse_date');
 const ClassRole = require('../../models/ClassRole');
 
 class HomeworkAssignController{
@@ -60,9 +60,11 @@ class HomeworkAssignController{
 
     async getAllHomeworkHaveDueDate(req, res){
         try{
-            const user_id = res.locals._id
+            const now = moment().toDate().toString();
+            const user_id = res.locals._id;
+            // 61029de13f7e4931302eece5
             // lấy ra tất cả Homework assgin có status 0 is submit false
-            let data = []
+            let data = [];
             const arrAssgin = await HomeworkAssign.find(
                 {
                     user: mongoose.Types.ObjectId(user_id),
@@ -79,7 +81,7 @@ class HomeworkAssignController{
                 let a = JSON.parse(JSON.stringify(arrAssgin));
                 a = a.filter(homework => {
                     return homework.homework != null
-                })
+                });
                 for(let i = 0 ; i< a.length; i++){
                     let b = await ClassHomework.findOne({ homework: mongoose.Types.ObjectId(a[i].homework._id) , is_delete: false},)
                     .populate({
@@ -102,10 +104,24 @@ class HomeworkAssignController{
                             select: ["-password"],
                         }]
                     })
-                    
                     if(b){
-                        let homeworksParte = JSON.parse(JSON.stringify(b));
-                        data.push(homeworksParte)
+                        if(b.homework.deadline && moment(changeTimeInDBToISOString(now)).isAfter(changeTimeInDBToISOString(b.homework.deadline)) && a[i].is_submit == false){
+                            const homeworkAssign2 = await HomeworkAssign.findOneAndUpdate(
+                                {
+                                    _id : mongoose.Types.ObjectId(a[i]._id)
+                                },
+                                {
+                                    status: 3
+                                },
+                                {
+                                    new: true
+                                }
+                            );
+                        }
+                        else{
+                            let homeworksParte = JSON.parse(JSON.stringify(b));
+                            data.push(homeworksParte)
+                        }
                     }
                 }
                 data.sort((a,b) => moment(changeTimeInDBToISOString(a.homework.deadline), "YYYY-MM-DD HH:mm:ss") - moment(changeTimeInDBToISOString(b.homework.deadline), "YYYY-MM-DD HH:mm:ss"));

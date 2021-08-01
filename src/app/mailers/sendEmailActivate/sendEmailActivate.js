@@ -1,6 +1,7 @@
 const nodemailer =  require('nodemailer');
 const path = require('path');
 const hbs = require('nodemailer-express-handlebars');
+require('dotenv').config();
 async function sendActiveMail(req,user){
     try{
     let transport = await nodemailer.createTransport({
@@ -32,6 +33,7 @@ async function sendActiveMail(req,user){
         context: {
             userId: user.id_user,
             activatedCode: user.activated_code,
+            endpoint: process.env.ENDPOINT
         } 
     }
     await transport.sendMail(mailOptions, (err, info) => {

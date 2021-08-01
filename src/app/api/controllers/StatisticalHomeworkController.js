@@ -19,7 +19,7 @@ class StatisticalHomework{
                     }
                 ]
             })
-            .populate('class','-__v')
+            .populate('class','-__v');
             const allAssignHomework = await HomeworkAssign.find(
                 { 
                     class: mongoose.Types.ObjectId(classHomework.class._id),
@@ -69,7 +69,7 @@ class StatisticalHomework{
             response['amount_delivered'] = amount_delivered;
             response['list_assignment'] = assignment;
             response['homework'] = classHomework.homework;
-            response['class'] = ClassHomework.class;
+            response['class'] = classHomework.class;
             return res.json({
                 success: true,
                 message: "Statistical homework homework!",

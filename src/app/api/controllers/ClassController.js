@@ -9,6 +9,8 @@ const ClassNews = require('../../models/ClassNews');
 const ClassNewsAssgin = require('../../models/ClassNewsAssign');
 const HomeworkAssgin = require('../../models/HomeworkAssign');
 const FavourateClass = require('../../models/FavouriteClass');
+const TeacherPermisstion = require('../../models/TeacherPermisstion');
+const StudentPermisstion = require('../../models/StudentPermisstion');
 const generateRandomCode = require('../../../helpers/index');
 const FolerServices = require('../../services/file_and_folder/index');
 
@@ -63,6 +65,8 @@ class ClassController{
                     .then( result =>{
                         newClassPopulate = result
                     })
+                await TeacherPermisstion.create({ class: mongoose.Types.ObjectId(newClass._id) });
+                await StudentPermisstion.create({ class: mongoose.Types.ObjectId(newClass._id) })
                 await res.json({
                     success: true,
                     message: "Create new classroom successfull!",
@@ -202,16 +206,18 @@ class ClassController{
                                                 path: 'admin',
                                                 select:['profile','email']
                                             });
+            console.log(classFinded)
             if (classFinded && classFinded.admin.email == res.locals.email){
                 await ClassPermission.findOneAndUpdate({_id: mongoose.Types.ObjectId(classFinded.permission)},update,option);
                 await ClassMember.updateMany({ class: mongoose.Types.ObjectId(classFinded._id) },update);
                 const classDelete =  await Class.findOneAndUpdate(query, update, option);
                 await FolerServices.deleteClassFoler(classDelete._id)
                 await ClassHomework.updateMany({class: mongoose.Types.ObjectId(classFinded._id)}, update);
-                await HomeworkAssgin.updateMany({ class: mongoose.Types.ObjectId(classFinded._id), update });
-                await ClassNews.updateMany({ class: mongoose.Types.ObjectId(classFinded._id), update });
-                await ClassNewsAssgin.updateMany({ class: mongoose.Types.ObjectId(classFinded._id), update });
+                await HomeworkAssgin.updateMany({ class: mongoose.Types.ObjectId(classFinded._id) }, update);
+                await ClassNews.updateMany({ class: mongoose.Types.ObjectId(classFinded._id)}, update);
                 await FavourateClass.updateMany({ class: mongoose.Types.ObjectId(classFinded._id), update });
+                await TeacherPermisstion.findOneAndUpdate({ class: mongoose.Types.ObjectId(classFinded._id) }, update);
+                await StudentPermisstion.findOneAndUpdate({ class: mongoose.Types.ObjectId(classFinded._id) }, update);
                 return res.status(200).json({
                             success: true,
                             message: "Delete classroom successfull!",

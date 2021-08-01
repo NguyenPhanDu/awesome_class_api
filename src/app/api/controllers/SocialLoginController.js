@@ -87,7 +87,7 @@ class SocialLogin{
                         })
                 }
                 else{
-                    let token = jwt.sign({_id: result._id}, secretKeyJwt.secret,{expiresIn: 86400})
+                    let token = jwt.sign({_id: result._id, email: result.email}, secretKeyJwt.secret,{expiresIn: 86400})
                     let userNew = JSON.parse(JSON.stringify(result));
                     userNew.access_token = token;
                     res.status(200).json({

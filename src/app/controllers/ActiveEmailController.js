@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const User = require('../models/User');
-
+require('dotenv').config();
 class ActiveEmail{
     ActiveAccount(req, res){
         User.findOne({id_user: req.query.id})
@@ -24,7 +24,7 @@ class ActiveEmail{
                 if(req.query.active_code == user.activated_code){
                     User.updateOne({id_user: user.id_user},{activated: true})
                         .then(userUpdated =>{
-                            res.redirect('https://localhost:3000')
+                            res.redirect(`${process.env.ENDPOINTFE}`)
                         })
                 }
             })

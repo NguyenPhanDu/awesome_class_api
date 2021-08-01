@@ -7,7 +7,7 @@ const HomeworkAssgin = require('../../models/HomeworkAssign');
 const ClassNewsAssign = require('../../models/ClassNewsAssign');
 const SubmitHomework = require('../../models/SubmitHomework');
 const sendInviteMemberEmail = require('../../mailers/sendEmailActivate/sendEmailInviteMember');
-
+require('dotenv').config();
 class ClassMemberController{
     async getMemberClass(req, res){
         let class_id;
@@ -171,7 +171,7 @@ class ClassMemberController{
         let option = {new: true};
         await ClassMember.findOneAndUpdate(query, update, option)
         .then(result =>{
-            res.redirect('http://localhost:3000')
+            res.redirect(`${process.env.ENDPOINTFE}`)
         })
     };
 

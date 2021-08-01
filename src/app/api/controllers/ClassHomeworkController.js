@@ -9,6 +9,7 @@ const HomeworkAssign = require('../../models/HomeworkAssign');
 const { parseTimeFormMongo } = require('../../../helpers/parse_date');
 const { pagination } = require('../../../helpers/pagination');
 const moment = require('moment');
+const ClassNews = require('../../models/ClassNews');
 
 class ClassHomeworkController{
     async getHomeworkInClass(req, res){
@@ -59,9 +60,12 @@ class ClassHomeworkController{
         try{
             const classs = await Class.findOne({id_class : Number(req.body.id_class)})
             let classId = classs._id;
+            console.log(classs)
             const user = await User.findOne( { email: res.locals.email } )
             let userId = user._id;
             let arrayHomework;
+            //const a = await Class.findOne({ _id: '61065145789b490710d72e6c' })
+            //console.log(a)
             // Kiểm tra xem thằng này trong lớp là teacher hay học sinh
             // Nếu là giáo viên kiểm tra xem bài tập nào của nó tạo trả hoặc bài tập khác của giáo viên khác = tất cả bài tập trong lớp đó về mảng theo thời gian mới nhất
             // Nếu là học sinh thì trả những bài tập mà học sinh đc assign
@@ -106,9 +110,10 @@ class ClassHomeworkController{
                     {
                         user: mongoose.Types.ObjectId(userId),
                         class: mongoose.Types.ObjectId(classId),
-                        is_delete: false
+                        is_delete: false,
                     }
-                )
+                );
+                console.log(homeworkAssign)
                 let a = JSON.parse(JSON.stringify(homeworkAssign));
                 let b = a.map(x => x.homework)
                 let array = [];
