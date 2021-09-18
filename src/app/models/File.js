@@ -14,6 +14,11 @@ const FileSchema = Schema(
             ref: 'ClassHomework',
             default: null
         },
+        blog: {
+            type: Schema.Types.ObjectId,
+            ref: 'Blog',
+            default: null
+        },
         class: {
             type: Schema.Types.ObjectId, 
             ref:  'Class'

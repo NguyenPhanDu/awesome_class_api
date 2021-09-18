@@ -293,7 +293,10 @@ async function deleteFileWhenUpdate(id, type){
         }
         if(type == 2){
             await File.updateMany({ class_homework: mongoose.Types.ObjectId(id) }, { is_delete: true })
-        }    
+        }
+        if(type == 3){
+            await File.updateMany({ blog: mongoose.Types.ObjectId(id) }, { is_delete: true})
+        }  
     }
     catch(err){
         console.log(err);

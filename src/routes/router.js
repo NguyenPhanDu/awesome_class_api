@@ -16,7 +16,7 @@ const CommentRouter = require('./modules/comment');
 const NewFeedRouter = require('./modules/new_feed');
 const NotificationRouter = require('./modules/notification');
 const BookMarkRouter = require('./modules/book_mark');
-
+const BlogController = require('./modules/blog');
 // MVC
 const siteRouter = require('./mvc/site');
 const AuthMVCRouter = require('./mvc/auth');
@@ -46,7 +46,7 @@ function route(app){
     app.use('/api/newfeed',NewFeedRouter);
     app.use('/api/notification', NotificationRouter);
     app.use('/api/book-mark', BookMarkRouter);
-
+    app.use('/api/blog', BlogController);
     //MVC ROUTER
     app.use('/admin/',siteRouter);
     app.use('/admin/',AuthMVCRouter);

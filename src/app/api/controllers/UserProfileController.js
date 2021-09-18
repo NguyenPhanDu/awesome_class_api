@@ -97,7 +97,6 @@ class UserProfile{
                 await imgur
                     .uploadBase64(req.body.avatar)
                     .then(async (json) => {
-                        console.log(json);
                         avatar = json.link
                         let userImgage = new UserImage({
                             user : mongoose.Types.ObjectId(user._id),

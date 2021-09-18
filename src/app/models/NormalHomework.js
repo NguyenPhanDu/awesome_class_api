@@ -6,7 +6,7 @@ const NormalHomeworkSchema = Schema(
     {
         title: {
             type: String,
-            required: true
+            required: ''
         },
         description: {
             type: String,
