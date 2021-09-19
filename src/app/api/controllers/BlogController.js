@@ -7,6 +7,7 @@ const BlogThumbnail = require('../../models/BlogThumbnail');
 const imgur = require('../../imgur/service');
 const BlogFileSev = require('../../services/file_and_folder/blog');
 const FolerServices = require('../../services/file_and_folder/index');
+const File = require('../../models/File')
 class BlogController{
     async createBlog(req, res){
         try{
@@ -94,11 +95,11 @@ class BlogController{
     async updateBlog(req, res){
         try{
             const user = await User.findOne({ email: res.locals.email }).populate('user_type');
+            const blogWantUpdate = await Blog.findOne({ id_blog: Number(req.body.id_blog), is_delete: false })
+                .populate('create_by', '-password');
             let reqAttachments = JSON.parse(req.body.attachments);
             const now = moment().toDate().toString();
-            if(user.user_type.id_user_type == 1){
-                const blogWantUpdate = await Blog.findOne({ id_blog: Number(req.body.id_blog), is_delete: false })
-                .populate('create_by', '-password');
+            if(blogWantUpdate.create_by.email == res.locals.email){
                 if(reqAttachments.length > 0){
                     let newDocument = [];
                     let length = reqAttachments.length
@@ -244,6 +245,49 @@ class BlogController{
                 res_code: 200,
                 res_status: "GET_SUCCESSFULLY"
             })
+        }
+        catch(err){
+            console.log(err);
+            res.json({
+                success: false,
+                message: 'Server error. Please try again',
+                error: err,
+                res_code: 500,
+                res_status: "SERVER_ERROR"
+            });
+            return;
+        }
+    }
+    // req.body : id_blog
+    async deleteBlog(req, res){
+        try{
+            const now = moment().toDate().toString();
+            const blogWantDelete = await Blog.findOne({ id_blog: Number(req.body.id_blog) })
+            .populate('create_by', '-password')
+            if(blogWantDelete.create_by.email == res.locals.email){
+                await File.updateMany({ blog: mongoose.Types.ObjectId(blogWantDelete._id) }, { is_delete: true });
+                await Blog.findOneAndUpdate( 
+                    { id_blog: Number(req.body.id_blog) },
+                    {
+                        update_at: now,
+                        is_delete: true
+                    }
+                );
+                return res.json({
+                    success: true,
+                    message: "Delete blog successfully!",
+                    res_code: 200,
+                    res_status: "DELETE_SUCCESSFULLY"
+                }) 
+            }
+            else{
+                return res.json({
+                    success: false,
+                    message: "No access",
+                    res_code: 403,
+                    res_status: "NO_ACCESS"
+                })
+            }
         }
         catch(err){
 
