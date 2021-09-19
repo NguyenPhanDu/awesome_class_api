@@ -31,6 +31,10 @@ const ClassSchema = new Schema({
     permission: {
         type: Schema.Types.ObjectId, 
         ref:  'ClassPermission'
+    },
+    image:{
+        type: String,
+        default: ''
     }
 },
 {

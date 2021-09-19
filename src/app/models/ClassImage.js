@@ -8,10 +8,6 @@ const ClassImageSchema = new Schema(
             type: Schema.Types.ObjectId, 
             ref:  'Class'
         },
-        // 1: avatar, 2 ảnh bìa
-        image_type: {
-            type: Number,
-        },
         image_id : {
             type: String,
             required: true
