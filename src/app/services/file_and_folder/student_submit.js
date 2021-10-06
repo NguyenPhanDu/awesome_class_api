@@ -1,70 +1,9 @@
 const mongoose = require('mongoose');
 const drive = require('../../../config/google_drive/index');
 const Folder = require('../../models/Folder');
-const FolderHomework = require('../../models/FolderHomework');
 const File = require('../../models/File');
 const SubmitHomework = require('../../models/SubmitHomework');
 const fs = require('fs');
-
-async function createStudentSubmit(classId, classHomework, user){
-    try{
-        const folderStudent = await FolderHomework.findOne({
-            class: mongoose.Types.ObjectId(classId),
-            class_homework: mongoose.Types.ObjectId(classHomework._id),
-            level: 4,
-            type: 1,
-        })
-        .populate('folder');
-        const folderStudentss = await FolderHomework.findOne({
-            create_by: mongoose.Types.ObjectId(user._id),
-            class: mongoose.Types.ObjectId(classId),
-            class_homework: mongoose.Types.ObjectId(classHomework._id),
-            level: 5,
-            type: 1,
-        })
-        .populate('folder');
-        if(folderStudentss){
-            await FolderHomework.findOneAndUpdate(
-                { _id: mongoose.Types.ObjectId(folderStudentss._id) },
-                { is_delete: false }
-            )
-            await Folder.findOneAndUpdate(
-                { _id: mongoose.Types.ObjectId(folderStudentss.folder) },
-                { is_delete: false }
-            )
-        }
-        else{
-            const folerStudentSubmitDrive = response = await drive.files.create({
-                resource: {
-                    'name': user.id_user,
-                    'mimeType': 'application/vnd.google-apps.folder',
-                    parents: [folderStudent.folder.id_folder]
-                }
-            });
-            let pathStudentSubmitFolder = folderStudent.folder.path+folerStudentSubmitDrive.data.name+'/';
-            const newFolerStudent = await Folder.create({
-                id_folder: folerStudentSubmitDrive.data.id,
-                name: folerStudentSubmitDrive.data.name,
-                path: pathStudentSubmitFolder,
-                level: 5,
-                type: 1,
-                parent: folderStudent.folder._id
-            });
-            await FolderHomework.create({
-                create_by: mongoose.Types.ObjectId(user._id),
-                class: mongoose.Types.ObjectId(classId),
-                class_homework: mongoose.Types.ObjectId(classHomework._id),
-                folder: mongoose.Types.ObjectId(newFolerStudent._id),
-                level: 5,
-                type: 1
-            })
-        }
-    }
-    catch(err){
-        console.log(err);
-        return;
-    }
-}
 
 async function uploadFileSubmit(classId, classHomework, user, file, submitId){
     try{
@@ -132,6 +71,5 @@ async function uploadFileSubmit(classId, classHomework, user, file, submitId){
 
 
 module.exports = {
-    createStudentSubmit,
     uploadFileSubmit
 }

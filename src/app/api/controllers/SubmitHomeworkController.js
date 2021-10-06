@@ -3,10 +3,8 @@ const User = require('../../models/User');
 const ClassHomework = require('../../models/ClassHomework');
 const HomeworkAssign = require('../../models/HomeworkAssign');
 const SubmitHomework = require('../../models/SubmitHomework');
-const FolerSer = require('../../services/file_and_folder/student_submit');
+const FolerSer = require('../../services/file_and_folder/index');
 const File = require('../../models/File');
-const FolderHomework = require('../../models/FolderHomework');
-const Folder = require('../../models/Folder');
 const moment = require('moment');
 const TimeHelper = require('../../../helpers/parse_date');
 const Comment = require('../../models/Comment');
@@ -42,12 +40,10 @@ class SubmitHomeworkController{
 
             const submit = await submitHomeworkSchema.save();
 
-            await FolerSer.createStudentSubmit(classId,classHomework,user);
-
             if(req.files){
                 if(req.files.length> 0){
                     for(let i = 0; i < req.files.length; i++){
-                        await FolerSer.uploadFileSubmit(classId,classHomework,user, req.files[i],submit._id);
+                        await FolerSer.uploadFileSubmit(classId,user._id, req.files[i],submit._id);
                     }
                 }
             }
@@ -263,8 +259,6 @@ class SubmitHomeworkController{
                 await File.findOneAndUpdate(
                     {
                         is_delete: false,
-                        level: 6,
-                        type: 1,
                         _id : mongoose.Types.ObjectId(document[i])
                     },
                     {
@@ -272,32 +266,6 @@ class SubmitHomeworkController{
                     }
                 )
             };
-
-            // Xóa foderHomework and Folder,
-            const foderHomework =  await FolderHomework.findOneAndUpdate(
-                {
-                    is_delete: false,
-                    level: 5,
-                    type: 1,
-                    class_homework: mongoose.Types.ObjectId(sumitUserWantCancel.class_homework),
-                    create_by: mongoose.Types.ObjectId(sumitUserWantCancel.user),
-                },
-                {
-                    is_delete: true
-                },
-                {
-                    new: true
-                }
-            );
-            await Folder.findOneAndUpdate(
-                {
-                    is_delete: false,
-                    _id: mongoose.Types.ObjectId(foderHomework.folder)
-                },
-                {
-                    is_delete: true
-                }
-            );
             await SubmitHomework.findOneAndUpdate(
                 {_id: mongoose.Types.ObjectId(sumitUserWantCancel._id) },
                 { 

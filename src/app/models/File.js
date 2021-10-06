@@ -4,31 +4,22 @@ const Schema = mongoose.Schema;
 
 const FileSchema = Schema(
     {
-        class_news: {
+        ref: {
             type: Schema.Types.ObjectId,
-            ref: 'ClassNews',
-            default: null
+            require: true,
+            refPath: 'onModel'
         },
-        class_homework: {
-            type: Schema.Types.ObjectId,
-            ref: 'ClassHomework',
-            default: null
-        },
-        blog: {
-            type: Schema.Types.ObjectId,
-            ref: 'Blog',
-            default: null
-        },
-        class: {
-            type: Schema.Types.ObjectId, 
-            ref:  'Class'
+        onModel: {
+            type: String,
+            require: true,
+            enum: ['ClassHomework', 'ClassNews','Blog','SubmitHomework']
         },
         create_by: {
             type: Schema.Types.ObjectId, 
             ref:  'User'
         },
         type: {
-            type: Number
+            type: String
         },
         id_file: {
             type: String
@@ -38,7 +29,7 @@ const FileSchema = Schema(
         },
         parent : {
             type: Schema.Types.ObjectId, 
-            ref: 'Folder'
+            ref: 'FolderClass'
         },
         path: {
             type: String,
@@ -61,9 +52,6 @@ const FileSchema = Schema(
         },
         size: {
             type: Number,
-        },
-        level: {
-            type: Number
         }
     },
     {

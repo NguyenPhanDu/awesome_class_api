@@ -63,7 +63,7 @@ class forgotPassword{
                 if(!result){
                     return res.json({
                         success: false,
-                        message: "Reset code Not found.",
+                        message: "Reset code not found.",
                         res_code: 403,
                         res_status: "RESET_CODE_NOT_FOUND"
                     })

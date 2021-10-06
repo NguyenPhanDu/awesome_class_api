@@ -4,7 +4,6 @@ const Class =require('../../models/Class');
 const ClassMember = require('../../models/ClassMember');
 const ClassNews = require('../../models/ClassNews');
 const Comment = require('../../models/Comment');
-const ClassNewsFolerSev = require('../../services/file_and_folder/class_news');
 const ClassNewsAssign = require('../../models/ClassNewsAssign');
 const File = require('../../models/File');
 const ClassRole = require('../../models/ClassRole');
@@ -31,13 +30,11 @@ class ClassNewsController{
                     create_at: now,
                     update_at: now
                 });
-                // tạo thư mục của news này trên google, cơ sở dữ liệu
-                await ClassNewsFolerSev.createFolerClassNews(user._id, classs._id, classNews)
                 // nếu có file
                 if(req.files){
                     if(req.files.length> 0){
                         for(let i = 0; i < req.files.length; i++){
-                            await ClassNewsFolerSev.uploadFileNews(user._id, classs._id, classNews,req.files[i]);
+                            await FolerServices.uploadFileClassNews(user._id, classs._id, classNews,req.files[i]);
                         }
                     }
                 }
@@ -89,7 +86,6 @@ class ClassNewsController{
                 .populate('user','-password')
                 .populate('class')
             if(newsWantDelete.user.email == res.locals.email){
-                await ClassNewsFolerSev.deleteFolderClassNews(newsWantDelete.class._id, newsWantDelete)
                 await ClassNews.findOneAndUpdate(
                     { id_class_news: Number(req.body.id_class_news), is_delete: false },
                     { is_delete: true, update_at: now },
@@ -175,7 +171,7 @@ class ClassNewsController{
                 if(req.files){
                     if(req.files.length> 0){
                         for(let i = 0; i < req.files.length; i++){
-                            await ClassNewsFolerSev.uploadFileNews(newsWantUpdate.user._id, newsWantUpdate.class, newsWantUpdate,req.files[i]);
+                            await FolerServices.uploadFileClassNews(newsWantUpdate.user._id, newsWantUpdate.class, newsWantUpdate,req.files[i]);
                         }
                     }
                 }

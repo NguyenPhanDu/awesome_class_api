@@ -54,11 +54,10 @@ class HomeWorkController{
                         homework: mongoose.Types.ObjectId(newHomework._id),
                         onModel: 'NormalHomework'
                     });
-                    await FolerServices.createFolderHomework(userId,classId,classHomework);
                     if(req.files){
                         if(req.files.length> 0){
                             for(let i = 0; i < req.files.length; i++){
-                                await FolerServices.uploadHomeworkTeacherFile(userId, classId, classHomework,req.files[i], newHomework._id);
+                                await FolerServices.uploadFileCreateHomeWork(userId, classId, classHomework,req.files[i], newHomework._id);
                             }
                         }
                     }
@@ -155,11 +154,10 @@ class HomeWorkController{
                             homework: mongoose.Types.ObjectId(newHomework._id),
                             onModel: 'NormalHomework'
                         });
-                        await FolerServices.createFolderHomework(userId,classId,classHomework);
                         if(req.files){
                             if(req.files.length> 0){
                                 for(let i = 0; i < req.files.length; i++){
-                                    await FolerServices.uploadHomeworkTeacherFile(userId, classId, classHomework,req.files[i], newHomework._id);
+                                    await FolerServices.uploadFileCreateHomeWork(userId, classId, classHomework,req.files[i], newHomework._id);
                                 }
                             }
                         }
@@ -263,7 +261,6 @@ class HomeWorkController{
                                                         });
             const classss = await Class.findOne({_id: mongoose.Types.ObjectId(classHomeWork.class)})
             if(classHomeWork.homework.create_by.email == res.locals.email || classss.admin == res.locals._id){
-                await FolerServices.deleteHomeworkFolder(classHomeWork.class,classHomeWork);
                 await ClassHomework.findOneAndUpdate(
                     {id_class_homework: req.body.id_class_homework, is_delete: false},
                     { is_delete : true },
@@ -594,7 +591,7 @@ class HomeWorkController{
                 }
                 if(reqAttachments.length > 0){
                     let newDocument = [];
-                    await FolerServices.deleteFileWhenUpdate(classHomeWork._id, 2);
+                    await FolerServices.deleteFileWhenUpdate(classHomeWork._id);
                     let length = reqAttachments.length
                     for(let i = 0; i < length; i++){
                         const file = await File.findOneAndUpdate({ id_files: reqAttachments[i].id}, { is_delete: false }, { new: true});
@@ -609,7 +606,7 @@ class HomeWorkController{
                     );
                 }
                 else{
-                    await FolerServices.deleteFileWhenUpdate(classHomeWork._id, 2);
+                    await FolerServices.deleteFileWhenUpdate(classHomeWork._id);
                     await NormalHomework.findOneAndUpdate(
                         {_id: mongoose.Types.ObjectId(classHomeWork.homework._id)},
                         {
@@ -621,7 +618,7 @@ class HomeWorkController{
                 if(req.files){
                     if(req.files.length> 0){
                         for(let i = 0; i < req.files.length; i++){
-                            await FolerServices.uploadHomeworkTeacherFile(userId, classId, classHomeWork, req.files[i], classHomeWork.homework._id);
+                            await FolerServices.uploadFileCreateHomeWork(userId, classId, classHomeWork, req.files[i], classHomeWork.homework._id);
                         }
                     }
                 }

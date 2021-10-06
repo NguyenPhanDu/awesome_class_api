@@ -6,7 +6,6 @@ const User = require('../../models/User');
 const ClassPermission = require('../../models/ClassPermisstion');
 const ClassHomework = require('../../models/ClassHomework');
 const ClassNews = require('../../models/ClassNews');
-const ClassNewsAssgin = require('../../models/ClassNewsAssign');
 const HomeworkAssgin = require('../../models/HomeworkAssign');
 const FavourateClass = require('../../models/FavouriteClass');
 const TeacherPermisstion = require('../../models/TeacherPermisstion');
@@ -43,7 +42,7 @@ class ClassController{
         });
         await newClass.save()
             .then(async newClass => {
-                await FolerServices.createClassFolder(user_id, newClass)
+                await FolerServices.createClassFolder(newClass)
                 const classMember = new ClassMember({
                     user: user_id,
                     role: class_role,

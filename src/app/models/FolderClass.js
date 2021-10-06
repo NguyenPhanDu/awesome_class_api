@@ -4,21 +4,23 @@ const Schema = mongoose.Schema;
 
 const FolderClassSchema = Schema(
     {
-        is_delete: {
-            type: Boolean,
-            default: false
-        },
         class: {
             type: Schema.Types.ObjectId, 
             ref:  'Class'
         },
-        create_by: {
-            type: Schema.Types.ObjectId, 
-            ref:  'User'
+        id_folder: {
+            type: String
         },
-        folder: {
-            type: Schema.Types.ObjectId,
-            ref: 'Folder'
+        path: {
+            type: String,
+            default: ''
+        },
+        is_delete: {
+            type: Boolean,
+            default: false
+        },
+        name: {
+            type: String
         }
     },
     {
