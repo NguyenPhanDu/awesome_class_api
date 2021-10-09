@@ -156,10 +156,14 @@ class NotificationController{
             .limit(amount)
             .sort({ createdAt : -1 });
             
+            let b = JSON.parse(JSON.stringify(a));
+            delete b.createdAt;
+            delete b.updatedA;
+            delete b.receiver;
             res.json({
                 success: true,
                 message: "get all notify of users successfull!",
-                data: a,
+                data: b,
                 res_code: 200,
                 res_status: "GET_SUCCESSFULLY"
             })
@@ -228,7 +232,7 @@ class NotificationController{
                 });
         }
     }
-
+    // model classnews
     async newsNotify(newsId, sender, receiver, flag){
         try{
             let type = '';
@@ -258,6 +262,10 @@ class NotificationController{
             console.log(err)
             return;
         }
+    }
+
+    async exerciseNotify(classHomeworkId, sender, receiver, flag){
+
     }
 }
 
