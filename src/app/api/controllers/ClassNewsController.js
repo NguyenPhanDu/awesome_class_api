@@ -256,7 +256,7 @@ class ClassNewsController{
                 message: "get detail notification successfully!",
                 data: data,
                 res_code: 200,
-                res_status: "DELETE_SUCCESSFULLY"
+                res_status: "GET_SUCCESSFULLY"
             }) 
         }
         catch(err){

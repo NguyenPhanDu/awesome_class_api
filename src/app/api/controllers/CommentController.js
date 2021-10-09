@@ -3,14 +3,14 @@ const User = require('../../models/User');
 const Class =require('../../models/Class');
 const ClassHomework = require('../../models/ClassHomework');
 const ClassNews = require('../../models/ClassNews');
-const HomeworkAssign = require('../../models/HomeworkAssign');
+const SubmitHomework = require('../../models/SubmitHomework');
 const Comment = require('../../models/Comment');
 const moment = require('moment');
 const NotificationController = require('./NotificationController');
 const ClassMember = require('../../models/ClassMember');
 class CommentController{
     // Req.body: id_class, ref: 1 là comment của bài tập, 2 là classnews; id: của bài tập hoặc notify, content: nội dung comment
-    // ref: 3 , id: id của assignment đó là trường: id_homework_assign
+    // ref: 3 , id: id_submit_homework
     async create(req, res){
         try{
             let ref;
@@ -61,32 +61,25 @@ class CommentController{
                         return item != user._id
                     })
                 }
-                //listUserCommentObject = await Comment.aggregate([
-                //     {
-                //         "$match": {
-                //             "ref": mongoose.Types.ObjectId(ref._id),
-                //             'is_delete': false,
-                //             'onModel': model
-                //         }
-                //     },
-                //     {
-                //         "$group": {
-                //             _id: '$user' 
-                //         }
-                //     }
-                // ])
             }
             if(req.body.ref == 3){
-                model = 'HomeworkAssign';
-                ref = await HomeworkAssign.findOne({ id_homework_assign: req.body.id, is_delete: false })
-                .populate('homework');
+                model = 'SubmitHomework';
+                ref = await SubmitHomework.findOne({ id_submit_homework: req.body.id, is_delete: false })
+                .populate({
+                    path: 'class_homework',
+                    populate: {
+                        path: 'homework'
+                    }
+                });
+
+
                 if(ref.user == user._id){
                     submitSenderComment = user._id;
-                    submitReceiverComment = ref.homework.create_by;
+                    listIdUser.push(ref.class_homework.homework.create_by)
                 }
                 else{
-                    submitSenderComment = ref.homework.create_by;
-                    submitReceiverComment = ref.user
+                    submitSenderComment = ref.class_homework.homework.create_by;
+                    listIdUser.push(ref.user)
                 }
             }
             const now = moment().toDate().toString();
@@ -100,38 +93,7 @@ class CommentController{
                 create_at: now,
                 update_at: now
             });
-            // list ra comment ở news// homework đó => list ra userId => tạo notify cho mỗi user trong list đó
-            // let listUserCommentObjectParse = JSON.parse(JSON.stringify(listUserCommentObject))
-            // if(listUserCommentObjectParse.length > 0){
-            //     // mảng user._id
-            //     let listUserComment  = listUserCommentObjectParse.map(item => {
-            //         return item._id
-            //     }); 
-            //     let listfilerUserId = listUserComment.filter(item => {
-            //         return item != user._id
-            //     })
-            //     for(let i = 0; i < listfilerUserId.length; i++){
-            //         await NotificationController.createCommentNotify(
-            //             model,
-            //             classs._id,
-            //             ref._id,
-            //             user._id,
-            //             listfilerUserId[i],
-            //             now
-            //         )
-            //     }
-            // }
-            
-            if(req.body.ref == 3){
-                await NotificationController.createCommentNotify(
-                    model,
-                    classs._id,
-                    ref._id,
-                    submitSenderComment,
-                    submitReceiverComment,
-                    now
-                )
-            }
+
             const data = await Comment.findById(commentNew._id).populate('user','-password');
             res.json({
                 success: true,
@@ -145,6 +107,9 @@ class CommentController{
             }
             if(req.body.ref == 2){
                 await NotificationController.newsNotify(ref._id, user._id, listIdUser, 3) 
+            }
+            if(req.body.ref == 3){
+                await NotificationController.submitNotify(ref.id, submitSenderComment, listIdUser, 2)
             }
         }
         catch(err){
@@ -240,7 +205,7 @@ class CommentController{
         }
     };
     // ref: 1 là comment của bài tập, 2 là notify; id: của bài tập hoặc notify, content: nội dung comment
-    // ref: 3 , id: id của assignment đó là trường: id_homework_assign
+    // ref: 3 , id: id_submit_homework
     async getAllComment(req, res){
         try{
             let ref;

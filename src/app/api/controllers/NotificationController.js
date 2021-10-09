@@ -163,6 +163,35 @@ class NotificationController{
             return
         }
     }
+
+    // model submit
+    async submitNotify(submitId, sender, receiver, flag){
+        try{
+            let type = '';
+            if(flag == 1){
+                // thông báo tạo
+                type = "SIGN_SUBMITION"
+            }
+            if(flag == 2){
+                // thông báo bình luận
+                type = "COMMENT_SUBMITION"
+            }
+            const now = moment().toDate().toString();
+            await Notification.create({
+                sender: mongoose.Types.ObjectId(sender),
+                receiver: receiver,
+                create_at: now,
+                ref: mongoose.Types.ObjectId(submitId),
+                type: type,
+                onModel: 'SubmitHomework'
+            });
+        }
+        catch(err){
+            console.log(err);
+            return
+        }
+    }
+    
 }
 
 module.exports = new NotificationController

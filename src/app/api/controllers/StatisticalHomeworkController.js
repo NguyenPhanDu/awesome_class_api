@@ -95,6 +95,7 @@ class StatisticalHomework{
     async returnHomework(req, res){
         try{
             const sender = await User.findOne({ email: res.locals.email });
+            let listReceiver = [];
             const classHomework = await ClassHomework.findOne({id_class_homework: Number(req.body.id_class_homework), is_delete: false})
             .populate({
                 path: 'homework',
@@ -107,7 +108,7 @@ class StatisticalHomework{
             if(classHomework.homework.create_by.email == res.locals.email){
                 for(let i = 0; i< req.body.students.length; i++){
                     let user = await User.findOne( { email : req.body.students[i].email } )
-                    const a =  await HomeworkAssign.findOneAndUpdate(
+                    const assgin =  await HomeworkAssign.findOneAndUpdate(
                         {
                             is_delete: false,
                             class: mongoose.Types.ObjectId(classHomework.class),
@@ -122,8 +123,16 @@ class StatisticalHomework{
                         {
                             new: true
                         }
-                    )
-                    //await NotificationController.createReturnHomeworkNotity(classHomework.class,a._id, sender._id,user._id)
+                    );
+                    const submit = await SubmitHomework.findOne(
+                        {
+                            is_delete: false,
+                            user: mongoose.Types.ObjectId(user._id),
+                            assignment: mongoose.Types.ObjectId(assgin._id)
+                        }
+                    );
+                    listReceiver.push(user._id)
+                    await NotificationController.submitNotify(submit._id, sender._id, listReceiver, 1)
                 }
                 res.json({
                     success: true,
@@ -131,6 +140,7 @@ class StatisticalHomework{
                     res_code: 200,
                     res_status: "GET_SUCCESSFULLY"
                 });
+                
             }
             else{
                 return res.json({
