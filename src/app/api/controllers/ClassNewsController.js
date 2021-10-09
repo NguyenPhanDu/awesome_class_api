@@ -42,7 +42,6 @@ class ClassNewsController{
                 const listStudent = await ClassMember.find({ is_delete: false, class: mongoose.Types.ObjectId(classs._id), role: mongoose.Types.ObjectId(classRole._id) });
                 if(listStudent.length > 0){
                     for(let i = 0; i < listStudent.length; i++){     
-                        //await NotificationController.createClassNewsNotify(classs._id, classNews._id, user._id, listStudent[i].user, 1)
                         listIdStudent.push(listStudent[i].user)
                     }
                 }

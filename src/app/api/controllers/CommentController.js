@@ -22,21 +22,30 @@ class CommentController{
             if(req.body.ref == 1){
                 model = 'ClassHomework';
                 ref = await ClassHomework.findOne({ id_class_homework: req.body.id, is_delete : false })
-                // // Tìm user đã comment trong bài tập đó list
-                // listUserCommentObject = await Comment.aggregate([
-                //     {
-                //         "$match": {
-                //             "ref": mongoose.Types.ObjectId(ref._id),
-                //             'is_delete': false,
-                //             'onModel': model
-                //         }
-                //     },
-                //     {
-                //         "$group": {
-                //             _id: '$user' 
-                //         }
-                //     }
-                // ])
+
+                // Notify
+                const classRoleTeacher = await ClassRole.findOne({id_class_role : 1 });
+                let classRoleTeacherId = classRoleTeacher._id;
+                const allTeacherInClass = await ClassMember.find({ class: mongoose.Types.mongoose(ref.class), role: mongoose.Types.ObjectId(classRoleTeacherId), is_delete: false});
+                JSON.parse(JSON.stringify(allTeacherInClass));
+                // push vào mảng học sinh
+                allTeacherInClass.forEach(item => {
+                    listIdUser.push(item.user);
+                });
+                let a = await HomeworkAssign.findOne({
+                    class: mongoose.Types.ObjectId(ref.class),
+                    homework: mongoose.Types.ObjectId(ref.homework),
+                    onModel: "NormalHomework",
+                    is_delete: false
+                });
+                JSON.parse(JSON.stringify(a));
+                a.forEach(item => {
+                    listIdUser.push(item.user);
+                });
+
+                listIdUser = listUserComment.filter(item => {
+                    return item != user._id
+                })
             }
             if(req.body.ref == 2){
                 model = 'ClassNews';
@@ -131,6 +140,9 @@ class CommentController{
                 res_code: 200,
                 res_status: "CREATE_SUCCESSFULLY"
             });
+            if(req.body.ref == 1){
+                await NotificationController.exerciseNotify(ref._id, user._id, listIdUser, 3);
+            }
             if(req.body.ref == 2){
                 await NotificationController.newsNotify(ref._id, user._id, listIdUser, 3) 
             }

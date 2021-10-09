@@ -123,7 +123,7 @@ class StatisticalHomework{
                             new: true
                         }
                     )
-                    await NotificationController.createReturnHomeworkNotity(classHomework.class,a._id, sender._id,user._id)
+                    //await NotificationController.createReturnHomeworkNotity(classHomework.class,a._id, sender._id,user._id)
                 }
                 res.json({
                     success: true,
