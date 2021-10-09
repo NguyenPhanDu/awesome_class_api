@@ -12,10 +12,10 @@ const NotificationSchema = Schema(
             type: Schema.Types.ObjectId, 
             ref:  'User'
         },
-        receiver: {
+        receiver: [{
             type: Schema.Types.ObjectId, 
             ref:  'User'
-        },
+        }],
         create_at: String,
         is_delete: {
             type: Boolean,
@@ -25,14 +25,13 @@ const NotificationSchema = Schema(
             type: Schema.Types.ObjectId,
             refPath: 'onModel'
         },
-        // HomeworkNotification, CommentNotification, NomarlNotification, ClassNewsNotication
-        type: {
-            type: String,
-        },
         onModel: {
             type: String,
             require: true,
-            enum: [ 'HomeworkNotification', 'CommentNotification', 'NomarlNotification', 'ClassNewsNotication']
+            enum: [ 'ClassHomework', 'ClassNews', 'SubmitHomework']
+        },
+        type: {
+            type: String
         }
     },
     {

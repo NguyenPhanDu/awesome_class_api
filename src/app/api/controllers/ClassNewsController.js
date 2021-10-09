@@ -38,12 +38,15 @@ class ClassNewsController{
                         }
                     }
                 }
+                const listIdStudent = [];
                 const listStudent = await ClassMember.find({ is_delete: false, class: mongoose.Types.ObjectId(classs._id), role: mongoose.Types.ObjectId(classRole._id) });
                 if(listStudent.length > 0){
-                    for(let i = 0; i < listStudent.length; i++){
-                        await NotificationController.createClassNewsNotify(classs._id, classNews._id, user._id, listStudent[i].user, 1)
+                    for(let i = 0; i < listStudent.length; i++){     
+                        //await NotificationController.createClassNewsNotify(classs._id, classNews._id, user._id, listStudent[i].user, 1)
+                        listIdStudent.push(listStudent[i].user)
                     }
                 }
+                await NotificationController.newsNotify(classNews._id, user._id, listIdStudent, 1)
                 const data = await ClassNews.findById(classNews._id)
                     .populate('user', '-password')
                     .populate('class')
@@ -143,7 +146,7 @@ class ClassNewsController{
                     // Xóa tất cả file trong news đi
                     // làm document rỗng
                     // Lặp qua reqAttachment nếu có trong đó thì update trở lại thành false push lại database
-                    await FolerServices.deleteFileWhenUpdate(newsWantUpdate._id, 1);
+                    //await FolerServices.deleteFileWhenUpdate(newsWantUpdate._id, 1);
                     for(let i = 0; i < length; i++){
                         let file = await File.findOneAndUpdate({ id_files: reqAttachments[i].id_files }, { is_delete: false }, { new: true });
                         if(file){
@@ -175,12 +178,15 @@ class ClassNewsController{
                         }
                     }
                 }
+                const listIdStudent = [];
                 const listStudent = await ClassMember.find({ is_delete: false, class: mongoose.Types.ObjectId(newsWantUpdate.class), role: mongoose.Types.ObjectId(classRole._id) });
                 if(listStudent.length > 0){
                     for(let i = 0; i < listStudent.length; i++){
-                        await NotificationController.createClassNewsNotify(newsWantUpdate.class, newsWantUpdate._id, newsWantUpdate.user._id, listStudent[i].user, 2)
+                        //await NotificationController.createClassNewsNotify(newsWantUpdate.class, newsWantUpdate._id, newsWantUpdate.user._id, listStudent[i].user, 2)
+                        listIdStudent.push(listStudent[i].user)
                     }
                 }
+                await NotificationController.newsNotify(req.body.id_class_news, newsWantUpdate.user._id, listIdStudent, 2)
                 const newsUpdate = await ClassNews.findOneAndUpdate(
                     { id_class_news: Number(req.body.id_class_news), is_delete: false },
                     {  

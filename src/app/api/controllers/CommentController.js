@@ -7,53 +7,65 @@ const HomeworkAssign = require('../../models/HomeworkAssign');
 const Comment = require('../../models/Comment');
 const moment = require('moment');
 const NotificationController = require('./NotificationController');
+const ClassMember = require('../../models/ClassMember');
 class CommentController{
-    // Req.body: id_class, ref: 1 là comment của bài tập, 2 là notify; id: của bài tập hoặc notify, content: nội dung comment
+    // Req.body: id_class, ref: 1 là comment của bài tập, 2 là classnews; id: của bài tập hoặc notify, content: nội dung comment
     // ref: 3 , id: id của assignment đó là trường: id_homework_assign
     async create(req, res){
         try{
             let ref;
             let model;
-            let listUserCommentObject = [];
+            let listIdUser = [];
             let submitSenderComment;
             let submitReceiverComment;
             const user = await User.findOne({ email : res.locals.email});
             if(req.body.ref == 1){
                 model = 'ClassHomework';
                 ref = await ClassHomework.findOne({ id_class_homework: req.body.id, is_delete : false })
-                // Tìm user đã comment trong bài tập đó list
-                listUserCommentObject = await Comment.aggregate([
-                    {
-                        "$match": {
-                            "ref": mongoose.Types.ObjectId(ref._id),
-                            'is_delete': false,
-                            'onModel': model
-                        }
-                    },
-                    {
-                        "$group": {
-                            _id: '$user' 
-                        }
-                    }
-                ])
+                // // Tìm user đã comment trong bài tập đó list
+                // listUserCommentObject = await Comment.aggregate([
+                //     {
+                //         "$match": {
+                //             "ref": mongoose.Types.ObjectId(ref._id),
+                //             'is_delete': false,
+                //             'onModel': model
+                //         }
+                //     },
+                //     {
+                //         "$group": {
+                //             _id: '$user' 
+                //         }
+                //     }
+                // ])
             }
             if(req.body.ref == 2){
                 model = 'ClassNews';
                 ref = await ClassNews.findOne({ id_class_news: req.body.id, is_delete: false })
-                listUserCommentObject = await Comment.aggregate([
-                    {
-                        "$match": {
-                            "ref": mongoose.Types.ObjectId(ref._id),
-                            'is_delete': false,
-                            'onModel': model
-                        }
-                    },
-                    {
-                        "$group": {
-                            _id: '$user' 
-                        }
-                    }
-                ])
+                // tìm tất cả thành viên trong lớp ngoại trừ người comment
+                const listUserCommentObject = await ClassMember.find({ is_delete: false, class: mongoose.Types.ObjectId(ref.class)});
+                let listUserCommentObjectParse = JSON.parse(JSON.stringify(listUserCommentObject));
+                if(listUserCommentObjectParse.length > 0){
+                    let listUserComment  = listUserCommentObjectParse.map(item => {
+                        return item.user
+                    }); 
+                    listIdUser = listUserComment.filter(item => {
+                        return item != user._id
+                    })
+                }
+                //listUserCommentObject = await Comment.aggregate([
+                //     {
+                //         "$match": {
+                //             "ref": mongoose.Types.ObjectId(ref._id),
+                //             'is_delete': false,
+                //             'onModel': model
+                //         }
+                //     },
+                //     {
+                //         "$group": {
+                //             _id: '$user' 
+                //         }
+                //     }
+                // ])
             }
             if(req.body.ref == 3){
                 model = 'HomeworkAssign';
@@ -80,26 +92,27 @@ class CommentController{
                 update_at: now
             });
             // list ra comment ở news// homework đó => list ra userId => tạo notify cho mỗi user trong list đó
-            let listUserCommentObjectParse = JSON.parse(JSON.stringify(listUserCommentObject))
-            if(listUserCommentObjectParse.length > 0){
-                // mảng user._id
-                let listUserComment  = listUserCommentObjectParse.map(item => {
-                    return item._id
-                }); 
-                let listfilerUserId = listUserComment.filter(item => {
-                    return item != user._id
-                })
-                for(let i = 0; i < listfilerUserId.length; i++){
-                    await NotificationController.createCommentNotify(
-                        model,
-                        classs._id,
-                        ref._id,
-                        user._id,
-                        listfilerUserId[i],
-                        now
-                    )
-                }
-            }
+            // let listUserCommentObjectParse = JSON.parse(JSON.stringify(listUserCommentObject))
+            // if(listUserCommentObjectParse.length > 0){
+            //     // mảng user._id
+            //     let listUserComment  = listUserCommentObjectParse.map(item => {
+            //         return item._id
+            //     }); 
+            //     let listfilerUserId = listUserComment.filter(item => {
+            //         return item != user._id
+            //     })
+            //     for(let i = 0; i < listfilerUserId.length; i++){
+            //         await NotificationController.createCommentNotify(
+            //             model,
+            //             classs._id,
+            //             ref._id,
+            //             user._id,
+            //             listfilerUserId[i],
+            //             now
+            //         )
+            //     }
+            // }
+            
             if(req.body.ref == 3){
                 await NotificationController.createCommentNotify(
                     model,
@@ -111,13 +124,16 @@ class CommentController{
                 )
             }
             const data = await Comment.findById(commentNew._id).populate('user','-password');
-            return res.json({
+            res.json({
                 success: true,
                 message: "Comment successfully!",
                 data: data,
                 res_code: 200,
                 res_status: "CREATE_SUCCESSFULLY"
-            }) 
+            });
+            if(req.body.ref == 2){
+                await NotificationController.newsNotify(ref._id, user._id, listIdUser, 3) 
+            }
         }
         catch(err){
             console.log(err);

@@ -1,9 +1,6 @@
 const mongoose = require('mongoose');
-const HomeworkNotification = require('../../models/HomeworkNotification');
 const Notification = require('../../models/Notification');
-const CommentNotification = require('../../models/CommentNotification');
 const User = require('../../models/User');
-const ClassNewsNotication = require('../../models/ClassNewsNotification');
 const moment = require('moment');
 class NotificationController{
     async createAssignNotify(classes, ref, sender, receiver){
@@ -109,7 +106,6 @@ class NotificationController{
     }
     async createClassNewsNotify(classes, ref, sender, receiver, type){
         try{
-            let type;
             if(type == 1){
                 type = 'create'
             }
@@ -144,19 +140,16 @@ class NotificationController{
             const amount = Number(req.query.amount) || 10;
             const a = await Notification.find({ receiver: mongoose.Types.ObjectId(user._id) })
             .populate('sender', '-password')
-            .populate('receiver', '-password')
             .populate({
                 path: 'ref',
                 populate:  [{
                     path: 'class',
                 },
                 {
-                    path: 'ref',
-                    populate: [
-                        {
-                            path: 'homework'
-                        }
-                    ]
+                    path: 'homework'
+                },
+                {
+                    path: 'assignment'
                 }
                 ]
             })
@@ -233,6 +226,37 @@ class NotificationController{
                     res_code: 500,
                     res_status: "SERVER_ERROR"
                 });
+        }
+    }
+
+    async newsNotify(newsId, sender, receiver, flag){
+        try{
+            let type = '';
+            if(flag == 1){
+                // thông báo tạo
+                type = "CREATE_NEWS"
+            }
+            if(flag == 2){
+                // thông báo chỉnh sửa
+                type = "UPDATE_NEWS"
+            }
+            if(flag == 3){
+                // thông báo bình luận
+                type = "COMMENT_NEWS"
+            }
+            const now = moment().toDate().toString();
+            await Notification.create({
+                sender: mongoose.Types.ObjectId(sender),
+                receiver: receiver,
+                create_at: now,
+                ref: mongoose.Types.ObjectId(newsId),
+                type: type,
+                onModel: 'ClassNews'
+            });
+        }
+        catch(err){
+            console.log(err)
+            return;
         }
     }
 }
