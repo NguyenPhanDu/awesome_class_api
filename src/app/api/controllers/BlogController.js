@@ -5,7 +5,7 @@ const User = require('../../models/User');
 const Blog = require('../../models/Blog');
 const BlogThumbnail = require('../../models/BlogThumbnail');
 const imgur = require('../../imgur/service');
-const BlogFileSev = require('../../services/file_and_folder/blog');
+const BlogFileSev = require('../../services/file_and_folder/index');
 const FolerServices = require('../../services/file_and_folder/index');
 const File = require('../../models/File')
 class BlogController{
@@ -53,7 +53,7 @@ class BlogController{
                 if(req.files){
                     if(req.files.length> 0){
                         for(let i = 0; i < req.files.length; i++){
-                            await BlogFileSev.uploadfileBlog(user._id, req.files[i], newBlog._id);
+                            await BlogFileSev.uploadFileBlog(user._id, req.files[i], newBlog._id);
                         }
                     }
                 }
@@ -134,7 +134,7 @@ class BlogController{
                 if(req.files){
                     if(req.files.length> 0){
                         for(let i = 0; i < req.files.length; i++){
-                            await BlogFileSev.uploadfileBlog(user._id, req.files[i], blogWantUpdate._id);
+                            await BlogFileSev.uploadFileBlog(user._id, req.files[i], blogWantUpdate._id);
                         }
                     }
                 }

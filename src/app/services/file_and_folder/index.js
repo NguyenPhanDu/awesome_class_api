@@ -197,11 +197,63 @@ async function uploadFileSubmit(classId, userId, file, submitId){
     }
 }
 
+async function uploadFileBlog(userId, file, blogId){
+    try{
+        //Upload file lên drive
+        const fileCreateByDrive = await drive.files.create({
+            resource: {
+                name: file.originalname,
+                mimetype: file.mimetype
+            },
+            media: {
+                mimeType: file.mimetype,
+                body: fs.createReadStream(file.path)
+            }
+        });
+        // Chia sẽ file
+        await drive.permissions.create({
+            fileId: fileCreateByDrive.data.id,
+            requestBody:{
+                role: 'reader',
+                type: 'anyone'
+            }
+        });
+        const linkFileDirve = await drive.files.get({
+            fileId: fileCreateByDrive.data.id,
+            fields: 'webViewLink, webContentLink'
+        });
+
+        const newFile = await File.create({
+            ref: mongoose.Types.ObjectId(blogId),
+            onModel: "Blog",
+            type: "Blog",
+            create_by: mongoose.Types.ObjectId(userId),
+            id_file: fileCreateByDrive.data.id,
+            name: fileCreateByDrive.data.name,
+            mimeType: fileCreateByDrive.data.mimetype,
+            parent: mongoose.Types.ObjectId(folderUser.folder._id),
+            viewLink: linkFileDirve.data.webViewLink,
+            downloadLink: linkFileDirve.data.webContentLink,
+            size: file.size
+        });
+        await Blog.findByIdAndUpdate(blogId, 
+            {
+                $push: {document: newFile._id}
+            }
+        );
+        await fs.unlinkSync(file.path);
+    }
+    catch(err){
+        console.log(err);
+        return;
+    }
+}
 
 module.exports = {
     createClassFolder,
     uploadFileCreateHomeWork,
     deleteFileWhenUpdate,
     uploadFileClassNews,
-    uploadFileSubmit
+    uploadFileSubmit,
+    uploadFileBlog
 }
