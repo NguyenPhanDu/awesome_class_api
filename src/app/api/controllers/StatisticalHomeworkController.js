@@ -174,9 +174,9 @@ class StatisticalHomework{
                 }
             )
             .populate('user','-password');
-            let comments = await Comment.find({ onModel: 'HomeworkAssign', is_delete: false, ref: mongoose.Types.ObjectId(homeworkAssign._id) })
             let result = JSON.parse(JSON.stringify(homeworkAssign));
             let submitted;
+            let comments
             const submit = await SubmitHomework.findOne(
                 {
                     is_delete: false,
@@ -187,6 +187,7 @@ class StatisticalHomework{
             )
             .populate("document", "name viewLink downloadLink size id_files");
             if(submit){
+                comments = await Comment.find({ onModel: 'SubmitHomework', is_delete: false, ref: mongoose.Types.ObjectId(submit._id) })
                 submitted = JSON.parse(JSON.stringify(submit));
                 delete submitted.class_homework;
                 delete submitted.user
@@ -197,7 +198,9 @@ class StatisticalHomework{
             }
             else{
                 submitted = null;
+                comments = []
             }
+            
             result['submitted'] = submitted;
             result['comments'] = comments;
             res.json({
