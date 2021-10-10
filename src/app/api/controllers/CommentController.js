@@ -27,7 +27,7 @@ class CommentController{
                 // Notify
                 const classRoleTeacher = await ClassRole.findOne({id_class_role : 1 });
                 let classRoleTeacherId = classRoleTeacher._id;
-                const allTeacherInClass = await ClassMember.find({ class: mongoose.Types.mongoose(ref.class), role: mongoose.Types.ObjectId(classRoleTeacherId), is_delete: false});
+                const allTeacherInClass = await ClassMember.find({ class: mongoose.Types.ObjectId(ref.class), role: mongoose.Types.ObjectId(classRoleTeacherId), is_delete: false});
                 JSON.parse(JSON.stringify(allTeacherInClass));
                 // push vào mảng học sinh
                 allTeacherInClass.forEach(item => {
