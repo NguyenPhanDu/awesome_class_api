@@ -11,7 +11,6 @@ const moment = require('moment');
 const FolerServices = require('../../services/file_and_folder/index');
 const NotificationController = require('./NotificationController');
 const { parseTimeFormMongo, changeTimeInDBToISOString } = require('../../../helpers/parse_date');
-const Comment = require('../../models/Comment');
 class ClassNewsController{
     async create(req, res){
         try{
