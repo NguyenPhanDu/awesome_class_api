@@ -4,6 +4,7 @@ const Class =require('../../models/Class');
 const ClassHomework = require('../../models/ClassHomework');
 const ClassNews = require('../../models/ClassNews');
 const SubmitHomework = require('../../models/SubmitHomework');
+const HomeworkAssign = require('../../models/HomeworkAssign');
 const Comment = require('../../models/Comment');
 const ClassRole = require('../../models/ClassRole');
 const moment = require('moment');
@@ -33,7 +34,7 @@ class CommentController{
                 allTeacherInClass.forEach(item => {
                     listIdUser.push(item.user);
                 });
-                let a = await HomeworkAssign.findOne({
+                let a = await HomeworkAssign.find({
                     class: mongoose.Types.ObjectId(ref.class),
                     homework: mongoose.Types.ObjectId(ref.homework),
                     onModel: "NormalHomework",
