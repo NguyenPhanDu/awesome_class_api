@@ -18,7 +18,13 @@ class NotificationController{
                     path: 'homework'
                 },
                 {
-                    path: 'assignment'
+                    path: 'assignment',
+                },
+                {
+                    path: 'class_homework',
+                    populate: {
+                        path: 'homework'
+                    }
                 }
                 ]
             })

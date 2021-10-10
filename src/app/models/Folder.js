@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const AutoIncrement = require('mongoose-sequence')(mongoose);
 const Schema = mongoose.Schema;
-
+// BỎ ĐI
 const FolderSchema = Schema(
     {
         id_folder: {

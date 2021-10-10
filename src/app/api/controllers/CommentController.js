@@ -74,8 +74,6 @@ class CommentController{
                         path: 'homework'
                     }
                 });
-
-
                 if(ref.user == user._id){
                     submitSenderComment = user._id;
                     listIdUser.push(ref.class_homework.homework.create_by)
