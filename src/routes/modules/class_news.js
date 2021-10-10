@@ -8,5 +8,6 @@ router.post('/get-detail',ClassNewsController.getDetailNews);
 router.post('/create', upload, ClassNewsController.create);
 router.post('/update', upload, ClassNewsController.update);
 router.post('/delete',ClassNewsController.delete);
+router.get('/get-all-news',ClassNewsController.getAllNewsOfUser);
 
 module.exports = router

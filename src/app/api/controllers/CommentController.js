@@ -11,7 +11,7 @@ const moment = require('moment');
 const NotificationController = require('./NotificationController');
 const ClassMember = require('../../models/ClassMember');
 class CommentController{
-    // Req.body: id_class, ref: 1 là comment của bài tập, 2 là classnews; id: của bài tập hoặc notify, content: nội dung comment
+    // Req.body: ref: 1 là comment của bài tập, 2 là classnews; id: của bài tập hoặc notify, content: nội dung comment
     // ref: 3 , id: id_submit_homework
     async create(req, res){
         try{
@@ -86,11 +86,9 @@ class CommentController{
                 }
             }
             const now = moment().toDate().toString();
-            const classs = await Class.findOne({ id_class: req.body.id_class, is_delete: false});
             const commentNew = await Comment.create({
                 content: req.body.content,
                 user: mongoose.Types.ObjectId(user._id),
-                class: mongoose.Types.ObjectId(classs._id),
                 ref: mongoose.Types.ObjectId(ref._id),
                 onModel: model,
                 create_at: now,

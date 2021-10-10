@@ -11,6 +11,7 @@ const moment = require('moment');
 const FolerServices = require('../../services/file_and_folder/index');
 const NotificationController = require('./NotificationController');
 const { parseTimeFormMongo, changeTimeInDBToISOString } = require('../../../helpers/parse_date');
+const Comment = require('../../models/Comment');
 class ClassNewsController{
     async create(req, res){
         try{
@@ -283,7 +284,41 @@ class ClassNewsController{
             let list  = [];
             const user = await User.findOne({email: res.locals.email})
             let user_id = user._id;
-            // lấy news đc tạo
+            // tìm [] các lớp user tham gia sao đó lặp qua trong mỗi lớp tìm tất cả các news rồi push vào mảng
+            let listClass = await ClassMember.find(
+                {
+                    user: mongoose.Types.ObjectId(user_id),
+                    is_delete: false
+                }
+            );
+            let listClassLenght = listClass.length;
+            for(let i = 0; i< listClassLenght; i++){
+                let listNewsInClass = await ClassNews.find({ class: mongoose.Types.ObjectId(listClass[i].class), is_delete: false })
+                .populate('user', '-password')
+                .populate("document", "name viewLink downloadLink size id_files");
+                JSON.parse(JSON.stringify(listNewsInClass));
+                if(listNewsInClass.length > 0){
+                    for(let i = 0; i < listNewsInClass.length; i++){
+                        const arrayComment = await Comment.find(
+                            { 
+                                is_delete: false,
+                                onModel: 'ClassNews',
+                                ref: mongoose.Types.ObjectId(listNewsInClass[i]._id)
+                            }
+                        ).populate('user','-password')
+                        listNewsInClass[i].comments = arrayComment
+                        list.push(listNewsInClass[i])
+                    }
+                }
+            }
+            const sortNewFeed  = list.sort((a,b) => moment(changeTimeInDBToISOString(b.createdAt), "YYYY-MM-DD HH:mm:ss") - moment(changeTimeInDBToISOString(a.createdAt), "YYYY-MM-DD HH:mm:ss"));
+            res.json({
+                success: true,
+                message: "get all news of use successfull!",
+                data: sortNewFeed,
+                res_code: 200,
+                res_status: "GET_SUCCESSFULLY"
+            })
         }
         catch(err){
             console.log(err);

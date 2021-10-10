@@ -12,10 +12,6 @@ const CommentSchema = Schema(
             type: Schema.Types.ObjectId, 
             ref:  'User'
         },
-        class: {
-            type: Schema.Types.ObjectId, 
-            ref:  'Class'
-        },
         ref: {
             type: Schema.Types.ObjectId,
             refPath: 'onModel'
