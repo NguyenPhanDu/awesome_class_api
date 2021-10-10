@@ -191,7 +191,7 @@ class ClassNewsController{
                         listIdStudent.push(listStudent[i].user)
                     }
                 }
-                await NotificationController.newsNotify(req.body.id_class_news, newsWantUpdate.user._id, listIdStudent, 2)
+                await NotificationController.newsNotify(newsWantUpdate._id, newsWantUpdate.user._id, listIdStudent, 2)
                 const newsUpdate = await ClassNews.findOneAndUpdate(
                     { id_class_news: Number(req.body.id_class_news), is_delete: false },
                     {  
