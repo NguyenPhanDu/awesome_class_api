@@ -187,7 +187,9 @@ class StatisticalHomework{
             )
             .populate("document", "name viewLink downloadLink size id_files");
             if(submit){
+
                 comments = await Comment.find({ onModel: 'SubmitHomework', is_delete: false, ref: mongoose.Types.ObjectId(submit._id) })
+                console.log(comments)
                 submitted = JSON.parse(JSON.stringify(submit));
                 delete submitted.class_homework;
                 delete submitted.user
