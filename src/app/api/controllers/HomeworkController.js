@@ -80,7 +80,7 @@ class HomeWorkController{
                             });
                         }
                         // giáo viên trong lớp trừ bản thân
-                        const allTeacherInClass = await ClassMember.find({ class: mongoose.Types.mongoose(classId), role: mongoose.Types.ObjectId(classRoleTeacherId) ,user: { $ne: mongoose.Types.ObjectId(userId) } });
+                        const allTeacherInClass = await ClassMember.find({ class: mongoose.Types.ObjectId(classId), role: mongoose.Types.ObjectId(classRoleTeacherId) ,user: { $ne: mongoose.Types.ObjectId(userId) } });
                         JSON.parse(JSON.stringify(allTeacherInClass));
                         // push vào mảng học sinh
                         for(let i = 0; i < allTeacherInClass.length; i++){
@@ -100,7 +100,7 @@ class HomeWorkController{
                             };
                         }
                         // tất cả thành viên trong class trừ bản thân
-                        let allMemberInClass = await ClassMember.find({ class: mongoose.Types.mongoose(classId), user: { $ne: mongoose.Types.ObjectId(userId) } });
+                        let allMemberInClass = await ClassMember.find({ class: mongoose.Types.ObjectId(classId), user: { $ne: mongoose.Types.ObjectId(userId) } });
                         JSON.parse(JSON.stringify(allMemberInClass));
                         listIdReceiver  = allMemberInClass.map(item => {
                             return item.user
@@ -185,7 +185,7 @@ class HomeWorkController{
                                 })
                             }
                             // giáo viên trong lớp trừ bản thân
-                            const allTeacherInClass = await ClassMember.find({ class: mongoose.Types.mongoose(classId), role: mongoose.Types.ObjectId(classRoleTeacherId) ,user: { $ne: mongoose.Types.ObjectId(userId) } });
+                            const allTeacherInClass = await ClassMember.find({ class: mongoose.Types.ObjectId(classId), role: mongoose.Types.ObjectId(classRoleTeacherId) ,user: { $ne: mongoose.Types.ObjectId(userId) } });
                             JSON.parse(JSON.stringify(allTeacherInClass));
                             // push vào mảng học sinh
                             for(let i = 0; i < allTeacherInClass.length; i++){
@@ -205,7 +205,7 @@ class HomeWorkController{
                                 };
                             }
                             // tất cả thành viên trong class trừ bản thân
-                            let allMemberInClass = await ClassMember.find({ class: mongoose.Types.mongoose(classId), user: { $ne: mongoose.Types.ObjectId(userId) } });
+                            let allMemberInClass = await ClassMember.find({ class: mongoose.Types.ObjectId(classId), user: { $ne: mongoose.Types.ObjectId(userId) } });
                             JSON.parse(JSON.stringify(allMemberInClass));
                             listIdReceiver  = allMemberInClass.map(item => {
                                 return item.user
@@ -542,7 +542,7 @@ class HomeWorkController{
                 }  
                 if(reqStudent.length > 0 ){
                     // giáo viên trong lớp trừ bản thân
-                    const allTeacherInClass = await ClassMember.find({ class: mongoose.Types.mongoose(classId), role: mongoose.Types.ObjectId(classRoleTeacherId) ,user: { $ne: mongoose.Types.ObjectId(userId) } });
+                    const allTeacherInClass = await ClassMember.find({ class: mongoose.Types.ObjectId(classId), role: mongoose.Types.ObjectId(classRoleTeacherId) ,user: { $ne: mongoose.Types.ObjectId(userId) } });
                     JSON.parse(JSON.stringify(allTeacherInClass));
                     // push vào mảng học sinh
                     for(let i = 0; i < allTeacherInClass.length; i++){
@@ -586,7 +586,7 @@ class HomeWorkController{
                         }
                     }
                 }
-                let allMemberInClass = await ClassMember.find({ class: mongoose.Types.mongoose(classId), user: { $ne: mongoose.Types.ObjectId(userId) } });
+                let allMemberInClass = await ClassMember.find({ class: mongoose.Types.ObjectId(classId), user: { $ne: mongoose.Types.ObjectId(userId) } });
                 JSON.parse(JSON.stringify(allMemberInClass));
                 listReceiver  = allMemberInClass.map(item => {
                     return item.user
