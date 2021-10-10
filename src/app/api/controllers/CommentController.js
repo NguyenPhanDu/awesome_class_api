@@ -73,14 +73,15 @@ class CommentController{
                     populate: {
                         path: 'homework'
                     }
-                });
-                if(ref.user == user._id){
+                })
+                .populate('user')
+                if(ref.user.email == user.email){
                     submitSenderComment = user._id;
                     listIdUser.push(ref.class_homework.homework.create_by)
                 }
                 else{
                     submitSenderComment = ref.class_homework.homework.create_by;
-                    listIdUser.push(ref.user)
+                    listIdUser.push(ref.user._id)
                 }
             }
             const now = moment().toDate().toString();
