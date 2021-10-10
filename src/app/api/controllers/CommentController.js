@@ -219,8 +219,8 @@ class CommentController{
                 ref = await ClassNews.findOne({ id_class_news: req.body.id, is_delete: false })
             }
             if(req.body.ref == 3){
-                model = 'HomeworkAssign';
-                ref = await HomeworkAssign.findOne({ id_homework_assign: req.body.id, is_delete: false })
+                model = 'SubmitHomework';
+                ref = await SubmitHomework.findOne({ id_submit_homework: req.body.id, is_delete: false })
             }
             const comments = await Comment.find({ onModel: model, is_delete: false, ref: mongoose.Types.ObjectId(ref._id) })
             .populate('user', '-password');
