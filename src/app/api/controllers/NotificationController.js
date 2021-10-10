@@ -23,7 +23,10 @@ class NotificationController{
                 {
                     path: 'class_homework',
                     populate: {
-                        path: 'homework'
+                        path: 'homework',
+                        populate: {
+                            path: 'create_by'
+                        }
                     }
                 }
                 ]
