@@ -5,6 +5,7 @@ const ClassHomework = require('../../models/ClassHomework');
 const ClassNews = require('../../models/ClassNews');
 const SubmitHomework = require('../../models/SubmitHomework');
 const Comment = require('../../models/Comment');
+const ClassRole = require('../../models/ClassRole');
 const moment = require('moment');
 const NotificationController = require('./NotificationController');
 const ClassMember = require('../../models/ClassMember');
