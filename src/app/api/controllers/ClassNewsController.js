@@ -294,7 +294,8 @@ class ClassNewsController{
             for(let i = 0; i< listClassLenght; i++){
                 let listNewsInClass = await ClassNews.find({ class: mongoose.Types.ObjectId(listClass[i].class), is_delete: false })
                 .populate('user', '-password')
-                .populate("document", "name viewLink downloadLink size id_files");
+                .populate("document", "name viewLink downloadLink size id_files")
+                .populate("class")
                 JSON.parse(JSON.stringify(listNewsInClass));
                 if(listNewsInClass.length > 0){
                     for(let i = 0; i < listNewsInClass.length; i++){
