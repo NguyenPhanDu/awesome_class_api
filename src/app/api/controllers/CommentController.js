@@ -28,7 +28,7 @@ class CommentController{
                 // Notify
                 const classRoleTeacher = await ClassRole.findOne({id_class_role : 1 });
                 let classRoleTeacherId = classRoleTeacher._id;
-                const allTeacherInClass = await ClassMember.find({ class: mongoose.Types.ObjectId(ref.class), role: mongoose.Types.ObjectId(classRoleTeacherId), is_delete: false});
+                const allTeacherInClass = await ClassMember.find({user: { $ne: mongoose.Types.ObjectId(user._id) }, class: mongoose.Types.ObjectId(ref.class), role: mongoose.Types.ObjectId(classRoleTeacherId), is_delete: false});
                 JSON.parse(JSON.stringify(allTeacherInClass));
                 // push vào mảng học sinh
                 allTeacherInClass.forEach(item => {
@@ -38,16 +38,17 @@ class CommentController{
                     class: mongoose.Types.ObjectId(ref.class),
                     homework: mongoose.Types.ObjectId(ref.homework),
                     onModel: "NormalHomework",
-                    is_delete: false
+                    is_delete: false,
+                    user: { $ne: mongoose.Types.ObjectId(user._id) }
                 });
                 JSON.parse(JSON.stringify(a));
                 a.forEach(item => {
                     listIdUser.push(item.user);
                 });
 
-                listIdUser = listIdUser.filter(item => {
-                    return item != user._id
-                })
+                //listIdUser = listIdUser.filter(item => {
+                //     return item != user._id
+                // })
             }
             if(req.body.ref == 2){
                 model = 'ClassNews';
