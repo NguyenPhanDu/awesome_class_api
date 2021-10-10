@@ -206,7 +206,6 @@ class ClassController{
                                                 path: 'admin',
                                                 select:['profile','email']
                                             });
-            console.log(classFinded)
             if (classFinded && classFinded.admin.email == res.locals.email){
                 await ClassPermission.findOneAndUpdate({_id: mongoose.Types.ObjectId(classFinded.permission)},update,option);
                 await ClassMember.updateMany({ class: mongoose.Types.ObjectId(classFinded._id) },update);

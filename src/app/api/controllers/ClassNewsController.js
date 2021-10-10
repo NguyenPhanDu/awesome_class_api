@@ -10,6 +10,7 @@ const ClassRole = require('../../models/ClassRole');
 const moment = require('moment');
 const FolerServices = require('../../services/file_and_folder/index');
 const NotificationController = require('./NotificationController');
+const { parseTimeFormMongo, changeTimeInDBToISOString } = require('../../../helpers/parse_date');
 class ClassNewsController{
     async create(req, res){
         try{
@@ -41,7 +42,12 @@ class ClassNewsController{
                 const listIdStudent = [];
                 const listStudent = await ClassMember.find({ is_delete: false, class: mongoose.Types.ObjectId(classs._id), role: mongoose.Types.ObjectId(classRole._id) });
                 if(listStudent.length > 0){
-                    for(let i = 0; i < listStudent.length; i++){     
+                    for(let i = 0; i < listStudent.length; i++){
+                        // await ClassNewsAssign.create({ 
+                        //     user: mongoose.Types.ObjectId(listStudent[i].user),
+                        //     class: mongoose.Types.ObjectId(classs._id),
+                        //     class_news: mongoose.Types.ObjectId(classNews._id)
+                        // })     
                         listIdStudent.push(listStudent[i].user)
                     }
                 }
@@ -231,7 +237,7 @@ class ClassNewsController{
     // req.body : id_class_news
     async getDetailNews(req, res){
         try{
-            const news =  await ClassNews.findOne({ id_class_news: Number(req.body.id_class_news) })
+            const news =  await ClassNews.findOne({ id_class_news: Number(req.body.id_class_news), is_delete: false })
             .populate('user', '-password')
             .populate("document", "name viewLink downloadLink size id_files");
             const arrayComment = await Comment.find(
@@ -271,6 +277,26 @@ class ClassNewsController{
             return;
         }
     };
+
+    async getAllNewsOfUser(req, res){
+        try{
+            let list  = [];
+            const user = await User.findOne({email: res.locals.email})
+            let user_id = user._id;
+            // lấy news đc tạo
+        }
+        catch(err){
+            console.log(err);
+            res.json({
+                success: false,
+                message: 'Server error. Please try again.',
+                error: err,
+                res_code: 500,
+                res_status: "SERVER_ERROR"
+            });
+            return
+        }
+    }
 }
 
 module.exports = new ClassNewsController;

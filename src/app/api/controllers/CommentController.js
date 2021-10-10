@@ -45,7 +45,7 @@ class CommentController{
                     listIdUser.push(item.user);
                 });
 
-                listIdUser = listUserComment.filter(item => {
+                listIdUser = listIdUser.filter(item => {
                     return item != user._id
                 })
             }

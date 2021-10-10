@@ -60,7 +60,6 @@ class ClassHomeworkController{
         try{
             const classs = await Class.findOne({id_class : Number(req.body.id_class)})
             let classId = classs._id;
-            console.log(classs)
             const user = await User.findOne( { email: res.locals.email } )
             let userId = user._id;
             let arrayHomework;
@@ -113,7 +112,6 @@ class ClassHomeworkController{
                         is_delete: false,
                     }
                 );
-                console.log(homeworkAssign)
                 let a = JSON.parse(JSON.stringify(homeworkAssign));
                 let b = a.map(x => x.homework)
                 let array = [];
