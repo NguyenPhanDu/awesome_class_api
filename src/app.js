@@ -41,8 +41,9 @@ app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
 app.use(methodOverride('_method'))
 //MORGAN
 app.use(morgan('tiny', {
-  skip: (req, res) => {
-    return !req.path.includes('notification');
+  skip: function(req, res) {
+    console.log(req.path);
+    return req.path.includes('notification');
   }
 }));
 //PASSPORT
