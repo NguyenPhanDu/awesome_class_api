@@ -42,7 +42,7 @@ app.use(methodOverride('_method'))
 //MORGAN
 app.use(morgan('tiny', {
   skip: (req, res) => {
-    return req.path.includes('notification');
+    return !req.path.includes('notification');
   }
 }));
 //PASSPORT
