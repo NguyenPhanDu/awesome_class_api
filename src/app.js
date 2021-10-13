@@ -39,13 +39,7 @@ app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
 
 //MEDTHOD OVERRIDE
 app.use(methodOverride('_method'))
-//MORGAN
-app.use(morgan('tiny', {
-  skip: function(req, res) {
-    console.log(req.path);
-    return req.path.includes('notification');
-  }
-}));
+
 //PASSPORT
 app.use(flash());
 app.use(session({
@@ -65,7 +59,13 @@ app.set('views', path.join(__dirname,'resources', 'views'))
 //Route
 const route = require('./routes/router');
 route(app);
-
+//MORGAN
+app.use(morgan('tiny', {
+  skip: function(req, res) {
+    console.log(req.path);
+    return req.path.includes('notification');
+  }
+}));
 const socketIo = require('./app/services/socket/index');
 socketIo(io);
 
