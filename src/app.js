@@ -40,7 +40,11 @@ app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
 //MEDTHOD OVERRIDE
 app.use(methodOverride('_method'))
 //MORGAN
-app.use(morgan('tiny'));
+app.use(morgan('tiny', {
+  skip: (req, res) => {
+    return req.path.includes('notification');
+  }
+}));
 //PASSPORT
 app.use(flash());
 app.use(session({
