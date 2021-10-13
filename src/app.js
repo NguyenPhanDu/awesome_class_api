@@ -42,7 +42,7 @@ app.use(methodOverride('_method'))
 //MORGAN
 app.use(morgan('tiny', {
   skip: function(req, res) {
-    console.log(req);
+    console.log(req.originalUrl);
     return req.path.includes('notification');
   }
 }));
