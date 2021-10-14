@@ -65,8 +65,8 @@ class ClassController{
                     .then( result =>{
                         newClassPopulate = result
                     })
-                await TeacherPermisstion.create({ class: mongoose.Types.ObjectId(newClass._id) });
-                await StudentPermisstion.create({ class: mongoose.Types.ObjectId(newClass._id) })
+                //await TeacherPermisstion.create({ class: mongoose.Types.ObjectId(newClass._id) });
+                //await StudentPermisstion.create({ class: mongoose.Types.ObjectId(newClass._id) })
                 await res.json({
                     success: true,
                     message: "Create new classroom successfull!",

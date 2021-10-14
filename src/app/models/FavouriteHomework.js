@@ -18,7 +18,7 @@ const FavourateHomeworkSchema = new Schema(
         },
         type: {
             type: String,
-            default: 'homework'
+            default: 'FAVOURATE_EXERCISE'
         }
     },
     {

@@ -18,7 +18,7 @@ const FavourateClassSchema = new Schema(
         },
         type: {
             type: String,
-            default: 'class'
+            default: 'FAVOURATE_CLASS'
         }
     },
     {
