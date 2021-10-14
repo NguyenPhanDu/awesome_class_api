@@ -8,6 +8,7 @@ const ClassHomework = require('../../models/ClassHomework');
 const ClassNews = require('../../models/ClassNews');
 const HomeworkAssgin = require('../../models/HomeworkAssign');
 const FavourateClass = require('../../models/FavouriteClass');
+const FavourateHomework = require('../../models/FavouriteHomework');
 const TeacherPermisstion = require('../../models/TeacherPermisstion');
 const StudentPermisstion = require('../../models/StudentPermisstion');
 const generateRandomCode = require('../../../helpers/index');
@@ -292,7 +293,9 @@ class ClassController{
                         })
                         .catch(error => {
                             console.log(error);
-                        }); 
+                        });
+                    const amountFavourate = await FavourateHomework.countDocuments({ class: mongoose.Types.ObjectId(classs.class._id), is_delete: false});
+                    classs.class.favourate = amountFavourate;
                 }
                 return newClassArray
             })
