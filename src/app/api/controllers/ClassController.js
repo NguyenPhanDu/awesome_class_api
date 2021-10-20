@@ -23,7 +23,7 @@ class ClassController{
             .then(user => {
                 user_id = user._id
             });
-        await ClassRole.findOne({id_class_role: 1})
+        await ClassRole.findOne({id_class_role: 3})
             .then(classRole => {
                 class_role = classRole._id
             });
