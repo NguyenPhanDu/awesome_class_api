@@ -53,10 +53,12 @@ class ClassMemberController{
             // teacher: 609b8123f7510b2328795fd4
             // student: 609b812bf7510b2328795fd5
             let class_role;
+            // học sinh 
             if(req.body.class_role == 1){
                 let classRole  = await ClassRole.findOne({id_class_role: 2})
                 class_role = classRole._id
             }
+            // giáo vi
             if(req.body.class_role == 2){
                 let classRole = await ClassRole.findOne({id_class_role: 1})
                 class_role = classRole._id
@@ -70,33 +72,10 @@ class ClassMemberController{
                 const classMemberInvite = await ClassMember.findOne({ 
                     user: mongoose.Types.ObjectId(user_Invite_id),
                     class: mongoose.Types.ObjectId(classObj._id),
+                    is_delete: false
                 });
-                //tìm kiếm xem tài khoản đã từng là thành viên của lớp hay chưa
-                //nếu có rồi mà trong db đã xóa thì cập nhật lại
-                if(classMemberInvite && classMemberInvite.is_delete == true){
-                    const classMemberInviteUpdate = await ClassMember.findOneAndUpdate(
-                        {
-                            _id: mongoose.Types.ObjectId(classMemberInvite._id)
-                        },
-                        {
-                            status: 2,
-                            is_delete: false,
-                            role: mongoose.Types.ObjectId(class_role)
-                        },
-                        {
-                            new: true
-                        }
-                    );
-                    res.json({
-                        success: true,
-                        message: "Invite member successfull!",
-                        res_code: 200,
-                        res_status: "INVITE_MEMBER_SUCCESSFULLY"
-                    });
-                    await sendInviteMemberEmail(req,userInvite,classObj,classMemberInviteUpdate);
-                }
-                // nếu không xóa thì thông báo đã join rồi
-                else if(classMemberInvite && classMemberInvite.is_delete == false){
+                
+                if(classMemberInvite){
                     return res.json({
                         success: false,
                         message: "This member is joined class.",
@@ -104,7 +83,6 @@ class ClassMemberController{
                         res_status: "NOT_FOUND"
                     })
                 }
-                // chưa có trong data thì tạo mới
                 else{
                     const newClassMember = await ClassMember.create({
                         user: mongoose.Types.ObjectId(user_Invite_id),

@@ -9,7 +9,7 @@ async function sendResetPasswordMail(req,user){
         secure: true,
         auth: {
             user: 'awesomeclass.work@gmail.com',
-            pass: 'du0169460307'
+            pass: 'du0336685195'
         },
         tls: {
             rejectUnauthorized: false
