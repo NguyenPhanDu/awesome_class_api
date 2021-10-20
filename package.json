@@ -30,6 +30,7 @@
     "helmet": "^4.5.0",
     "imgur": "^1.0.2",
     "jsonwebtoken": "^8.5.1",
+    "lodash": "^4.17.21",
     "method-override": "^3.0.0",
     "moment": "^2.29.1",
     "mongoose": "^5.12.4",

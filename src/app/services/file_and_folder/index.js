@@ -231,7 +231,6 @@ async function uploadFileBlog(userId, file, blogId){
             id_file: fileCreateByDrive.data.id,
             name: fileCreateByDrive.data.name,
             mimeType: fileCreateByDrive.data.mimetype,
-            parent: mongoose.Types.ObjectId(folderUser.folder._id),
             viewLink: linkFileDirve.data.webViewLink,
             downloadLink: linkFileDirve.data.webContentLink,
             size: file.size

@@ -8,3 +8,7 @@ COMMENT_EXERCISE
 
 SIGN_SUBMITION
 COMMENT_SUBMITION
+
+thêm trường admin: giáo viên chính vào class role: Khi tạo lớp học tạo lun nó
+
+

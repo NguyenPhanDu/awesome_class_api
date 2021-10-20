@@ -21,7 +21,7 @@ class ClassNewsController{
             const classRole = await ClassRole.findOne({id_class_role : 2})
             const classMember = await ClassMember.findOne({ user :  mongoose.Types.ObjectId(user._id), class : mongoose.Types.ObjectId(classs._id)})
                                         .populate('role');
-            if(classMember.role.id_class_role == 1){
+            if(classMember.role.id_class_role == 1 || classMember.role.id_class_role == 3){
                 // Tạo mới news chưa có file
                 const classNews = await ClassNews.create({
                     user: mongoose.Types.ObjectId(user._id),

@@ -37,7 +37,7 @@ class upLoadFile {
                 .then(classMember => {
                     userRole = classMember.role.id_class_role;
                 });
-        if(userRole == 1){
+        if(userRole == 1 || userRole == 3){
             let homeWorkTypeId;
             await HomeworkType.findOne({id_homework_type: 1})
                     .then(homeWorkType => {

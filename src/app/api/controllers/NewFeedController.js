@@ -28,7 +28,7 @@ class NewFeedController{
             )
             .populate('role')
             let newfeed = [];
-            if(classMember.role.id_class_role == 1){
+            if(classMember.role.id_class_role == 1 || classMember.role.id_class_role == 3){
                 const a = await ClassHomework.find({class: mongoose.Types.ObjectId(classId), is_delete: false})
                 .populate({
                     path: 'homework',

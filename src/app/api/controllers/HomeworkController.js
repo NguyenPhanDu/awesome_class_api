@@ -40,7 +40,7 @@ class HomeWorkController{
             const classMember = await ClassMember.findOne({ user :  mongoose.Types.ObjectId(userId), class : mongoose.Types.ObjectId(classId)})
                                     .populate('role');
             let userRole = classMember.role.id_class_role;
-            if(userRole == 1){
+            if(userRole == 1 || userRole == 3){
                 if(reqCategory == null){
                     let homework = NormalHomework({
                         title: req.body.title,

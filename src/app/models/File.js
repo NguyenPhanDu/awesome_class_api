@@ -29,7 +29,8 @@ const FileSchema = Schema(
         },
         parent : {
             type: Schema.Types.ObjectId, 
-            ref: 'FolderClass'
+            ref: 'FolderClass',
+            default: ''
         },
         path: {
             type: String,

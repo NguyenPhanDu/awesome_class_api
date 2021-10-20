@@ -17,14 +17,17 @@ const NewFeedRouter = require('./modules/new_feed');
 const NotificationRouter = require('./modules/notification');
 const BookMarkRouter = require('./modules/book_mark');
 const BlogController = require('./modules/blog');
+const FileManageRouter = require('./modules/file_management');
+
+
 // MVC
 const siteRouter = require('./mvc/site');
 const AuthMVCRouter = require('./mvc/auth');
 const HomeworkType = require('./mvc/homework_type');
 const UserRouter = require('./mvc/user');
 const NormalUserMVC = require('./mvc/nomarl_user');
+const ClassRoleRouter = require('../app/controllers/ClassRoleController')
 
-const cccc = require('../app/controllers/TestController');
 
 function route(app){
     // API ROUTER
@@ -47,14 +50,15 @@ function route(app){
     app.use('/api/notification', NotificationRouter);
     app.use('/api/book-mark', BookMarkRouter);
     app.use('/api/blog', BlogController);
+    app.use('/api/file-management', FileManageRouter);
+
     //MVC ROUTER
     app.use('/admin/',siteRouter);
     app.use('/admin/',AuthMVCRouter);
     app.use('/homework-type', HomeworkType);
     app.use('/admin/users/nomarl-users/',NormalUserMVC);
 
-    app.get('/cc', cccc.ccc);
-
+    app.post('/class-role',ClassRoleRouter.store);
 }
 
 module.exports = route;
