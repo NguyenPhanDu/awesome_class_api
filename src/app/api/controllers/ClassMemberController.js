@@ -122,35 +122,45 @@ class ClassMemberController{
         }
     }
     async accpetInvited(req, res){
-        let statusRole;
-        await ClassMember.findOne({id_class_member: Number(req.query.idClass)})
-            .populate('role')
-            .then(classMember => {
-                if(classMember.status == 1 || classMember.status == 3){
-                    return res.json({
-                        success: false,
-                        message: "Email is activated.",
-                        res_code: 401,
-                        res_status: "EMAIL_IS_ACTIVATED"
-                    })
-                }
-                if(classMember.role.id_class_role == 1){
-                    statusRole = 1;
-                }
-                if(classMember.role.id_class_role == 2){
-                    statusRole = 1;
-                }
-            })
-        let query = {id_class_member: Number(req.query.idClass)};
-        let update = 
-            {
-                status: statusRole
-            };
-        let option = {new: true};
-        await ClassMember.findOneAndUpdate(query, update, option)
-        .then(result =>{
+        try{
+            let statusRole;
+            const classMember = await ClassMember.findOne({id_class_member: Number(req.query.idClass)})
+            .populate('role');
+            
+            if(classMember.status == 1 || classMember.status == 3){
+                return res.json({
+                    success: false,
+                    message: "Email is activated.",
+                    res_code: 401,
+                    res_status: "EMAIL_IS_ACTIVATED"
+                })
+            }
+            if(classMember.role.id_class_role == 1){
+                statusRole = 1;
+            }
+            if(classMember.role.id_class_role == 2){
+                statusRole = 1;
+            }
+            let query = {id_class_member: Number(req.query.idClass)};
+            let update = 
+                {
+                    status: statusRole
+                };
+            let option = {new: true};
+            await ClassMember.findOneAndUpdate(query, update, option)
             res.redirect(`${process.env.ENDPOINTFE}`)
-        })
+        }
+        catch(err){
+            console.log(err);
+            res.json({
+                success: false,
+                message: 'Server error. Please try again',
+                error: err,
+                res_code: 500,
+                res_status: "SERVER_ERROR"
+            });
+            return;
+        }
     };
 
     async deleteMember(req, res){

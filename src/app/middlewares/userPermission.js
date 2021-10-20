@@ -49,6 +49,33 @@ async function limitClassCreation(req, res, next){
     }
 }
 
+async function limitMemberInClass(req, res, next){
+    try{
+        const a = await Class.findOne({ id_class: req.body.id_class })
+        if(a){
+            next();
+        }
+        else{
+            return res.json({
+                success: false,
+                message: "cccc!",
+                res_status: "LIMIT_CLASS_NORMAL"
+            });
+        }
+    }
+    catch(err){
+        console.log(err);
+        res.json({
+            success: false,
+            message: 'Server error. Please try again',
+            error: err,
+            res_code: 500,
+            res_status: "SERVER_ERROR"
+        });
+    }
+}
+
 module.exports = {
-    limitClassCreation
+    limitClassCreation,
+    limitMemberInClass
 }
