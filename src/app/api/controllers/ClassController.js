@@ -469,7 +469,6 @@ class ClassController{
                                     })
                             }
                             if(classMember.is_delete == true){
-                                console.log("eeee")
                                 let query = {class: mongoose.Types.ObjectId(classMember.class), user: mongoose.Types.ObjectId(classMember.user)};
                                 let update = 
                                     {
@@ -609,6 +608,46 @@ class ClassController{
             });
             return;
         }
+    }
+
+    async joinClasses(req, res){
+        try{
+            const classMember = await ClassMember.findOne({ class: req.class._id, user: res.locals._id, is_delete: false });
+            if(classMember){
+                return res.json({
+                    success: false,
+                    message: "You joined class",
+                    res_code: 403,
+                    res_status: "FAILT"
+                })
+            }
+            else{
+                await ClassMember.create({
+                    user: res.locals._id,
+                    class: req.class,
+                    role: req.studentRole,
+                    status: 1
+                })
+            }
+            res.json({
+                success: true,
+                message: "Join class successfull!",
+                res_code: 200,
+                res_status: "GET_SUCCESSFULLY"
+            })
+            
+        }
+        catch(err){
+            console.log(err)
+            return res.json({
+                success: false,
+                message: 'Server error. Please try again.',
+                error: err,
+                res_code: 500,
+                res_status: "SERVER_ERROR"
+            });
+        }
+        
     }
 
 }

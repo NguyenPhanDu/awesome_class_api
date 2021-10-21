@@ -53,6 +53,7 @@ async function limitMemberInClass(req, res, next){
     try{
         const a = await Class.findOne({ id_class: req.body.id_class })
         if(a){
+            req.class = a;
             next();
         }
         else{
@@ -75,7 +76,87 @@ async function limitMemberInClass(req, res, next){
     }
 }
 
+async function limitMemberInClassWhileJoinClass(req, res, next){
+    try{
+        const studentRole = await ClassRole.findOne({id_class_role: 2});
+        const classWantJoin = await Class.findOne({ class_code: req.body.class_code })
+        .populate([
+            {
+                path: 'permission'
+            },
+            {
+                path: 'admin',
+                populate: {
+                    path: 'user_type'
+                }
+            }
+        ])
+        if(classWantJoin){
+            if(classWantJoin.permission.joinable_by_code == true){
+                const amountStudent = await ClassMember.countDocuments({class: classWantJoin._id, is_delete: false , role: studentRole._id});
+                if(classWantJoin.admin.user_type.id_user_type == 2){
+                    if(amountStudent > 1){
+                        console.log("Middle đúng")
+                        return res.json({
+                            success: false,
+                            message: "Student in class is full",
+                            res_status: "LIMIT_CLASS_NORMAL"
+                        });
+                    }
+                    else{
+                        req.studentRole = studentRole;
+                        req.class = classWantJoin;
+                        return next();
+                    }
+                }
+                else{
+                    if(amountStudent > 150){
+                        return res.json({
+                            success: false,
+                            message: "Student in class is full",
+                            res_status: "LIMIT_CLASS_NORMAL"
+                        });
+                    }
+                    else{
+                        req.studentRole = studentRole;
+                        req.class = classWantJoin;
+                        return next();
+                    }
+                }
+            }
+            else{
+                return res.json({
+                    success: false,
+                    message: "This class unenable to join",
+                    res_code: 403,
+                    res_status: "UNENABLE_TO_JOIN"
+                })
+            }
+        }
+        else{
+            return res.json({
+                success: false,
+                message: "Class not found",
+                res_code: 403,
+                res_status: "NOT_FOUND"
+            })
+        }
+    }
+    catch(err){
+        console.log(err)
+        return res.json({
+            success: false,
+            message: 'Server error. Please try again.',
+            error: err,
+            res_code: 500,
+            res_status: "SERVER_ERROR"
+        });
+    }
+    
+}
+
 module.exports = {
     limitClassCreation,
-    limitMemberInClass
+    limitMemberInClass,
+    limitMemberInClassWhileJoinClass
 }

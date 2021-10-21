@@ -9,6 +9,7 @@ const BlogFileSev = require('../../services/file_and_folder/index');
 const FolerServices = require('../../services/file_and_folder/index');
 const File = require('../../models/File')
 class BlogController{
+    // req.body.title, description, thumbnail
     async createBlog(req, res){
         try{
             const user = await User.findOne({ email: res.locals.email }).populate('user_type');

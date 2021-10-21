@@ -168,7 +168,7 @@ async function testThoi(req, res){
             return _.omit(obj,['class.description'])
         })
         res.json(
-            a
+            req.class
         )
     }
     catch(err){

@@ -9,6 +9,12 @@ COMMENT_EXERCISE
 SIGN_SUBMITION
 COMMENT_SUBMITION
 
-thêm trường admin: giáo viên chính vào class role: Khi tạo lớp học tạo lun nó
+tọa thông báo mời
+
+kiểm tra khi có người dùng tham gia lớp học => đếm sô học sinh để kiểm tra mai phải xong tối báo cáo
+khi mời nếu mời học sinh => đếm xem sô học sinh trong lớp có tới giới hạn chưa
+khi mời nếu giáo viên => đếm xem số học sinh đủ chưa
+
+
 
 
