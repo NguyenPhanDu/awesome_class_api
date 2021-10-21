@@ -98,7 +98,7 @@ async function limitMemberInClassWhileJoinClass(req, res, next){
                 const amountStudent = await ClassMember.countDocuments({class: classWantJoin._id, is_delete: false , role: studentRole._id});
                 console.log('so luong'+amountStudent)
                 if(classWantJoin.admin.user_type.id_user_type == 2){
-                    if(amountStudent > 1){
+                    if(amountStudent >= 1){
                         return res.json({
                             success: false,
                             message: "Student in class is full",
@@ -112,7 +112,7 @@ async function limitMemberInClassWhileJoinClass(req, res, next){
                     }
                 }
                 else{
-                    if(amountStudent > 150){
+                    if(amountStudent >= 150){
                         return res.json({
                             success: false,
                             message: "Student in class is full",
