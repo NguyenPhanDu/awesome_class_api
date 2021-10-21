@@ -331,7 +331,7 @@ class ClassController{
                 classId = result._id
             });
         let member;
-        await ClassMember.countDocuments({class: mongoose.Types.ObjectId(classId)})
+        await ClassMember.countDocuments({class: mongoose.Types.ObjectId(classId), is_delete: false})
             .then(count =>{
                 member = count;
             })
