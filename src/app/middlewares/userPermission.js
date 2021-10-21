@@ -1,6 +1,7 @@
 const UserType = require('../models/UserType');
 const User = require('../models/User')
 const Class = require('../models/Class');
+const ClassRole = require('../models/ClassRole');
 async function limitClassCreation(req, res, next){
     try{
         const user = await User.findOne({ email : res.locals.email })
