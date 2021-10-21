@@ -386,170 +386,6 @@ class ClassController{
         })
     };
 
-    async joinClass(req, res){
-        let user_id;
-        let role_id;
-        await User.findOne({email : req.body.email})
-            .then(user => {
-                user_id = user._id
-            });
-        await ClassRole.findOne({id_class_role: 2})
-            .then(classRole => {
-                role_id = classRole._id;
-            });
-        await Class.findOne({ class_code: req.body.class_code })
-            .populate('permission')
-            .then(async classes => {
-                if(!classes){
-                    return res.json({
-                        success: false,
-                        message: "Class not found",
-                        res_code: 403,
-                        res_status: "NOT_FOUND"
-                    })
-                }
-                if(classes.permission.joinable_by_code == true){
-                    await ClassMember.findOne({ class: mongoose.Types.ObjectId(classes._id), user: mongoose.Types.ObjectId(user_id)})
-                        .then(async classMember => {
-                            if(!classMember){
-                                const newClassMember = ClassMember({
-                                    user: mongoose.Types.ObjectId(user_id),
-                                    class: mongoose.Types.ObjectId(classes._id),
-                                    role: mongoose.Types.ObjectId(role_id),
-                                    status: 1
-                                })
-                                await newClassMember.save()
-                                    .then( async newClassMemberSave => {
-                                        await ClassMember.findOne({ class: mongoose.Types.ObjectId(newClassMemberSave.class), user: mongoose.Types.ObjectId(newClassMemberSave.user)})
-                                            .populate({
-                                                path: 'user',
-                                                select:['profile','email']
-                                            })
-                                            .populate('role')
-                                            .populate(
-                                                {
-                                                    path: 'class',
-                                                    populate: [{
-                                                        path: 'admin',
-                                                        select:['profile','email']
-                                                    },
-                                                    {
-                                                        path: 'permission',
-                                                    }
-                                                    ]
-                                                }
-                                            )
-                                            .then(result => {
-                                                return res.json({
-                                                    success: true,
-                                                    message: "Join class successfull!",
-                                                    data: result,
-                                                    res_code: 200,
-                                                    res_status: "GET_SUCCESSFULLY"
-                                                })
-                                            })
-                                            .catch(err => {
-                                                return res.json({
-                                                    success: false,
-                                                    message: 'Server error. Please try again.',
-                                                    error: err,
-                                                    res_code: 500,
-                                                    res_status: "SERVER_ERROR"
-                                                });
-                                            })
-                                    })
-                                    .catch(err => {
-                                        return res.json({
-                                            success: false,
-                                            message: 'Server error. Please try again.',
-                                            error: err,
-                                            res_code: 500,
-                                            res_status: "SERVER_ERROR"
-                                        });
-                                    })
-                            }
-                            if(classMember.is_delete == true){
-                                let query = {class: mongoose.Types.ObjectId(classMember.class), user: mongoose.Types.ObjectId(classMember.user)};
-                                let update = 
-                                    {
-                                        is_delete: false
-                                    };
-                                let option = {new: true};
-                                await ClassMember.findOneAndUpdate(query, update, option)
-                                    .populate({
-                                        path: 'user',
-                                        select:['profile','email']
-                                    })
-                                    .populate('role')
-                                    .populate(
-                                        {
-                                            path: 'class',
-                                            populate: [{
-                                                path: 'admin',
-                                                select:['profile','email']
-                                            },
-                                            {
-                                                path: 'permission',
-                                            }
-                                            ]
-                                        }
-                                    )
-                                    .then(result => {
-                                
-                                        return res.json({
-                                            success: true,
-                                            message: "Join class successfull!",
-                                            data: result,
-                                            res_code: 200,
-                                            res_status: "GET_SUCCESSFULLY"
-                                        })
-                                    })
-                                    .catch(err => {
-                                        return res.json({
-                                            success: false,
-                                            message: 'Server error. Please try again.',
-                                            error: err,
-                                            res_code: 500,
-                                            res_status: "SERVER_ERROR"
-                                        });
-                                    })
-                            }
-                            return res.json({
-                                success: false,
-                                message: "You joined class",
-                                res_code: 403,
-                                res_status: "FAILT"
-                            })
-                        })
-                        .catch(err => {
-                            return res.json({
-                                success: false,
-                                message: 'Server error. Please try again.',
-                                error: err,
-                                res_code: 500,
-                                res_status: "SERVER_ERROR"
-                            });
-                        })
-                }
-                else{
-                    return res.json({
-                        success: false,
-                        message: "This class unenable to join",
-                        res_code: 403,
-                        res_status: "UNENABLE_TO_JOIN"
-                    })
-                }
-            })
-            .catch(err => {
-                return res.json({
-                    success: false,
-                    message: 'Server error. Please try again.',
-                    error: err,
-                    res_code: 500,
-                    res_status: "SERVER_ERROR"
-                });
-            })
-    }
     // req.body: id_class, image
     async updateClassImage(req, res){
         try{
@@ -622,15 +458,35 @@ class ClassController{
                 })
             }
             else{
-                const a = await ClassMember.create({
+                const newMember = await ClassMember.create({
                     user: res.locals._id,
                     class: req.class,
                     role: req.studentRole,
                     status: 1
+                });
+                const result = await ClassMember.findOne({ _id:  newMember._id})
+                .populate({
+                    path: 'user',
+                    select:['profile','email']
                 })
+                .populate('role')
+                .populate(
+                    {
+                        path: 'class',
+                        populate: [{
+                            path: 'admin',
+                            select:['profile','email']
+                        },
+                        {
+                            path: 'permission',
+                        }
+                        ]
+                    }
+                )
                 res.json({
                     success: true,
                     message: "Join class successfull!",
+                    data: result,
                     res_code: 200,
                     res_status: "GET_SUCCESSFULLY"
                 })
