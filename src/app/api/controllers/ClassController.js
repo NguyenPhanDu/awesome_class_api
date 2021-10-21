@@ -622,19 +622,39 @@ class ClassController{
                 })
             }
             else{
-                await ClassMember.create({
+                const a = await ClassMember.create({
                     user: res.locals._id,
                     class: req.class,
                     role: req.studentRole,
                     status: 1
+                }).populate({
+                    path: 'user',
+                    select:['profile','email']
+                })
+                .populate('role')
+                .populate(
+                    {
+                        path: 'class',
+                        populate: [{
+                            path: 'admin',
+                            select:['profile','email']
+                        },
+                        {
+                            path: 'permission',
+                        }
+                        ]
+                    }
+                )
+
+                res.json({
+                    success: true,
+                    message: "Join class successfull!",
+                    data: a,
+                    res_code: 200,
+                    res_status: "GET_SUCCESSFULLY"
                 })
             }
-            res.json({
-                success: true,
-                message: "Join class successfull!",
-                res_code: 200,
-                res_status: "GET_SUCCESSFULLY"
-            })
+            
             
         }
         catch(err){

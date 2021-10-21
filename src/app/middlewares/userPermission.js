@@ -96,9 +96,9 @@ async function limitMemberInClassWhileJoinClass(req, res, next){
         if(classWantJoin){
             if(classWantJoin.permission.joinable_by_code == true){
                 const amountStudent = await ClassMember.countDocuments({class: classWantJoin._id, is_delete: false , role: studentRole._id});
+                console.log('so luong'+amountStudent)
                 if(classWantJoin.admin.user_type.id_user_type == 2){
                     if(amountStudent > 1){
-                        console.log("Middle đúng")
                         return res.json({
                             success: false,
                             message: "Student in class is full",
@@ -127,7 +127,7 @@ async function limitMemberInClassWhileJoinClass(req, res, next){
                 }
             }
             else{
-                return res.json({
+                res.json({
                     success: false,
                     message: "This class unenable to join",
                     res_code: 403,
@@ -136,9 +136,9 @@ async function limitMemberInClassWhileJoinClass(req, res, next){
             }
         }
         else{
-            return res.json({
+            res.json({
                 success: false,
-                message: "Class not found",
+                message: "Class not foundsss",
                 res_code: 403,
                 res_status: "NOT_FOUND"
             })
