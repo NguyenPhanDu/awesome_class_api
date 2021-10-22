@@ -135,7 +135,7 @@ class ClassMemberController {
                     const newClassMember = await ClassMember.create({
                         user: mongoose.Types.ObjectId(user_Invite_id),
                         role: mongoose.Types.ObjectId(req.class_role),
-                        class: mongoose.Types.ObjectId(classObj._id),
+                        class: mongoose.Types.ObjectId(req.class._id),
                         status: 2
                     });
                     res.json({
