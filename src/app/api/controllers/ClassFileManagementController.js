@@ -78,97 +78,20 @@ async function showAllFileInClass(req, res){
 
 async function testThoi(req, res){
     try{
-        let z = [
-            {
-                "path": "",
-                "is_delete": false,
-                "_id": "616d8b75f180461b0f143934",
-                "id_folder": "1Xtk5loA56UPq37o9u8uO2NE8wIi-0WJi",
-                "name": "47",
-                "class": {
-                    "is_delete": true,
-                    "description": "abcaccbegegeg",
-                    "category": "abc",
-                    "image": "",
-                    "_id": "616d8b74f180461b0f14392d",
-                    "admin": "60c40f6df6966008d82459af",
-                    "name": "abc",
-                    "class_code": "9jYvgm",
-                    "permission": "616d8b74f180461b0f143929",
-                    "createdAt": "2021-10-18T14:57:56.243Z",
-                    "updatedAt": "2021-10-20T11:09:43.968Z",
-                    "id_class": 47,
-                    "__v": 0
-                },
-                "createdAt": "2021-10-18T14:57:57.108Z",
-                "updatedAt": "2021-10-18T14:57:57.108Z",
-                "id_folder_class": 32,
-                "__v": 0
-            },
-            {
-                "path": "",
-                "is_delete": false,
-                "_id": "616d8b75f180461b0f143934",
-                "id_folder": "1Xtk5loA56UPq37o9u8uO2NE8wIi-0WJi",
-                "name": "47",
-                "class": {
-                    "is_delete": true,
-                    "description": "abcaccbegegeg",
-                    "category": "abc",
-                    "image": "",
-                    "_id": "616d8b74f180461b0f14392d",
-                    "admin": "60c40f6df6966008d82459af",
-                    "name": "abc",
-                    "class_code": "9jYvgm",
-                    "permission": "616d8b74f180461b0f143929",
-                    "createdAt": "2021-10-18T14:57:56.243Z",
-                    "updatedAt": "2021-10-20T11:09:43.968Z",
-                    "id_class": 47,
-                    "__v": 0
-                },
-                "createdAt": "2021-10-18T14:57:57.108Z",
-                "updatedAt": "2021-10-18T14:57:57.108Z",
-                "id_folder_class": 32,
-                "__v": 0
-            },
-            {
-                "path": "",
-                "is_delete": false,
-                "_id": "616d8b75f180461b0f143934",
-                "id_folder": "1Xtk5loA56UPq37o9u8uO2NE8wIi-0WJi",
-                "name": "47",
-                "class": {
-                    "is_delete": true,
-                    "description": "abcaccbegegeg",
-                    "category": "abc",
-                    "image": "",
-                    "_id": "616d8b74f180461b0f14392d",
-                    "admin": "60c40f6df6966008d82459af",
-                    "name": "abc",
-                    "class_code": "9jYvgm",
-                    "permission": "616d8b74f180461b0f143929",
-                    "createdAt": "2021-10-18T14:57:56.243Z",
-                    "updatedAt": "2021-10-20T11:09:43.968Z",
-                    "id_class": 47,
-                    "__v": 0
-                },
-                "createdAt": "2021-10-18T14:57:57.108Z",
-                "updatedAt": "2021-10-18T14:57:57.108Z",
-                "id_folder_class": 32,
-                "__v": 0
-            }
-        ]
-
         let folder = await FolderClass.findOne({ is_delete: false, id_folder_class: req.body.id_folder_class})
-        .populate({
-            path: 'class'
-        });
-        
-        const a =  _.map(z, (obj) => {
-            return _.omit(obj,['class.description'])
-        })
+        .populate([{
+            path: 'class',
+            populate: {
+                path: 'user'
+            }
+        },{
+            path: 'user',
+            select: 'name'
+        }
+        ]);
+        const a = _.omit(folder.toJSON(), ['class'])
         res.json(
-            req.class
+            folder
         )
     }
     catch(err){

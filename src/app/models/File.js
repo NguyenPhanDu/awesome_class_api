@@ -30,7 +30,7 @@ const FileSchema = Schema(
         parent : {
             type: Schema.Types.ObjectId, 
             ref: 'FolderClass',
-            default: ''
+            default: null
         },
         path: {
             type: String,

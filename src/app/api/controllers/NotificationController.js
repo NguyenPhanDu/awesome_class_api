@@ -2,6 +2,8 @@ const mongoose = require('mongoose');
 const Notification = require('../../models/Notification');
 const User = require('../../models/User');
 const moment = require('moment');
+const _ = require("lodash");
+
 class NotificationController{
     async getAllNotifyOfUser(req, res){
         try{
@@ -11,6 +13,7 @@ class NotificationController{
             .populate('sender', '-password')
             .populate({
                 path: 'ref',
+                select: 'name -_id id_class',
                 populate:  [{
                     path: 'class',
                 },
@@ -201,7 +204,22 @@ class NotificationController{
         }
     }
     
-    
+    // model class
+    async inviteClassNotify(classId, sender, receiver, flag){
+        let type = '';
+        if(flag = 1){
+            type = "CLASS_INVITE"
+        }
+        const now = moment().toDate().toString();
+        await Notification.create({
+            sender: mongoose.Types.ObjectId(sender),
+            receiver: receiver,
+            create_at: now,
+            ref: mongoose.Types.ObjectId(classId),
+            type: type,
+            onModel: 'Class'
+        })
+    }
 }
 
 module.exports = new NotificationController

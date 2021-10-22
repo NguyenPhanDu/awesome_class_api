@@ -16,5 +16,7 @@ khi mời nếu mời học sinh => đếm xem sô học sinh trong lớp có t�
 khi mời nếu giáo viên => đếm xem số học sinh đủ chưa
 
 
+kiểm tra
 
+if()
 

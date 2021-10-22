@@ -28,7 +28,7 @@ const NotificationSchema = Schema(
         onModel: {
             type: String,
             require: true,
-            enum: [ 'ClassHomework', 'ClassNews', 'SubmitHomework']
+            enum: [ 'ClassHomework', 'ClassNews', 'SubmitHomework', 'Class']
         },
         type: {
             type: String

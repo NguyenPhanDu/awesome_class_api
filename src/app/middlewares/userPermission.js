@@ -108,7 +108,7 @@ async function limitMemberInClassWhileJoinClass(req, res, next){
                     else{
                         req.studentRole = studentRole;
                         req.class = classWantJoin;
-                        return next();
+                        next();
                     }
                 }
                 else{
@@ -122,7 +122,7 @@ async function limitMemberInClassWhileJoinClass(req, res, next){
                     else{
                         req.studentRole = studentRole;
                         req.class = classWantJoin;
-                        return next();
+                        next();
                     }
                 }
             }
@@ -157,8 +157,153 @@ async function limitMemberInClassWhileJoinClass(req, res, next){
     
 }
 
+async function limitMemberInClassWhileInviteClass(req, res, next){
+    try {
+        const classObj = await Class.findOne({ id_class: req.body.id_class })
+        .populate([
+            {
+                path: 'permission'
+            },
+            {
+                path: 'admin',
+                populate: {
+                    path: 'user_type'
+                }
+            }
+        ])
+        // teacher: 609b8123f7510b2328795fd4
+        // student: 609b812bf7510b2328795fd5
+        let class_role;
+        let amountMember;
+        // mời học sinh 
+        if (req.body.class_role == 1) {
+            let classRole = await ClassRole.findOne({ id_class_role: 2 })
+            class_role = classRole._id;
+            amountMember = await ClassMember.countDocuments({class: classObj._id, is_delete: false , role: class_role});
+            if(classObj.admin.user_type.id_user_type == 2){
+                if(amountMember >= 50){
+                    return res.json({
+                        success: false,
+                        message: "Student in class is full",
+                        res_status: "LIMIT_CLASS_NORMAL"
+                    });
+                }
+                else{
+                    req.class_role = class_role;
+                    req.class = classObj;
+                    next();
+                }
+            }
+            else{
+                if(amountMember >= 150){
+                    return res.json({
+                        success: false,
+                        message: "Student in class is full",
+                        res_status: "LIMIT_CLASS_NORMAL"
+                    });
+                }
+                else{
+                    req.class_role = class_role;
+                    req.class = classObj;
+                    next();
+                }
+            }
+        }
+        // mời giáo viên
+        if (req.body.class_role == 2) {
+            let classRole = await ClassRole.findOne({ id_class_role: 1 })
+            class_role = classRole._id;
+            amountMember = await ClassMember.countDocuments({class: classObj._id, is_delete: false , role: class_role});
+            if(classObj.admin.user_type.id_user_type == 2){
+                if(amountMember >= 5){
+                    return res.json({
+                        success: false,
+                        message: "Student in class is full",
+                        res_status: "LIMIT_CLASS_NORMAL"
+                    });
+                }
+                else{
+                    req.class_role = class_role;
+                    req.class = classObj;
+                    next();
+                }
+            }
+            else{
+                if(amountMember >= 20){
+                    return res.json({
+                        success: false,
+                        message: "Student in class is full",
+                        res_status: "LIMIT_CLASS_NORMAL"
+                    });
+                }
+                else{
+                    req.class_role = class_role;
+                    req.class = classObj;
+                    next();
+                }
+            }
+        }
+
+        // const userInvite = await User.findOne({ email: req.body.email_invite })
+        // // tìm tài khoản mời trong database
+        // // nếu có
+        // if (userInvite) {
+        //     let user_Invite_id = userInvite._id;
+        //     const classMemberInvite = await ClassMember.findOne({
+        //         user: mongoose.Types.ObjectId(user_Invite_id),
+        //         class: mongoose.Types.ObjectId(classObj._id),
+        //         is_delete: false
+        //     });
+
+        //     if (classMemberInvite) {
+        //         return res.json({
+        //             success: false,
+        //             message: "This member is joined class.",
+        //             res_code: 403,
+        //             res_status: "NOT_FOUND"
+        //         })
+        //     }
+        //     else {
+        //         const newClassMember = await ClassMember.create({
+        //             user: mongoose.Types.ObjectId(user_Invite_id),
+        //             role: mongoose.Types.ObjectId(class_role),
+        //             class: mongoose.Types.ObjectId(classObj._id),
+        //             status: 2
+        //         });
+        //         res.json({
+        //             success: true,
+        //             message: "Invite member successfull!",
+        //             res_code: 200,
+        //             res_status: "INVITE_MEMBER_SUCCESSFULLY"
+        //         });
+        //         await sendInviteMemberEmail(req, userInvite, classObj, newClassMember);
+        //     }
+        // }
+        // // nếu không thông báo không tìm thấy
+        // else {
+        //     return res.json({
+        //         success: false,
+        //         message: "Email Not found.",
+        //         res_code: 403,
+        //         res_status: "EMAIL_NOT_FOUND"
+        //     })
+        // }
+    }
+    catch (err) {
+        console.log(err);
+        res.json({
+            success: false,
+            message: 'Server error. Please try again.',
+            error: err,
+            res_code: 500,
+            res_status: "SERVER_ERROR"
+        });
+    }
+}
+
 module.exports = {
     limitClassCreation,
     limitMemberInClass,
-    limitMemberInClassWhileJoinClass
+    limitMemberInClassWhileJoinClass,
+    limitMemberInClassWhileInviteClass
 }

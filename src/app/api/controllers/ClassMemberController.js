@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const _ = require("lodash");
 const Class = require('../../models/Class');
 const ClassMember = require('../../models/ClassMember');
 const ClassRole = require('../../models/ClassRole');
@@ -6,6 +7,7 @@ const User = require('../../models/User');
 const HomeworkAssgin = require('../../models/HomeworkAssign');
 const ClassNewsAssign = require('../../models/ClassNewsAssign');
 const SubmitHomework = require('../../models/SubmitHomework');
+const NotificationController = require('../../api/controllers/NotificationController');
 const sendInviteMemberEmail = require('../../mailers/sendEmailActivate/sendEmailInviteMember');
 require('dotenv').config();
 class ClassMemberController {
@@ -50,28 +52,74 @@ class ClassMemberController {
 
     async inviteMember(req, res) {
         try {
-            // teacher: 609b8123f7510b2328795fd4
-            // student: 609b812bf7510b2328795fd5
-            let class_role;
-            // học sinh 
-            if (req.body.class_role == 1) {
-                let classRole = await ClassRole.findOne({ id_class_role: 2 })
-                class_role = classRole._id
-            }
-            // giáo vi
-            if (req.body.class_role == 2) {
-                let classRole = await ClassRole.findOne({ id_class_role: 1 })
-                class_role = classRole._id
-            }
-            const classObj = await Class.findOne({ id_class: req.body.id_class })
+            // // teacher: 609b8123f7510b2328795fd4
+            // // student: 609b812bf7510b2328795fd5
+            // let class_role;
+            // // học sinh 
+            // if (req.body.class_role == 1) {
+            //     let classRole = await ClassRole.findOne({ id_class_role: 2 })
+            //     class_role = classRole._id
+            // }
+            // // giáo vi
+            // if (req.body.class_role == 2) {
+            //     let classRole = await ClassRole.findOne({ id_class_role: 1 })
+            //     class_role = classRole._id
+            // }
+            // const classObj = await Class.findOne({ id_class: req.body.id_class })
+            // const userInvite = await User.findOne({ email: req.body.email_invite })
+            // // tìm tài khoản mời trong database
+            // // nếu có
+            // if (userInvite) {
+            //     let user_Invite_id = userInvite._id;
+            //     const classMemberInvite = await ClassMember.findOne({
+            //         user: mongoose.Types.ObjectId(user_Invite_id),
+            //         class: mongoose.Types.ObjectId(classObj._id),
+            //         is_delete: false
+            //     });
+
+            //     if (classMemberInvite) {
+            //         return res.json({
+            //             success: false,
+            //             message: "This member is joined class.",
+            //             res_code: 403,
+            //             res_status: "NOT_FOUND"
+            //         })
+            //     }
+            //     else {
+            //         const newClassMember = await ClassMember.create({
+            //             user: mongoose.Types.ObjectId(user_Invite_id),
+            //             role: mongoose.Types.ObjectId(class_role),
+            //             class: mongoose.Types.ObjectId(classObj._id),
+            //             status: 2
+            //         });
+            //         res.json({
+            //             success: true,
+            //             message: "Invite member successfull!",
+            //             res_code: 200,
+            //             res_status: "INVITE_MEMBER_SUCCESSFULLY"
+            //         });
+            //         await sendInviteMemberEmail(req, userInvite, classObj, newClassMember);
+            //     }
+            // }
+            // // nếu không thông báo không tìm thấy
+            // else {
+            //     return res.json({
+            //         success: false,
+            //         message: "Email Not found.",
+            //         res_code: 403,
+            //         res_status: "EMAIL_NOT_FOUND"
+            //     })
+            // }
+            let listReceiver = [];
             const userInvite = await User.findOne({ email: req.body.email_invite })
             // tìm tài khoản mời trong database
             // nếu có
             if (userInvite) {
                 let user_Invite_id = userInvite._id;
+                listReceiver.push(user_Invite_id)
                 const classMemberInvite = await ClassMember.findOne({
                     user: mongoose.Types.ObjectId(user_Invite_id),
-                    class: mongoose.Types.ObjectId(classObj._id),
+                    class: mongoose.Types.ObjectId(req.class._id),
                     is_delete: false
                 });
 
@@ -86,7 +134,7 @@ class ClassMemberController {
                 else {
                     const newClassMember = await ClassMember.create({
                         user: mongoose.Types.ObjectId(user_Invite_id),
-                        role: mongoose.Types.ObjectId(class_role),
+                        role: mongoose.Types.ObjectId(req.class_role),
                         class: mongoose.Types.ObjectId(classObj._id),
                         status: 2
                     });
@@ -96,7 +144,8 @@ class ClassMemberController {
                         res_code: 200,
                         res_status: "INVITE_MEMBER_SUCCESSFULLY"
                     });
-                    await sendInviteMemberEmail(req, userInvite, classObj, newClassMember);
+                    await NotificationController.inviteClassNotify(req.class._id, res.locals._id, listReceiver, 1);
+                    await sendInviteMemberEmail(req, userInvite, req.class, newClassMember);
                 }
             }
             // nếu không thông báo không tìm thấy
@@ -108,6 +157,7 @@ class ClassMemberController {
                     res_status: "EMAIL_NOT_FOUND"
                 })
             }
+
         }
         catch (err) {
             console.log(err);
@@ -443,6 +493,56 @@ class ClassMemberController {
                     });
                 }
             })
+    }
+
+    async accpetInvitedInNotify(req, res){
+        try{
+            const classes = await Class.findOne(req.body.id_class);
+            const data = _.omit(classes.toJSON(), ['_id', 'createdAt', 'updatedAt', 'admin', 'permission'])
+            const memberInvite = await ClassMember.findOne({
+                user: res.locals._id,
+                class: classes._id,
+                status: 2,
+                is_delete: false
+            })
+            if(memberInvite){
+                await ClassMember.findOneAndUpdate(
+                    {
+                        _id: memberInvite._id
+                    },
+                    {
+                        status: 1
+                    },
+                    {
+                        new: true
+                    }
+                );
+                res.json({
+                    success: true,
+                        message: "Accept invite from classroom successfull!",
+                        data: data,
+                        res_code: 200,
+                        res_status: "ACCEPT_INVITE_MEMBER_SUCCESSFULLY"
+                })
+            }
+            else{
+                res.json({
+                    success: false,
+                    message: "NOT FOUND",
+                    res_code: 403,
+                    res_status: "NOT FOUND"
+                })
+            }
+        }
+        catch(err){
+            return res.json({
+                success: false,
+                message: 'Server error. Please try again.',
+                error: err,
+                res_code: 500,
+                res_status: "SERVER_ERROR"
+            });
+        }
     }
 };
 
