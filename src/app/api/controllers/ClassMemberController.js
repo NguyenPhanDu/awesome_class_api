@@ -319,7 +319,7 @@ class ClassMemberController {
     }
     async getMemberProfile(req, res) {
         let userId;
-        await User.findOne({ email: res.locals.email })
+        await User.findOne({ email: req.body.email })
             .then(user => {
                 userId = user._id
             });
