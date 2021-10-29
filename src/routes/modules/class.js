@@ -11,5 +11,5 @@ router.post('/edit-class',ClassController.editClassInforClass);
 router.post('/delete-class',ClassController.deleteClass);
 router.post('/:id', ClassController.getClass);
 router.post('/',ClassController.getAllClass);
-
+router.post('/update-class-imgae', ClassController.updateClassImage)
 module.exports = router;

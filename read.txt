@@ -9,14 +9,47 @@ COMMENT_EXERCISE
 SIGN_SUBMITION
 COMMENT_SUBMITION
 
-tọa thông báo mời
+bảng Câu hỏi
+_id
+id
+title câu hỏi:
+options: [ 'string op1', 'op2' ]
+đáp án: kiểu int index của mảng options
+điểm
 
-kiểm tra khi có người dùng tham gia lớp học => đếm sô học sinh để kiểm tra mai phải xong tối báo cáo
-khi mời nếu mời học sinh => đếm xem sô học sinh trong lớp có tới giới hạn chưa
-khi mời nếu giáo viên => đếm xem số học sinh đủ chưa
+bảng bài tập trắc nghiệm:
+_id:
+title:
+description:
+category:
+document:
+câu hỏi [ 
+    {
+        _id
+        id
+        title câu hỏi:
+        options: [ 'string op1', 'op2' ]
+        đáp án: kiểu int index của mảng options
+        điểm
+    }
+]
 
 
-kiểm tra
+bảng assign
 
-if()
-
+bảng submit
+id_assgin
+câu trả lời: [
+    {
+        câu hỏi: {
+            _id
+            id
+            title câu hỏi:
+            options: [ 'string op1', 'op2' ]
+            đáp án: kiểu int index của mảng options
+            điểm
+        },
+        đáp án học sinh: int
+        trạng thái: đúng hoặc sai, không có câu trả lời
+    }
+]

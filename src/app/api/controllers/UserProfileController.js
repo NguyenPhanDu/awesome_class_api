@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const User = require('../../models/User');
 const imgur = require('../../imgur/service');
 const UserImage = require('../../models/UserImage');
-
+const Image = require('../../models/Image');
 class UserProfile{
     getUserProfile(req, res){
         User.findOne({ email: req.body.email })
@@ -98,8 +98,9 @@ class UserProfile{
                     .uploadBase64(req.body.avatar)
                     .then(async (json) => {
                         avatar = json.link
-                        let userImgage = new UserImage({
-                            user : mongoose.Types.ObjectId(user._id),
+                        let userImgage = new Image({
+                            ref : mongoose.Types.ObjectId(user._id),
+                            onModel: 'User',
                             image_type: 1,
                             image_id: json.id,
                             delete_hash: json.deletehash,

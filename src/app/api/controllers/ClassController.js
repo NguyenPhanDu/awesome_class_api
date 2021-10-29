@@ -14,7 +14,7 @@ const StudentPermisstion = require('../../models/StudentPermisstion');
 const generateRandomCode = require('../../../helpers/index');
 const FolerServices = require('../../services/file_and_folder/index');
 const imgur = require('../../imgur/service');
-const ClassImage = require('../../models/ClassImage');
+const Image = require('../../models/Image');
 class ClassController{
     async creteClass(req, res){
         let user_id;
@@ -89,107 +89,53 @@ class ClassController{
     };
 
     async editClassInforClass(req, res){
-        let joinEnable = true;
-        let ableStudentInvite = true;
-        if(req.body.permission){
-            joinEnable = req.body.permission.joinable_by_code;
-            ableStudentInvite = req.body.permission.able_invite_by_student;
-        }
-        // findOneAndUpdate class
-        let queryClass = {id_class: Number(req.body.id_class)};
-        let updateClass = 
-            {
-                name: req.body.name,
-                description: req.body.description,
-                category: req.body.category
-            };
-        let optionClass = {new: true}
-        await Class.findOne({id_class: req.body.id_class})
+        try{
+            const classes = await Class.findOne({ id_class: req.body.id_class, is_delete: false })
+            .populate({
+                path: 'admin',
+                select:['profile','email']
+            })
+            if(classes.admin.email == res.locals.email){
+                let queryClass = {id_class: Number(req.body.id_class)};
+                let updateClass = 
+                    {
+                        name: req.body.name,
+                        description: req.body.description,
+                        category: req.body.category
+                    };
+                let optionClass = {new: true}
+                const data = await Class.findOneAndUpdate(queryClass, updateClass, optionClass)
                 .populate({
                     path: 'admin',
                     select:['profile','email']
                 })
                 .populate('permission')
-                .then(async classs => {
-                    if(classs){
-                        if(classs.admin.email == res.locals.email){
-                            await ClassPermission.findOneAndUpdate(
-                                {
-                                    _id : mongoose.Types.ObjectId(classs.permission._id)
-                                },
-                                {
-                                    joinable_by_code : joinEnable,
-                                    able_invite_by_student : ableStudentInvite
-                                },
-                                {new: true}
-                            ).then(classPermission => {
-
-                            })
-                            .catch(err => {
-                                console.log(err);
-                                return res.json({
-                                    success: false,
-                                    message: 'Server error. Please try again. Update class permission sai',
-                                    error: err,
-                                    res_code: 500,
-                                    res_status: "SERVER_ERROR"
-                                });
-                            })
-                            await Class.findOneAndUpdate({
-                                _id : mongoose.Types.ObjectId(classs._id)
-                            },
-                            {
-                                name: req.body.name,
-                                description: req.body.description,
-                                category: req.body.category
-                            },
-                            {
-                                new: true
-                            })
-                                .populate({
-                                    path: 'admin',
-                                    select:['profile','email']
-                                })
-                                .populate('permission')
-                                .then(classs => {
-                                        return res.status(200).json({
-                                        success: true,
-                                        message: "Update classroom successfull!",
-                                        data: classs,
-                                        res_code: 200,
-                                        res_status: "UPDATE_SUCCESSFULLY"
-                                    })
-                                })
-                                .catch(err => {
-                                    console.log(err);
-                                    return res.json({
-                                        success: false,
-                                        message: 'Server error. Please try again. Update class failed',
-                                        error: err,
-                                        res_code: 500,
-                                        res_status: "SERVER_ERROR"
-                                    });
-                                })
-                        }
-                        else{
-                            return res.json({
-                                success: false,
-                                message: "No access",
-                                res_code: 403,
-                                res_status: "NO_ACCESS"
-                            })
-                        }
-                    }
+                res.status(200).json({
+                    success: true,
+                    message: "Update classroom successfull!",
+                    data: datas,
+                    res_code: 200,
+                    res_status: "UPDATE_SUCCESSFULLY"
                 })
-                .catch(err=>{
-                    return res.json({
-                        success: false,
-                        message: 'Server error. Please try again.',
-                        error: err,
-                        res_code: 500,
-                        res_status: "SERVER_ERROR"
-                    });
+            }
+            else{
+                return res.json({
+                    success: false,
+                    message: "No access",
+                    res_code: 403,
+                    res_status: "NO_ACCESS"
                 })
+            }
+        }
+        catch(err){
+            return res.json({
+                success: false,
+                message: 'Server error. Please try again.',
+                error: err,
+                res_code: 500,
+                res_status: "SERVER_ERROR"
+            });
+        }
     };
 
     async deleteClass(req, res){
@@ -393,8 +339,10 @@ class ClassController{
             .populate('admin');
             if(classCurrent.admin.email == res.locals.email){
                 const classImage = await imgur.uploadBase64(req.body.image);
-                const newClassImage = await ClassImage.create({
-                    class: mongoose.Types.ObjectId(classCurrent._id),
+                const newClassImage = await Image.create({
+                    ref: mongoose.Types.ObjectId(classCurrent._id),
+                    onModel: 'Class',
+                    image_type: 2,
                     image_id: classImage.id,
                     delete_hash: classImage.deletehash,
                     image_link: classImage.link
@@ -507,6 +455,67 @@ class ClassController{
         
     }
 
+    // id_class: 
+    // req.body.permission = {
+        //able_invite_by_student = true,
+        //joinable_by_code = true
+   // }
+    async editPermisstionClass(req, res){
+        try{
+            const classes = await Class.findOne({ id_class: req.body.id_class, is_delete: false })
+            .populate({
+                path: 'admin',
+                select:['profile','email']
+            })
+            if(classes.admin.email == res.locals.email){
+                let joinEnable = req.body.permission.joinable_by_code;
+                let ableStudentInvite = req.body.permission.able_invite_by_student;
+                await ClassPermission.findOneAndUpdate(
+                    {
+                        _id : mongoose.Types.ObjectId(classes.permission)
+                    },
+                    {
+                        joinable_by_code : joinEnable,
+                        able_invite_by_student : ableStudentInvite
+                    },
+                    {new: true}
+                );
+
+                const data = await Class.findOne({ id_class: req.body.id_class, is_delete: false })
+                .populate({
+                    path: 'admin',
+                    select:['profile','email']
+                })
+                .populate('permission')
+                return res.json({
+                    success: true,
+                    message: "Edit class permission successfully!",
+                    data: data,
+                    res_code: 200,
+                    res_status: "CREATE_SUCCESSFULLY"
+                }) 
+
+            }
+            else{
+                res.json({
+                    success: false,
+                    message: "No access",
+                    res_code: 403,
+                    res_status: "NO_ACCESS"
+                })
+            }
+        }
+        catch(err){
+            console.log(err);
+            res.json({
+                success: false,
+                message: 'Server error. Please try again',
+                error: err,
+                res_code: 500,
+                res_status: "SERVER_ERROR"
+            });
+        }
+    }
 }
 
 

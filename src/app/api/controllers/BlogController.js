@@ -3,10 +3,10 @@ const { parseTimeFormMongo, changeTimeInDBToISOString } = require('../../../help
 const mongoose = require('mongoose');
 const User = require('../../models/User');
 const Blog = require('../../models/Blog');
-const BlogThumbnail = require('../../models/BlogThumbnail');
 const imgur = require('../../imgur/service');
 const BlogFileSev = require('../../services/file_and_folder/index');
 const FolerServices = require('../../services/file_and_folder/index');
+const Image = require('../../models/Image');
 const File = require('../../models/File')
 class BlogController{
     // req.body.title, description, thumbnail
@@ -15,19 +15,19 @@ class BlogController{
             const user = await User.findOne({ email: res.locals.email }).populate('user_type');
             if(user.user_type.id_user_type == 1){
                 const now = moment().toDate().toString();
-                let newBlog;
+                const newBlog = await Blog.create({
+                    create_by: mongoose.Types.ObjectId(user._id),
+                    title: req.body.title,
+                    description: req.body.description,
+                    create_at: now,
+                    update_at: now
+                })
                 if(req.body.thumbnail){
-                    newBlog = await Blog.create({
-                        create_by: mongoose.Types.ObjectId(user._id),
-                        title: req.body.title,
-                        description: req.body.description,
-                        create_at: now,
-                        update_at: now
-                    })
                     const thumbnail = await imgur.uploadBase64(req.body.thumbnail);
-                    const newBlogThumbnail = await BlogThumbnail.create({
-                        user: mongoose.Types.ObjectId(user._id),
-                        blog: mongoose.Types.ObjectId(newBlog._id),
+                    const newBlogThumbnail = await Image.create({
+                        ref: mongoose.Types.ObjectId(newBlog._id),
+                        onModel: 'Blog',
+                        image_type: 3,
                         image_id: thumbnail.id,
                         delete_hash: thumbnail.deletehash,
                         image_link: thumbnail.link
@@ -35,21 +35,12 @@ class BlogController{
                     await Blog.findByIdAndUpdate(
                         newBlog._id,
                         {
-                            thumbnail: newBlogThumbnail.image_link
+                            thumbnail: thumbnail.link
                         },
                         {
                             new: true
                         }
                     )
-                }
-                else{
-                    newBlog = await Blog.create({
-                        create_by: mongoose.Types.ObjectId(user._id),
-                        title: req.body.title,
-                        description: req.body.description,
-                        create_at: now,
-                        update_at: now
-                    })
                 }
                 if(req.files){
                     if(req.files.length> 0){
