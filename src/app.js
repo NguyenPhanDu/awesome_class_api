@@ -43,7 +43,7 @@ app.use(methodOverride('_method'))
 app.use(morgan('tiny', {
   skip: function(req, res) {
     const blackListApiUrl = ['notification', 'get-all-comment']
-    return blackListApiUrl.reduce( url => req.originalUrl.includes(url));
+    blackListApiUrl.forEach( url => req.originalUrl.includes(url));
   }
 }));
 //PASSPORT
