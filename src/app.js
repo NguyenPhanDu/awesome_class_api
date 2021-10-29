@@ -42,8 +42,15 @@ app.use(methodOverride('_method'))
 //MORGAN
 app.use(morgan('tiny', {
   skip: function(req, res) {
-    const blackListApiUrl = ['notification', 'get-all-comment']
-    blackListApiUrl.forEach( url => req.originalUrl.includes(url));
+    const blackListApiUrl = ['notification', 'get-all-comment'];
+
+    for( let i = 0 ; i < blackListApiUrl.length; i++) {
+      if ( req.originalUrl.includes(blackListApiUrl[i]) ) {
+        return true;
+      }
+
+    }
+    return false;
   }
 }));
 //PASSPORT
