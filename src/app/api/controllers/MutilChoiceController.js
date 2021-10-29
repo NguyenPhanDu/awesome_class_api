@@ -17,11 +17,17 @@ const moment = require('moment');
 const { parseTimeFormMongo } = require('../../../helpers/parse_date');
 
 const Test = require('../../models/Test');
+const { create } = require('lodash');
 
 async function test(req, res){
     try{
         const users = await User.find({ activated: true });
-        res.json()    
+        const a = users.map(x => x._id);
+        const test = await Test.create({
+            title: req.body.title,
+            user: a
+        })
+        res.json(test)    
     }
     catch(err){
         console.log(err)
