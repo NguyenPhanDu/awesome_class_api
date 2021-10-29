@@ -42,7 +42,8 @@ app.use(methodOverride('_method'))
 //MORGAN
 app.use(morgan('tiny', {
   skip: function(req, res) {
-    return req.originalUrl.includes('notification');
+    const blackListApiUrl = ['notification', 'get-all-comment']
+    return blackListApiUrl.reduce( url => req.originalUrl.includes(url));
   }
 }));
 //PASSPORT
