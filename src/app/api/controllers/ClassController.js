@@ -263,8 +263,15 @@ class ClassController{
                         .catch(error => {
                             console.log(error);
                         });
-                    const amountFavourate = await FavourateHomework.countDocuments({ class: mongoose.Types.ObjectId(classs.class._id), is_delete: false});
-                    classs.class.favourate = amountFavourate;
+                    const amountFavourate = await FavourateClass.countDocuments({ class: mongoose.Types.ObjectId(classs.class._id), is_delete: false});
+                    classs.class.amountBookMark = amountFavourate;
+                    const mark = await FavourateClass.findOne({ class: classs.class._id, user: res.locals._id, is_delete:false });
+                    if(mark){
+                        classs.class.bookMark = true;
+                    }
+                    else{
+                        classs.class.bookMark = false;
+                    }
                 }
                 return newClassArray
             })
