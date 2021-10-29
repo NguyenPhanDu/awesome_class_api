@@ -10,6 +10,7 @@ const { parseTimeFormMongo } = require('../../../helpers/parse_date');
 const { pagination } = require('../../../helpers/pagination');
 const moment = require('moment');
 const ClassNews = require('../../models/ClassNews');
+const FavourateHomework = require('../../models/FavouriteHomework');
 
 class ClassHomeworkController{
     async getHomeworkInClass(req, res){
@@ -93,8 +94,19 @@ class ClassHomeworkController{
                         select:['-password']
                     }
                     ]
-                })
+                });
                 const arr = JSON.parse(JSON.stringify(allClassHomework));
+                for(let i = 0; i< arr.length; i++){
+                    const amoutFavourate = await FavouriteHomework.countDocuments({ class_homework: mongoose.Types.ObjectId(arr[i]._id), is_delete: false });
+                    arr[i].amountBookMark = amoutFavourate;
+                    const mark = await FavourateHomework.findOne({class_homework: arr[i]._id, user: res.locals._id, is_delete: false })
+                    if(mark){
+                        arr[i].bookMark = true;
+                    }
+                    else{
+                        arr[i].bookMark = false;
+                    }
+                }
                 arrayHomework = arr.sort((a,b) => moment(parseTimeFormMongo(b.createdAt), "YYYY-MM-DD HH:mm:ss") - moment(parseTimeFormMongo(a.createdAt), "YYYY-MM-DD HH:mm:ss"));
                 res.json({
                     success: true,
@@ -133,6 +145,15 @@ class ClassHomeworkController{
                         }
                         ]
                     })
+                    const amoutFavourate = await FavouriteHomework.countDocuments({ class_homework: mongoose.Types.ObjectId(a._id), is_delete: false });
+                    a.amountBookMark = amoutFavourate;
+                    const mark = await FavourateHomework.findOne({class_homework: a._id, user: res.locals._id, is_delete: false })
+                    if(mark){
+                        a.bookMark = true;
+                    }
+                    else{
+                        a.bookMark = false;
+                    }
                     array.push(a);
                 }
                 let c = JSON.parse(JSON.stringify(array));

@@ -10,6 +10,7 @@ const { parseTimeFormMongo, changeTimeInDBToISOString } = require('../../../help
 
 
 const FavouriteClass = require('../../models/FavouriteClass');
+const FavouriteHomework = require('../../models/FavouriteHomework');
 
 class BookmarkController{
     // truyền vào :
@@ -232,7 +233,7 @@ class BookmarkController{
             .select('-_id -user -__v')
             .populate({
                 path: 'class_homework',
-                select: '-_id -class -createdAt -updatedAt -__v',
+                select: '-class -createdAt -updatedAt -__v',
                 populate: [
                     {
                         path: 'homework',
@@ -257,11 +258,14 @@ class BookmarkController{
                 let b = JSON.parse(JSON.stringify(a));
                 let length = b.length;
                 for(let i = 0; i < length; i++ ){
+                    const amoutFavourate = await FavouriteHomework.countDocuments({ class_homework: mongoose.Types.ObjectId(b[i].class_homework._id), is_delete: false });
+                    b[i].class_homework.amountBookMark = amoutFavourate;
+                    b[i].class_homework.bookMark = true
                     list.push(b[i]);
                 }
             }
 
-            let c = await FavouriteClass.find({ user: mongoose.Types.ObjectId(user._id) })
+            let c = await FavouriteClass.find({ user: mongoose.Types.ObjectId(user._id), is_delete: false})
             .select('-_id -__v -user')
             .populate({
                 path: 'class',
@@ -283,7 +287,8 @@ class BookmarkController{
                     const amountHomework = await ClassHomework.countDocuments({class: mongoose.Types.ObjectId(d[i].class._id), is_delete: false });
                     d[i].class.exercises = amountHomework;
                     const amoutFavourate = await FavourateClass.countDocuments({ class: mongoose.Types.ObjectId(d[i].class._id), is_delete: false });
-                    d[i].class.favourate = amoutFavourate;
+                    d[i].class.amountBookMark = amoutFavourate;
+                    d[i].class.bookMark = true;
                     list.push(d[i]);
                 }
             }

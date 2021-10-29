@@ -448,7 +448,6 @@ class ClassController{
                     },
                     {new: true}
                 );
-
                 const data = await Class.findOne({ id_class: req.body.id_class, is_delete: false })
                 .populate({
                     path: 'admin',

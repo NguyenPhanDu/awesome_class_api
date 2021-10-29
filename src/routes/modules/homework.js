@@ -4,6 +4,7 @@ const {verifyToken} = require('../../app/middlewares/authJwt');
 const HomeWorkController = require('../../app/api/controllers/HomeworkController');
 const SubmitHomeworkController = require('../../app/api/controllers/SubmitHomeworkController');
 const StatisticalHomewok = require('../../app/api/controllers/StatisticalHomeworkController');
+const MutilChoiceController = require('../../app/api/controllers/MutilChoiceController');
 const upload = require('../../app/middlewares/upload');
 
 router.use(verifyToken);
@@ -19,5 +20,9 @@ router.post('/display-assignment/', SubmitHomeworkController.displaySubmitInDeta
 router.post('/display-statistical-homework', StatisticalHomewok.statisticalHomework);
 router.post('/detail-statistical-homework', StatisticalHomewok.detailSubmitionOneStudent);
 router.post('/return-homework', StatisticalHomewok.returnHomework);
+
+
+// bài tập 
+router.post('/create-mutil-choice', MutilChoiceController.test);
 
 module.exports = router;

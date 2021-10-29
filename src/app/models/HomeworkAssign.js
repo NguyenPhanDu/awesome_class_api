@@ -20,7 +20,7 @@ const HomeworkAssignSchema = Schema(
         onModel: {
             type: String,
             require: true,
-            enum: ['NormalHomework', 'QuestionHomework']
+            enum: ['NormalHomework', 'MutilChoiceHomework']
         },
         status: {
             type: Number,

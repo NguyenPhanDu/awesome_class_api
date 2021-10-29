@@ -18,7 +18,7 @@ const ClassHomeworkSchema = Schema(
         onModel: {
             type: String,
             require: true,
-            enum: ['NormalHomework', 'QuestionHomework']
+            enum: ['NormalHomework', 'MutilChoiceHomework']
         },
         is_delete: {
             type: Boolean,
