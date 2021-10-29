@@ -113,7 +113,7 @@ class ClassController{
                 res.status(200).json({
                     success: true,
                     message: "Update classroom successfull!",
-                    data: datas,
+                    data: data,
                     res_code: 200,
                     res_status: "UPDATE_SUCCESSFULLY"
                 })
