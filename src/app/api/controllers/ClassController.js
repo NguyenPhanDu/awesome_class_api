@@ -111,7 +111,7 @@ class ClassController{
                 else{
                     const classImage = await imgur.uploadBase64(req.body.image);
                     const newClassImage = await Image.create({
-                        ref: mongoose.Types.ObjectId(classCurrent._id),
+                        ref: mongoose.Types.ObjectId(classes._id),
                         onModel: 'Class',
                         image_type: 2,
                         image_id: classImage.id,
@@ -150,6 +150,7 @@ class ClassController{
             }
         }
         catch(err){
+            console.log(err)
             return res.json({
                 success: false,
                 message: 'Server error. Please try again.',
