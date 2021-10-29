@@ -355,68 +355,6 @@ class ClassController{
         })
     };
 
-    // // req.body: id_class, image
-    // async updateClassImage(req, res){
-    //     try{
-    //         const classCurrent = await Class.findOne({ is_delete: false, id_class: req.body.id_class })
-    //         .populate('admin');
-    //         if(classCurrent.admin.email == res.locals.email){
-    //             const classImage = await imgur.uploadBase64(req.body.image);
-    //             const newClassImage = await Image.create({
-    //                 ref: mongoose.Types.ObjectId(classCurrent._id),
-    //                 onModel: 'Class',
-    //                 image_type: 2,
-    //                 image_id: classImage.id,
-    //                 delete_hash: classImage.deletehash,
-    //                 image_link: classImage.link
-    //             });
-    //             const data = await Class.findByOneAndUpdate(
-    //                 {
-    //                     id_class: Number(req.body.id_class),
-    //                     is_delete: false
-    //                 },
-    //                 {
-    //                     image: newClassImage.image_link
-    //                 },
-    //                 {
-    //                     new: true
-    //                 }
-    //             )
-    //             .populate({
-    //                 path: 'admin',
-    //                 select:['profile','email']
-    //             })
-    //             .populate('permission')
-    //             return res.json({
-    //                 success: true,
-    //                 message: "update class image successfull!",
-    //                 data: data,
-    //                 res_code: 200,
-    //                 res_status: "GET_SUCCESSFULLY"
-    //             })
-    //         }
-    //         else{
-    //             return res.json({
-    //                 success: false,
-    //                 message: "No access",
-    //                 res_code: 403,
-    //                 res_status: "NO_ACCESS"
-    //             })
-    //         }
-    //     }
-    //     catch(err){
-    //         console.log(err);
-    //         res.json({
-    //             success: false,
-    //             message: 'Server error. Please try again',
-    //             error: err,
-    //             res_code: 500,
-    //             res_status: "SERVER_ERROR"
-    //         });
-    //         return;
-    //     }
-    // }
-
     async joinClasses(req, res){
         try{
             const classMember = await ClassMember.findOne({ class: req.class._id, user: res.locals._id, is_delete: false });
