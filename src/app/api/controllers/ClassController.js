@@ -8,7 +8,6 @@ const ClassHomework = require('../../models/ClassHomework');
 const ClassNews = require('../../models/ClassNews');
 const HomeworkAssgin = require('../../models/HomeworkAssign');
 const FavourateClass = require('../../models/FavouriteClass');
-const FavourateHomework = require('../../models/FavouriteHomework');
 const TeacherPermisstion = require('../../models/TeacherPermisstion');
 const StudentPermisstion = require('../../models/StudentPermisstion');
 const generateRandomCode = require('../../../helpers/index');

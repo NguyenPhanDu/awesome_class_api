@@ -7,6 +7,7 @@ const Comment = require('../../models/Comment');
 const User = require('../../models/User');
 const ClassMember = require('../../models/ClassMember');
 const HomeworkAssign = require('../../models/HomeworkAssign');
+const FavourateHomework = require('../../models/FavouriteHomework');
 const moment = require('moment');
 const { parseTimeFormMongo, changeTimeInDBToISOString } = require('../../../helpers/parse_date');
 class NewFeedController{
