@@ -42,13 +42,13 @@ class BlogController{
                         }
                     )
                 }
-                // if(req.files){
-                //     if(req.files.length> 0){
-                //         for(let i = 0; i < req.files.length; i++){
-                //             await BlogFileSev.uploadFileBlog(user._id, req.files[i], newBlog._id);
-                //         }
-                //     }
-                // }
+                if(req.files){
+                    if(req.files.length> 0){
+                        for(let i = 0; i < req.files.length; i++){
+                            await BlogFileSev.uploadFileBlog(user._id, req.files[i], newBlog._id);
+                        }
+                    }
+                }
                 const data = await Blog.findById(newBlog._id)
                 .populate('create_by', '-password')
                 .populate("document", "name viewLink downloadLink size id_files");
