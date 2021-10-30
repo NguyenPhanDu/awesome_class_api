@@ -14,6 +14,8 @@ const generateRandomCode = require('../../../helpers/index');
 const FolerServices = require('../../services/file_and_folder/index');
 const imgur = require('../../imgur/service');
 const Image = require('../../models/Image');
+const File = require('../../models/File');
+const Folder = require('../../models/FolderClass');
 class ClassController{
     async creteClass(req, res){
         let user_id;
@@ -468,6 +470,53 @@ class ClassController{
                     message: "No access",
                     res_code: 403,
                     res_status: "NO_ACCESS"
+                })
+            }
+        }
+        catch(err){
+            console.log(err);
+            res.json({
+                success: false,
+                message: 'Server error. Please try again',
+                error: err,
+                res_code: 500,
+                res_status: "SERVER_ERROR"
+            });
+        }
+    }
+
+    async getAllFileInClass(req, res){
+        try{
+            const classes = await Class.findOne({ id_class: req.body.id_class, is_delete:false });
+            const folerClass = await Folder.findOne({ class: classes._id })
+            const userInClass = await ClassMember.findOne({ user: res.locals._id, class: classes._id, is_delete: false }).populate('role')
+            if(userInClass.role.id_class_role == 2){
+                res.json({
+                    success: false,
+                    message: "No access",
+                    res_code: 403,
+                    res_status: "NO_ACCESS"
+                })
+            }
+            else{
+                const files = await File.find(
+                    {
+                        parent: folerClass._id,
+                        onModel: { $ne: 'Blog' },
+                        is_delete: false,
+                    }
+                )
+                .populate({
+                    path: 'create_by',
+                    select: 'email profile -_id'
+                })
+                .select('-__v -_id -createdAt -updatedAt -ref -parent')
+                return res.json({
+                    success: true,
+                    message: "get all file in class successfuly",
+                    data: files,
+                    res_code: 200,
+                    res_status: "GET_SUCCESSFULLY"
                 })
             }
         }

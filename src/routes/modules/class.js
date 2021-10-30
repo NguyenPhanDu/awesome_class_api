@@ -9,7 +9,9 @@ router.post('/create-class', UserPermissionMiddleware.limitClassCreation, ClassC
 router.post('/join-class', UserPermissionMiddleware.limitMemberInClassWhileJoinClass,ClassController.joinClasses);
 router.post('/edit-class',ClassController.editClassInforClass);
 router.post('/delete-class',ClassController.deleteClass);
+router.post('/edit-permission', ClassController.editPermisstionClass);
+router.post('/get-all-files', ClassController.getAllFileInClass);
 router.post('/:id', ClassController.getClass);
 router.post('/',ClassController.getAllClass);
-router.post('/edit-permission', ClassController.editPermisstionClass)
+
 module.exports = router;
