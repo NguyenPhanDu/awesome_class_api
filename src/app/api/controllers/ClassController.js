@@ -317,7 +317,7 @@ class ClassController{
             })
         const amoutHomework =  await ClassHomework.countDocuments({class: classId, is_delete: false })
         const amountFavourate = await FavourateClass.countDocuments({ class: classId, is_delete: false});
-        const isMark = await FavourateClass.findOne({ class: classs.class._id, user: res.locals._id, is_delete:false });
+        const isMark = await FavourateClass.findOne({ class: classId, user: res.locals._id, is_delete:false });
         let mark;
         if(isMark){
             mark = true;
