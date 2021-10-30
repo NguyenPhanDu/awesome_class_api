@@ -508,7 +508,7 @@ class ClassController{
                 )
                 .populate({
                     path: 'create_by',
-                    select: 'email profile -_id'
+                    select: '-createdAt -updatedAt -password'
                 })
                 .select('-__v -_id -createdAt -updatedAt -ref -parent')
                 return res.json({
