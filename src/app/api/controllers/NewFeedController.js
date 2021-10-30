@@ -10,6 +10,7 @@ const HomeworkAssign = require('../../models/HomeworkAssign');
 const FavourateHomework = require('../../models/FavouriteHomework');
 const moment = require('moment');
 const { parseTimeFormMongo, changeTimeInDBToISOString } = require('../../../helpers/parse_date');
+const FavouriteHomework = require('../../models/FavouriteHomework');
 class NewFeedController{
     async showNewFeed(req, res){
         try{
@@ -50,7 +51,7 @@ class NewFeedController{
                 if(arrayHomework.length > 0){
                     let l = arrayHomework.length;
                     for(let i = 0; i< l;i++){
-                        const amoutFavourate = await FavouriteHomework.countDocuments({ class_homework: mongoose.Types.ObjectId(arrayHomework[i]._id), is_delete: false });
+                        const amoutFavourate = await FavourateHomework.countDocuments({ class_homework: mongoose.Types.ObjectId(arrayHomework[i]._id), is_delete: false });
                         arrayHomework[i].amountBookMark = amoutFavourate;
                         const mark = await FavourateHomework.findOne({class_homework: arrayHomework[i]._id, user: res.locals._id, is_delete: false })
                         if(mark){
@@ -116,7 +117,7 @@ class NewFeedController{
                             ]
                         });
                         if(classHomework){
-                            const amoutFavourate = await FavouriteHomework.countDocuments({ class_homework: mongoose.Types.ObjectId(classHomework._id), is_delete: false });
+                            const amoutFavourate = await FavourateHomework.countDocuments({ class_homework: mongoose.Types.ObjectId(classHomework._id), is_delete: false });
                             classHomework.amountBookMark = amoutFavourate;
                             const mark = await FavourateHomework.findOne({class_homework: classHomework._id, user: res.locals._id, is_delete: false })
                             if(mark){

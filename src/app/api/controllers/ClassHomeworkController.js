@@ -97,7 +97,7 @@ class ClassHomeworkController{
                 });
                 const arr = JSON.parse(JSON.stringify(allClassHomework));
                 for(let i = 0; i< arr.length; i++){
-                    const amoutFavourate = await FavouriteHomework.countDocuments({ class_homework: mongoose.Types.ObjectId(arr[i]._id), is_delete: false });
+                    const amoutFavourate = await FavourateHomework.countDocuments({ class_homework: mongoose.Types.ObjectId(arr[i]._id), is_delete: false });
                     arr[i].amountBookMark = amoutFavourate;
                     const mark = await FavourateHomework.findOne({class_homework: arr[i]._id, user: res.locals._id, is_delete: false })
                     if(mark){
@@ -145,7 +145,7 @@ class ClassHomeworkController{
                         }
                         ]
                     })
-                    const amoutFavourate = await FavouriteHomework.countDocuments({ class_homework: mongoose.Types.ObjectId(a._id), is_delete: false });
+                    const amoutFavourate = await FavourateHomework.countDocuments({ class_homework: mongoose.Types.ObjectId(a._id), is_delete: false });
                     a.amountBookMark = amoutFavourate;
                     const mark = await FavourateHomework.findOne({class_homework: a._id, user: res.locals._id, is_delete: false })
                     if(mark){
@@ -172,7 +172,7 @@ class ClassHomeworkController{
             return res.json({
                 success: false,
                 message: 'Server error. Please try again.',
-                error: error,
+                error: err,
                 res_code: 500,
                 res_status: "SERVER_ERROR"
             });
