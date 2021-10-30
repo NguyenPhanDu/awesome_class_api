@@ -308,13 +308,24 @@ class ClassController{
                 classId = result._id
             });
         let member;
-        await ClassMember.countDocuments({class: mongoose.Types.ObjectId(classId), is_delete: false})
+        await ClassMember.countDocuments({class: mongoose.Types.ObjectId(classId),  status: { $ne: 2 }, is_delete: false})
             .then(count =>{
                 member = count;
             })
             .catch(error => {
                 console.log(error);
             })
+        const amoutHomework =  await ClassHomework.countDocuments({class: classId, is_delete: false })
+        const amountFavourate = await FavourateClass.countDocuments({ class: classId, is_delete: false});
+        const isMark = await FavourateClass.findOne({ class: classs.class._id, user: res.locals._id, is_delete:false });
+        let mark;
+        if(isMark){
+            mark = true;
+        }
+        else{
+            mark = false;
+        }
+
         await ClassMember.findOne(
             {
                 user: mongoose.Types.ObjectId(userId),
@@ -343,6 +354,9 @@ class ClassController{
             if(result){
                 let classes = JSON.parse(JSON.stringify(result));
                 classes.class.member = member
+                classes.class.amountBookMark = amountFavourate;
+                classes.class.exercises = amoutHomework;
+                classes.class.bookMark = mark;
                 return res.json({
                     success: true,
                     message: "get class successfull!",

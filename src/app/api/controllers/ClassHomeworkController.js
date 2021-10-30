@@ -11,6 +11,7 @@ const { pagination } = require('../../../helpers/pagination');
 const moment = require('moment');
 const ClassNews = require('../../models/ClassNews');
 const FavourateHomework = require('../../models/FavouriteHomework');
+const Comment = require('../../models/Comment');
 
 class ClassHomeworkController{
     async getHomeworkInClass(req, res){
@@ -106,6 +107,14 @@ class ClassHomeworkController{
                     else{
                         arr[i].bookMark = false;
                     }
+                    const comments = await Comment.countDocuments(
+                        {
+                            onModel : 'ClassHomework',
+                            ref: arr[i]._id,
+                            is_delete: false
+                        }
+                    )
+                    arr[i].amountComment = comments
                 }
                 arrayHomework = arr.sort((a,b) => moment(parseTimeFormMongo(b.createdAt), "YYYY-MM-DD HH:mm:ss") - moment(parseTimeFormMongo(a.createdAt), "YYYY-MM-DD HH:mm:ss"));
                 res.json({
@@ -154,6 +163,14 @@ class ClassHomeworkController{
                     else{
                         a.bookMark = false;
                     }
+                    const comments = await Comment.countDocuments(
+                        {
+                            onModel : 'ClassHomework',
+                            ref: a._id,
+                            is_delete: false
+                        }
+                    )
+                    a.amountComment = comments
                     array.push(a);
                 }
                 let c = JSON.parse(JSON.stringify(array));

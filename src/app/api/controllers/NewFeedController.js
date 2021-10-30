@@ -60,6 +60,14 @@ class NewFeedController{
                         else{
                             arrayHomework[i].bookMark = false;
                         }
+                        const comments = await Comment.countDocuments(
+                            {
+                                onModel : 'ClassHomework',
+                                ref: arrayHomework[i]._id,
+                                is_delete: false
+                            }
+                        )
+                        arrayHomework[i].amountComment = comments
                         newfeed.push(arrayHomework[i]);
                     }
                 }
@@ -126,6 +134,14 @@ class NewFeedController{
                             else{
                                 classHomework.bookMark = false;
                             }
+                            const comments = await Comment.countDocuments(
+                                {
+                                    onModel : 'ClassHomework',
+                                    ref: classHomework._id,
+                                    is_delete: false
+                                }
+                            )
+                            classHomework.amountComment = comments
                             newfeed.push(classHomework);
                         }
                     }
