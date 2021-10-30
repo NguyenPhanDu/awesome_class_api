@@ -25,7 +25,6 @@ category:
 document:
 câu hỏi [ 
     {
-        _id
         id
         title câu hỏi:
         options: [ 'string op1', 'op2' ]
@@ -35,22 +34,4 @@ câu hỏi [
 ]
 
 
-bảng assign
-
-bảng submit
-id_assgin
-câu trả lời: [
-    {
-        câu hỏi: {
-            _id
-            id
-            title câu hỏi:
-            options: [ 'string op1', 'op2' ]
-            đáp án: kiểu int index của mảng options
-            điểm
-        },
-        đáp án học sinh: int
-        trạng thái: đúng hoặc sai, không có câu trả lời
-    }
-]
-
+[ 1, 3, 4, 3, 4, 1, 1 ]

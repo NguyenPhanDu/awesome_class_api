@@ -3,6 +3,7 @@ const drive = require('../../../config/google_drive/index');
 const FolderClass = require('../../models/FolderClass');
 const File = require('../../models/File');
 const NormalHomework = require('../../models/NormalHomework');
+const MutilChoiceHomework = require('../../models/MutilChoiceHomework');
 const ClassNews = require('../../models/ClassNews');
 const SubmitHomework = require('../../models/SubmitHomework');
 const fs = require('fs');
@@ -47,6 +48,59 @@ async function uploadFileCreateHomeWork(userId, classId, classHomework, file, no
         });
         await NormalHomework.findOneAndUpdate(
             {_id: mongoose.Types.ObjectId(normalHomeworkId)},
+            {
+                $push: {document: newFile._id}
+            },
+            {new: true}
+        );
+        await fs.unlinkSync(file.path);
+    }
+    catch(err){
+        console.log(err);
+        return;
+    }
+};
+
+async function uploadFileCreateMutilChoiceHomeWork(userId, classId, classHomework, file, mutilChoiceHomeworkId){
+    try{
+        const folderClass = await FolderClass.findOne({ class: mongoose.Types.ObjectId(classId), is_delete: false })
+        const fileCreateByDrive = await drive.files.create({
+            resource: {
+                name: file.originalname,
+                mimetype: file.mimetype,
+                parents: [folderClass.id_folder]
+            },
+            media: {
+                mimeType: file.mimetype,
+                body: fs.createReadStream(file.path)
+            }
+        });
+        await drive.permissions.create({
+            fileId: fileCreateByDrive.data.id,
+            requestBody:{
+                role: 'reader',
+                type: 'anyone'
+            }
+        });
+        const linkFileDirve = await drive.files.get({
+            fileId: fileCreateByDrive.data.id,
+            fields: 'webViewLink, webContentLink'
+        });
+        const newFile = await File.create({
+            ref: mongoose.Types.ObjectId(classHomework._id),
+            onModel: "ClassHomework",
+            create_by: mongoose.Types.ObjectId(userId),
+            type: "ClassHomework",
+            id_file: fileCreateByDrive.data.id,
+            name: fileCreateByDrive.data.name,
+            mimeType: fileCreateByDrive.data.mimetype,
+            parent: mongoose.Types.ObjectId(folderClass._id),
+            viewLink: linkFileDirve.data.webViewLink,
+            downloadLink: linkFileDirve.data.webContentLink,
+            size: file.size
+        });
+        await MutilChoiceHomework.findOneAndUpdate(
+            {_id: mongoose.Types.ObjectId(mutilChoiceHomeworkId)},
             {
                 $push: {document: newFile._id}
             },
@@ -251,6 +305,7 @@ async function uploadFileBlog(userId, file, blogId){
 module.exports = {
     createClassFolder,
     uploadFileCreateHomeWork,
+    uploadFileCreateMutilChoiceHomeWork,
     deleteFileWhenUpdate,
     uploadFileClassNews,
     uploadFileSubmit,

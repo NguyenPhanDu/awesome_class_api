@@ -3,6 +3,7 @@ const User = require('../../models/User');
 const Class =require('../../models/Class');
 const HomeworkType = require('../../models/HomeworkType');
 const NormalHomework = require('../../models/NormalHomework');
+const MutilChoiceHomework = require('../../models/MutilChoiceHomework');
 const ClassMember = require('../../models/ClassMember');
 const ClassHomework = require('../../models/ClassHomework');
 const HomeworkAssign = require('../../models/HomeworkAssign');
@@ -260,7 +261,7 @@ class HomeWorkController{
                 homeworkModel = '';
             }
             if(Number(req.body.homework_type) == 3){
-                homeworkModel = '';
+                homeworkModel = MutilChoiceHomework;
             }
             const classHomeWork = await ClassHomework.findOne({id_class_homework: req.body.id_class_homework, is_delete: false})
                                                         .populate({
@@ -404,6 +405,23 @@ class HomeWorkController{
                             is_delete: true
                         })
                     if(!a){
+                        const amoutFavourate = await FavourateHomework.countDocuments({ class_homework: homeworksParte[i]._id, is_delete: false });
+                        arr[i].amountBookMark = amoutFavourate;
+                        const mark = await FavourateHomework.findOne({class_homework: homeworksParte[i], user: res.locals._id, is_delete: false })
+                        if(mark){
+                            arr[i].bookMark = true;
+                        }
+                        else{
+                            arr[i].bookMark = false;
+                        }
+                        const comments = await Comment.countDocuments(
+                            {
+                                onModel : 'ClassHomework',
+                                ref: homeworksParte[i]._id,
+                                is_delete: false
+                            }
+                        )
+                        homeworksParte[i].amountComment = comments
                         list.push(homeworksParte[i]);
                     }
                 }

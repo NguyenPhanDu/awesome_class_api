@@ -47,8 +47,7 @@ const MutilChoiceHomeworkSchema = Schema(
         },
         questions: [
             {
-                type: Schema.Types.ObjectId,
-                ref: 'Question',
+                type:  mongoose.SchemaTypes.Mixed
             }
         ]
     },

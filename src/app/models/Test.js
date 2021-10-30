@@ -3,14 +3,9 @@ const AutoIncrement = require('mongoose-sequence')(mongoose);
 const Schema = mongoose.Schema;
 const TestSchema = Schema(
     {
-        title: {
-            type: String,
-            required: true
-        },
-        user: [
+        questions: [
             {
-                type: Schema.Types.ObjectId,
-                ref: 'User',
+                type:  mongoose.SchemaTypes.Mixed
             }
         ]
     },

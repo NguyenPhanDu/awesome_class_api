@@ -22,7 +22,8 @@ router.post('/detail-statistical-homework', StatisticalHomewok.detailSubmitionOn
 router.post('/return-homework', StatisticalHomewok.returnHomework);
 
 
-// bài tập 
-router.post('/create-mutil-choice', MutilChoiceController.test);
+// bài tập trắc nghiệm
+router.post('/create-mutil-choice', MutilChoiceController.create);
+router.post('/edit-mutil-choice', MutilChoiceController.edit);
 
 module.exports = router;

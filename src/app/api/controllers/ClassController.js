@@ -505,11 +505,24 @@ class ClassController{
             const folerClass = await Folder.findOne({ class: classes._id })
             const userInClass = await ClassMember.findOne({ user: res.locals._id, class: classes._id, is_delete: false }).populate('role')
             if(userInClass.role.id_class_role == 2){
-                res.json({
-                    success: false,
-                    message: "No access",
-                    res_code: 403,
-                    res_status: "NO_ACCESS"
+                const files = await File.find(
+                    {
+                        parent: folerClass._id,
+                        $or: [{ onModel: 'Blog' }, { onModel: 'SubmitHomework' }],
+                        is_delete: false,
+                    }
+                )
+                .populate({
+                    path: 'create_by',
+                    select: '-createdAt -updatedAt -password'
+                })
+                .select('-__v -_id -createdAt -updatedAt -ref -parent')
+                return res.json({
+                    success: true,
+                    message: "get all file in class successfuly",
+                    data: files,
+                    res_code: 200,
+                    res_status: "GET_SUCCESSFULLY"
                 })
             }
             else{
