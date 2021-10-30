@@ -406,13 +406,13 @@ class HomeWorkController{
                         })
                     if(!a){
                         const amoutFavourate = await FavourateHomework.countDocuments({ class_homework: homeworksParte[i]._id, is_delete: false });
-                        arr[i].amountBookMark = amoutFavourate;
-                        const mark = await FavourateHomework.findOne({class_homework: homeworksParte[i], user: res.locals._id, is_delete: false })
+                        homeworksParte[i].amountBookMark = amoutFavourate;
+                        const mark = await FavourateHomework.findOne({class_homework: homeworksParte[i]._id, user: res.locals._id, is_delete: false })
                         if(mark){
-                            arr[i].bookMark = true;
+                            homeworksParte[i].bookMark = true;
                         }
                         else{
-                            arr[i].bookMark = false;
+                            homeworksParte[i].bookMark = false;
                         }
                         const comments = await Comment.countDocuments(
                             {
@@ -455,6 +455,23 @@ class HomeWorkController{
                     })
                     
                     if(a){
+                        const amoutFavourate = await FavourateHomework.countDocuments({ class_homework: a._id, is_delete: false });
+                        a.amountBookMark = amoutFavourate;
+                        const mark = await FavourateHomework.findOne({class_homework: a._id, user: res.locals._id, is_delete: false })
+                        if(mark){
+                            a.bookMark = true;
+                        }
+                        else{
+                            a.bookMark = false;
+                        }
+                        const comments = await Comment.countDocuments(
+                            {
+                                onModel : 'ClassHomework',
+                                ref: homeworksParte[i]._id,
+                                is_delete: false
+                            }
+                        )
+                        a.amountComment = comments
                         let homeworksParte = JSON.parse(JSON.stringify(a));
                         list.push(homeworksParte)
                     }
