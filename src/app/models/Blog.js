@@ -41,7 +41,7 @@ const BlogSchema = new Schema(
     },
     {
         timestamps :true,
-        collection: 'user_images'
+        collection: 'blogs'
     }
 );
 
