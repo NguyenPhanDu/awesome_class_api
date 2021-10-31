@@ -33,7 +33,7 @@ class UserController{
                     res_code: 200,
                     res_status: "REGISTER_SUCCESSFULLY"
                 })
-                sendActiveMail(req,user2);
+                await sendActiveMail(req,user2);
                 
             })
             .catch(error =>{
