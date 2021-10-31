@@ -6,16 +6,23 @@ require('dotenv').config();
 async function sendInviteMemberEmail(req,user,classObj,classMember){
     try{
     let transport = await nodemailer.createTransport({
+        // host: 'smtp.gmail.com',
+        // port: 465,
+        // secure: true,
+        // auth: {
+        //     user: 'awesomeclass.work@gmail.com',
+        //     pass: 'du0336685195'
+        // },
+        // tls: {
+        //     rejectUnauthorized: false
+        // }
         host: 'smtp.gmail.com',
-        port: 465,
-        secure: true,
+        port: 587,
+        secure: false,
         auth: {
             user: 'awesomeclass.work@gmail.com',
             pass: 'du0336685195'
         },
-        tls: {
-            rejectUnauthorized: false
-        }
     });
     transport.use('compile', hbs({
         viewEngine: {

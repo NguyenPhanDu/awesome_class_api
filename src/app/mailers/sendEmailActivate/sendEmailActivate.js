@@ -6,6 +6,9 @@ async function sendActiveMail(req,user){
     try{
     let transport = await nodemailer.createTransport({
         service: 'gmail',
+        host: 'smtp.gmail.com',
+        port: 587,
+        secure: false,
         auth: {
             user: 'awesomeclass.work@gmail.com',
             pass: 'du0336685195'
