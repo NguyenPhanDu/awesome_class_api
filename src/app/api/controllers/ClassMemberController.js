@@ -88,7 +88,7 @@ class ClassMemberController {
                             res_status: "NOT_FOUND"
                         })
                     }
-
+                    console.log('CCCCCCCCCCCCCCCCCCCCCCCC')
                     listReceiver.push(user_Invite_id)
                     const newClassMember = await ClassMember.create({
                         user: mongoose.Types.ObjectId(user_Invite_id),
