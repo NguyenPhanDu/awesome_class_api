@@ -5,9 +5,7 @@ require('dotenv').config();
 async function sendActiveMail(req,user){
     try{
     let transport = await nodemailer.createTransport({
-        host: 'smtp.gmail.com',
-        port: 587,
-        secure: false,
+        service: 'gmail',
         auth: {
             user: 'awesomeclass.work@gmail.com',
             pass: 'du0336685195'
