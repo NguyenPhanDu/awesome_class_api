@@ -35,3 +35,25 @@ câu hỏi [
 
 
 [ 1, 3, 4, 3, 4, 1, 1 ]
+
+
+
+chức năng mời và đuổi rời.
+
+if(lớp có cho mời){
+    if(có email trong hệ thông){
+        if(có trong bảng member){
+
+        }
+        if(có trong member nhưng pending)
+        if(không có){
+            next
+        }
+    }
+    else{
+        thông báo ko tìm thấy
+    }
+}
+else{
+    return json lớp ko cho mời
+}

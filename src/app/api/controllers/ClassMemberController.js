@@ -52,112 +52,79 @@ class ClassMemberController {
 
     async inviteMember(req, res) {
         try {
-            // // teacher: 609b8123f7510b2328795fd4
-            // // student: 609b812bf7510b2328795fd5
-            // let class_role;
-            // // học sinh 
-            // if (req.body.class_role == 1) {
-            //     let classRole = await ClassRole.findOne({ id_class_role: 2 })
-            //     class_role = classRole._id
-            // }
-            // // giáo vi
-            // if (req.body.class_role == 2) {
-            //     let classRole = await ClassRole.findOne({ id_class_role: 1 })
-            //     class_role = classRole._id
-            // }
-            // const classObj = await Class.findOne({ id_class: req.body.id_class })
-            // const userInvite = await User.findOne({ email: req.body.email_invite })
-            // // tìm tài khoản mời trong database
-            // // nếu có
-            // if (userInvite) {
-            //     let user_Invite_id = userInvite._id;
-            //     const classMemberInvite = await ClassMember.findOne({
-            //         user: mongoose.Types.ObjectId(user_Invite_id),
-            //         class: mongoose.Types.ObjectId(classObj._id),
-            //         is_delete: false
-            //     });
-
-            //     if (classMemberInvite) {
-            //         return res.json({
-            //             success: false,
-            //             message: "This member is joined class.",
-            //             res_code: 403,
-            //             res_status: "NOT_FOUND"
-            //         })
-            //     }
-            //     else {
-            //         const newClassMember = await ClassMember.create({
-            //             user: mongoose.Types.ObjectId(user_Invite_id),
-            //             role: mongoose.Types.ObjectId(class_role),
-            //             class: mongoose.Types.ObjectId(classObj._id),
-            //             status: 2
-            //         });
-            //         res.json({
-            //             success: true,
-            //             message: "Invite member successfull!",
-            //             res_code: 200,
-            //             res_status: "INVITE_MEMBER_SUCCESSFULLY"
-            //         });
-            //         await sendInviteMemberEmail(req, userInvite, classObj, newClassMember);
-            //     }
-            // }
-            // // nếu không thông báo không tìm thấy
-            // else {
-            //     return res.json({
-            //         success: false,
-            //         message: "Email Not found.",
-            //         res_code: 403,
-            //         res_status: "EMAIL_NOT_FOUND"
-            //     })
-            // }
+            // if (req.body.class_role == 2) giáo viên
+            // if (req.body.class_role == 1) học sinh
+            // list gửi thông báo
             let listReceiver = [];
             const userInvite = await User.findOne({ email: req.body.email_invite })
-            // tìm tài khoản mời trong database
-            // nếu có
-            if (userInvite) {
-                let user_Invite_id = userInvite._id;
-                listReceiver.push(user_Invite_id)
-                const classMemberInvite = await ClassMember.findOne({
-                    user: mongoose.Types.ObjectId(user_Invite_id),
-                    class: mongoose.Types.ObjectId(req.class._id),
-                    is_delete: false
-                });
 
-                if (classMemberInvite) {
-                    return res.json({
-                        success: false,
-                        message: "This member is joined class.",
-                        res_code: 403,
-                        res_status: "NOT_FOUND"
-                    })
-                }
-                else {
+            //kiểm tra xin lớp có cho mời ko nếu không thông báo nếu có kiểm tra tiếp
+            //nếu cho phép
+            if(req.class.permission.able_invite_by_student == true){
+                // tìm kiếm có tài khoản trong hệ thống không
+                // nếu có
+                if (userInvite) {
+                    let user_Invite_id = userInvite._id;
+                    const classMemberInvite = await ClassMember.findOne({
+                        user: mongoose.Types.ObjectId(user_Invite_id),
+                        class: mongoose.Types.ObjectId(req.class._id),
+                        is_delete: false
+                    });
+    
+                    if (classMemberInvite && classMemberInvite.status != 2) {
+                        return res.json({
+                            success: false,
+                            message: "This member is joined class.",
+                            res_code: 403,
+                            res_status: "NOT_FOUND"
+                        })
+                    }
+
+                    if(classMemberInvite && classMemberInvite.status == 2){
+                        return res.json({
+                            success: false,
+                            message: "This member is confirming to join in class.",
+                            res_code: 403,
+                            res_status: "NOT_FOUND"
+                        })
+                    }
+
+                    listReceiver.push(user_Invite_id)
                     const newClassMember = await ClassMember.create({
                         user: mongoose.Types.ObjectId(user_Invite_id),
                         role: mongoose.Types.ObjectId(req.class_role),
                         class: mongoose.Types.ObjectId(req.class._id),
                         status: 2
                     });
+                    //await sendInviteMemberEmail(req, userInvite, req.class, newClassMember);
                     res.json({
                         success: true,
                         message: "Invite member successfull!",
                         res_code: 200,
                         res_status: "INVITE_MEMBER_SUCCESSFULLY"
                     });
-                    await NotificationController.inviteClassNotify(req.class._id, res.locals._id, listReceiver, 1);
-                    await sendInviteMemberEmail(req, userInvite, req.class, newClassMember);
+                    //await NotificationController.inviteClassNotify(req.class._id, res.locals._id, listReceiver, 1);
+                    
+                }
+                // nếu không
+                else {
+                    return res.json({
+                        success: false,
+                        message: "Email Not found.",
+                        res_code: 403,
+                        res_status: "EMAIL_NOT_FOUND"
+                    })
                 }
             }
-            // nếu không thông báo không tìm thấy
-            else {
+            // nếu không
+            else{
                 return res.json({
                     success: false,
-                    message: "Email Not found.",
+                    message: "This class unenable to invite new member",
                     res_code: 403,
                     res_status: "EMAIL_NOT_FOUND"
                 })
             }
-
         }
         catch (err) {
             console.log(err);

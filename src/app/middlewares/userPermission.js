@@ -243,51 +243,6 @@ async function limitMemberInClassWhileInviteClass(req, res, next){
                 }
             }
         }
-
-        // const userInvite = await User.findOne({ email: req.body.email_invite })
-        // // tìm tài khoản mời trong database
-        // // nếu có
-        // if (userInvite) {
-        //     let user_Invite_id = userInvite._id;
-        //     const classMemberInvite = await ClassMember.findOne({
-        //         user: mongoose.Types.ObjectId(user_Invite_id),
-        //         class: mongoose.Types.ObjectId(classObj._id),
-        //         is_delete: false
-        //     });
-
-        //     if (classMemberInvite) {
-        //         return res.json({
-        //             success: false,
-        //             message: "This member is joined class.",
-        //             res_code: 403,
-        //             res_status: "NOT_FOUND"
-        //         })
-        //     }
-        //     else {
-        //         const newClassMember = await ClassMember.create({
-        //             user: mongoose.Types.ObjectId(user_Invite_id),
-        //             role: mongoose.Types.ObjectId(class_role),
-        //             class: mongoose.Types.ObjectId(classObj._id),
-        //             status: 2
-        //         });
-        //         res.json({
-        //             success: true,
-        //             message: "Invite member successfull!",
-        //             res_code: 200,
-        //             res_status: "INVITE_MEMBER_SUCCESSFULLY"
-        //         });
-        //         await sendInviteMemberEmail(req, userInvite, classObj, newClassMember);
-        //     }
-        // }
-        // // nếu không thông báo không tìm thấy
-        // else {
-        //     return res.json({
-        //         success: false,
-        //         message: "Email Not found.",
-        //         res_code: 403,
-        //         res_status: "EMAIL_NOT_FOUND"
-        //     })
-        // }
     }
     catch (err) {
         console.log(err);
