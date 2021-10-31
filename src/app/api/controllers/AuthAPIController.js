@@ -8,44 +8,35 @@ const sendActiveMail = require('../../mailers/sendEmailActivate/sendEmailActivat
 const generateRandomCode = require('../../../helpers/index')
 class UserController{
     async signUp(req, res){
-        let user_type_id;
-        await UserType.findOne({ id_user_type: 2 })
-        .then(result=>{
-            user_type_id = result._id;
-        })
-        const user = new User({
-            email: req.body.email,
-            password: bcrypt.hashSync(req.body.password, 8),
-            user_type:  mongoose.Types.ObjectId(user_type_id),
-            activated_code: generateRandomCode(8)
-        });
-        await user.save()
-            .then(async user => {
-                let user2;
-                await User.findOne({_id : user._id}).populate('user_type')
-                    .then( newUser =>{
-                        user2 = newUser
-                    })
-                await res.json({
-                    success: true,
-                    message: "Sign up successfull!",
-                    data: user2,
-                    res_code: 200,
-                    res_status: "REGISTER_SUCCESSFULLY"
-                })
-                await sendActiveMail(req,user2);
-                
+        try{
+            const userType = await UserType.findOne({ id_user_type: 2 });
+            const user_type_id = userType._id
+            const user = await User.create({
+                email: req.body.email,
+                password: bcrypt.hashSync(req.body.password, 8),
+                user_type:  mongoose.Types.ObjectId(user_type_id),
+                activated_code: generateRandomCode(8)
+            });
+            const data = await User.findOne({_id : user._id}).populate('user_type')
+            await sendActiveMail(req,data);
+            res.json({
+                success: true,
+                message: "Sign up successfull!",
+                data: data,
+                res_code: 200,
+                res_status: "REGISTER_SUCCESSFULLY"
             })
-            .catch(error =>{
-                console.log(error);
+        }
+        catch(err){
+            console.log(err);
                 res.json({
                     success: false,
                     message: 'Server error. Please try again.',
-                    error: error.message,
+                    error: err,
                     res_code: 500,
                     res_status: "SERVER_ERROR"
                 });
-            })
+        }
     }
 
     signIn(req, res){

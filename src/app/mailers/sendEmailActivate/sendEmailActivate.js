@@ -26,7 +26,7 @@ async function sendActiveMail(req,user){
                 accessToken: accessToken
             },
         });
-        transport.use('compile', hbs({
+        await transport.use('compile', hbs({
             viewEngine: {
                 extName: ".hbs",
                 partialsDir: path.resolve('./src/resources/views/email'),

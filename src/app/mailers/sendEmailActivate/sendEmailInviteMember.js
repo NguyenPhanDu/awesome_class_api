@@ -47,8 +47,8 @@ async function sendInviteMemberEmail(req,user,classObj,classMember){
         //         pass: 'du0336685195'
         //     },
         // });
-            
-        transport.use('compile', hbs({
+
+        await transport.use('compile', hbs({
             viewEngine: {
                 extName: ".hbs",
                 partialsDir: path.resolve('./src/resources/views/email'),

@@ -25,7 +25,7 @@ async function sendResetPasswordMail(req,user){
             },
         });
 
-        transport.use('compile', hbs({
+        await transport.use('compile', hbs({
             viewEngine: {
                 extName: ".hbs",
                 partialsDir: path.resolve('./src/resources/views/email'),
