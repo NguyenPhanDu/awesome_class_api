@@ -57,3 +57,10 @@ if(lớp có cho mời){
 else{
     return json lớp ko cho mời
 }
+
+
+slide
+báo cáo
+file hình ảnh giao diện
+
+https://mail.google.com
