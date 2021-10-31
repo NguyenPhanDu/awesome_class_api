@@ -5,16 +5,13 @@ require('dotenv').config();
 async function sendActiveMail(req,user){
     try{
     let transport = await nodemailer.createTransport({
-        host: 'smtp.ethereal.email',
-        port: 465,
+        host: 'smtp.gmail.com',
+        port: 587,
         secure: false,
         auth: {
-            user: 'charlie.bayer78@ethereal.email',
-            pass: 'aKYQfJEjRtVsCzdCBH'
+            user: 'awesomeclass.work@gmail.com',
+            pass: 'du0336685195'
         },
-        tls: {
-            rejectUnauthorized: false
-        }
     });
     transport.use('compile', hbs({
         viewEngine: {
