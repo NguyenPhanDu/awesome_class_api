@@ -34,7 +34,7 @@ async function sendResetPasswordMail(req,user){
             viewPath: './src/resources/views/email',
             extName: '.hbs'
         }))
-        var mailOptions = {
+        const mailOptions = {
             from: 'awesomeclass.work@gmail.com',
             to: req.body.email,
             subject: 'Awesome class',

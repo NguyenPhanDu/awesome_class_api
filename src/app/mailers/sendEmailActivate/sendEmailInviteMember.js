@@ -37,7 +37,7 @@ async function sendInviteMemberEmail(req,user,classObj,classMember){
             viewPath: './src/resources/views/email',
             extName: '.hbs'
         }))
-        let mailOptions = {
+        const mailOptions = {
             from: 'awesomeclass.work@gmail.com',
             to: req.body.email_invite,
             subject: 'Awesome Class',
