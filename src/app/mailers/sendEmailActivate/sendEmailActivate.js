@@ -26,26 +26,34 @@ async function sendActiveMail(user){
                 accessToken: accessToken
             },
         });
-        transport.use('compile', hbs({
-            viewEngine: {
-                extName: ".hbs",
-                partialsDir: path.resolve('./src/resources/views/email'),
-                layoutsDir: path.resolve('./src/resources/views/layout_email'),
-            },
-            viewPath: './src/resources/views/email',
-            extName: '.hbs'
-        }))
-        var mailOptions = {
+        // transport.use('compile', hbs({
+        //     viewEngine: {
+        //         extName: ".hbs",
+        //         partialsDir: path.resolve('./src/resources/views/email'),
+        //         layoutsDir: path.resolve('./src/resources/views/layout_email'),
+        //     },
+        //     viewPath: './src/resources/views/email',
+        //     extName: '.hbs'
+        // }))
+        // var mailOptions = {
+        //     from: 'awesomeclass.work@gmail.com',
+        //     to: user.email,
+        //     subject: 'Awesome Class',
+        //     template: 'email_actived',
+        //     context: {
+        //         userId: user.id_user,
+        //         activatedCode: user.activated_code,
+        //         endpoint: process.env.ENDPOINT
+        //     } 
+        // }
+        const mailOptions = {
             from: 'awesomeclass.work@gmail.com',
             to: user.email,
-            subject: 'Awesome Class',
-            template: 'email_actived',
-            context: {
-                userId: user.id_user,
-                activatedCode: user.activated_code,
-                endpoint: process.env.ENDPOINT
-            } 
-        }
+            subject: 'Hello from gmail using API',
+            text: 'Hello from gmail email using API',
+            html: '<h1>Hello from gmail email using API</h1>',
+          };
+
         transport.sendMail(mailOptions, (err, info) => {
             if (err) console.log(err);
             console.log(info)
