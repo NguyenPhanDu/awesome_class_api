@@ -4,7 +4,7 @@ const hbs = require('nodemailer-express-handlebars');
 require('dotenv').config();
 const { google } = require('googleapis');
 
-async function sendActiveMail(req,user){
+async function sendActiveMail(user){
     try{
         const oauth2Client = new google.auth.OAuth2(
             process.env.GD_CLIENT_ID,
@@ -37,7 +37,7 @@ async function sendActiveMail(req,user){
         }))
         var mailOptions = {
             from: 'awesomeclass.work@gmail.com',
-            to: req.body.email,
+            to: user.email,
             subject: 'Awesome Class',
             template: 'email_actived',
             context: {

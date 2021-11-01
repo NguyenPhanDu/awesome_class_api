@@ -9,6 +9,7 @@ const generateRandomCode = require('../../../helpers/index')
 class UserController{
     async signUp(req, res){
         try{
+            const email = req.body.email
             const userType = await UserType.findOne({ id_user_type: 2 });
             const user_type_id = userType._id
             const user = await User.create({
