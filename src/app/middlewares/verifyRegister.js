@@ -89,4 +89,4 @@ checkValidatePassword = (req, res, next) =>{
 }
 
 
-module.exports = { checkDuplicateEmail, checkValidateEmail, checkValidatePassword }
+module.exports = { checkDuplicateEmail}
