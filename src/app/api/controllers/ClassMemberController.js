@@ -95,7 +95,7 @@ class ClassMemberController {
                         class: mongoose.Types.ObjectId(req.class._id),
                         status: 2
                     });
-                    await sendInviteMemberEmail(req, userInvite, req.class, newClassMember);
+                    sendInviteMemberEmail(req, userInvite, req.class, newClassMember);
                     res.json({
                         success: true,
                         message: "Invite member successfull!",

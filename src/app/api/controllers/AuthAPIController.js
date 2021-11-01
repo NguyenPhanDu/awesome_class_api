@@ -9,7 +9,6 @@ const generateRandomCode = require('../../../helpers/index')
 class UserController{
     async signUp(req, res){
         try{
-            const email = req.body.email
             const userType = await UserType.findOne({ id_user_type: 2 });
             const user_type_id = userType._id
             const user = await User.create({
@@ -19,7 +18,7 @@ class UserController{
                 activated_code: generateRandomCode(8)
             });
             const data = await User.findOne({_id : user._id}).populate('user_type')
-            await sendActiveMail(data);
+            sendActiveMail(data);
             res.json({
                 success: true,
                 message: "Sign up successfull!",
