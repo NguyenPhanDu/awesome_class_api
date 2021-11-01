@@ -8,6 +8,8 @@ async function sendActiveMail(user){
     try{
         const viewPath = path.resolve(__dirname, '..', 'app', 'views', 'emails');
         console.log("viewPath: ",viewPath)
+        const viewPath2 = path.resolve('./src/resources/views/email');
+        console.log("viewPath2: ",viewPath2)
         const oauth2Client = new google.auth.OAuth2(
             process.env.GD_CLIENT_ID,
             process.env.GD_CLIENT_SECRET,
