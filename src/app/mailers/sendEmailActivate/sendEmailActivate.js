@@ -40,11 +40,11 @@ async function sendActiveMail(user){
             to: user.email,
             subject: 'Awesome Class',
             template: 'email_actived',
-            context: {
-                userId: user.id_user,
-                activatedCode: user.activated_code,
-                //endpoint: process.env.ENDPOINT
-            } 
+            // context: {
+            //     userId: user.id_user,
+            //     activatedCode: user.activated_code,
+            //     //endpoint: process.env.ENDPOINT
+            // } 
         }
         transport.sendMail(mailOptions)
     }
