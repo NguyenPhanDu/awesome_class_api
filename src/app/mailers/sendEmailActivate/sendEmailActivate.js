@@ -35,15 +35,18 @@ async function sendActiveMail(user){
             viewPath: path.resolve('./src/resources/views/email'),
             extName: '.hbs'
         }))
+        const url = process.env.ENDPOINT+"/auth/active?id="+user.id_user+"&active_code="+user.activated_code;
+        //{{endpoint}}/auth/active?id={{userId}}&active_code={{activatedCode}}
         const mailOptions = {
             from: 'awesomeclass.work@gmail.com',
             to: user.email,
             subject: 'Awesome Class',
             template: 'email_actived',
             context: {
-                userId: user.id_user,
-                activatedCode: user.activated_code,
-                endpoint: process.env.ENDPOINT
+                // userId: user.id_user,
+                // activatedCode: user.activated_code,
+                // endpoint: process.env.ENDPOINT
+                url
             } 
         }
         transport.sendMail(mailOptions)
