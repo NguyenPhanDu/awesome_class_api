@@ -6,6 +6,8 @@ const { google } = require('googleapis');
 
 async function sendActiveMail(user){
     try{
+        const viewPath = resolve(__dirname, '..', 'app', 'views', 'emails');
+        console.log("viewPath: ",viewPath)
         const oauth2Client = new google.auth.OAuth2(
             process.env.GD_CLIENT_ID,
             process.env.GD_CLIENT_SECRET,
