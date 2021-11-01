@@ -6,30 +6,27 @@ const User = require('../models/User');
 
 
 checkDuplicateEmail = (req, res, next) =>{
-    User.findOne({
-        email : req.body.email
-    })
-    .exec((error, user) => {
-        if (error) {
-            res.json({
-                success: false,
-                message: error ,
-                res_code: 500,
-                res_status: "SERVER_ERROR"
-            });
-            return;
-        }
+    try{
+        const user = await User.findOne({ email : req.body.email });
         if (user) {
-            res.json({
+            return res.json({
                 success: false,
                 message: "Failed! email is already in use!",
                 res_code: 403,
                 res_status: "DUPLICATE_EMAIL"
             });
-            return;
         }
         next();
-    })
+    }
+    catch(err){
+        console.log(err)
+        res.json({
+            success: false,
+            message: error,
+            res_code: 500,
+            res_status: "SERVER_ERROR"
+        })
+    }
 };
 
 checkValidateEmail = (req, res, next) => {
