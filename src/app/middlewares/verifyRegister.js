@@ -4,8 +4,7 @@ const yup = require('yup');
 
 const User = require('../models/User');
 
-
-checkDuplicateEmail = (req, res, next) =>{
+async function checkDuplicateEmail(req, res, next){
     try{
         const user = await User.findOne({ email : req.body.email });
         if (user) {
