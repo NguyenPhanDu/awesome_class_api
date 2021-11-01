@@ -13,7 +13,7 @@ async function sendResetPasswordMail(req,user){
         oauth2Client.setCredentials({refresh_token: process.env.MAIL_REFESH_TOKEN});
         const accessToken = await oauth2Client.getAccessToken()
 
-        let transport = await nodemailer.createTransport({
+        let transport = nodemailer.createTransport({
             service: 'gmail',
             auth: {
                 type: 'OAuth2',
@@ -25,7 +25,7 @@ async function sendResetPasswordMail(req,user){
             },
         });
 
-        await transport.use('compile', hbs({
+        transport.use('compile', hbs({
             viewEngine: {
                 extName: ".hbs",
                 partialsDir: path.resolve('./src/resources/views/email'),
@@ -43,7 +43,7 @@ async function sendResetPasswordMail(req,user){
                 resetCode: user.reset_code
             } 
         }
-        await transport.sendMail(mailOptions, (err, info) => {
+        transport.sendMail(mailOptions, (err, info) => {
             if (err) console.log(err);
             console.log(info)
         })

@@ -15,7 +15,7 @@ async function sendInviteMemberEmail(req,user,classObj,classMember){
         oauth2Client.setCredentials({refresh_token: process.env.MAIL_REFESH_TOKEN});
         const accessToken = await oauth2Client.getAccessToken()
 
-        let transport = await nodemailer.createTransport({
+        let transport =  nodemailer.createTransport({
             service: 'gmail',
             auth: {
                 type: 'OAuth2',
@@ -28,27 +28,7 @@ async function sendInviteMemberEmail(req,user,classObj,classMember){
         });
         
 
-        // let transport = await nodemailer.createTransport({
-        //     // host: 'smtp.gmail.com',
-        //     // port: 465,
-        //     // secure: true,
-        //     // auth: {
-        //     //     user: 'awesomeclass.work@gmail.com',
-        //     //     pass: 'du0336685195'
-        //     // },
-        //     // tls: {
-        //     //     rejectUnauthorized: false
-        //     // }
-        //     host: 'smtp.gmail.com',
-        //     port: 587,
-        //     secure: false,
-        //     auth: {
-        //         user: 'awesomeclass.work@gmail.com',
-        //         pass: 'du0336685195'
-        //     },
-        // });
-
-        await transport.use('compile', hbs({
+        transport.use('compile', hbs({
             viewEngine: {
                 extName: ".hbs",
                 partialsDir: path.resolve('./src/resources/views/email'),
@@ -57,7 +37,7 @@ async function sendInviteMemberEmail(req,user,classObj,classMember){
             viewPath: './src/resources/views/email',
             extName: '.hbs'
         }))
-        var mailOptions = {
+        let mailOptions = {
             from: 'awesomeclass.work@gmail.com',
             to: req.body.email_invite,
             subject: 'Awesome Class',
@@ -69,7 +49,7 @@ async function sendInviteMemberEmail(req,user,classObj,classMember){
                 endpoint: process.env.ENDPOINT
             } 
         }
-        await transport.sendMail(mailOptions, (err, info) => {
+        transport.sendMail(mailOptions, (err, info) => {
             if (err) console.log(err);
             console.log(info)
         })
