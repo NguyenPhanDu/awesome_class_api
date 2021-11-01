@@ -19,7 +19,7 @@ class UserController{
                 activated_code: generateRandomCode(8)
             });
             const data = await User.findOne({_id : user._id}).populate('user_type')
-            await sendActiveMail(req,data);
+            await sendActiveMail(data);
             res.json({
                 success: true,
                 message: "Sign up successfull!",
