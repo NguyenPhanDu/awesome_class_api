@@ -132,8 +132,9 @@ class BlogController{
                 if(req.body.thumbnail){
                     const thumbnail = await imgur.uploadBase64(req.body.thumbnail);
                     const newBlogThumbnail = await BlogThumbnail.create({
-                        user: mongoose.Types.ObjectId(user._id),
-                        blog: mongoose.Types.ObjectId(blogWantUpdate._id),
+                        ref: mongoose.Types.ObjectId(blogWantUpdate._id),
+                        onModel: 'Blog',
+                        image_type: 3,
                         image_id: thumbnail.id,
                         delete_hash: thumbnail.deletehash,
                         image_link: thumbnail.link
