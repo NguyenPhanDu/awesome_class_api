@@ -453,26 +453,26 @@ class HomeWorkController{
                             select: ["-password"],
                         }]
                     })
-                    let homeworksParte = JSON.parse(JSON.stringify(a));
-                    console.log("Log đây: ",homeworksParte)
-                    if(homeworksParte){
-                        const amoutFavourate = await FavourateHomework.countDocuments({ class_homework: homeworksParte._id, is_delete: false });
-                        homeworksParte.amountBookMark = amoutFavourate;
-                        const mark = await FavourateHomework.findOne({class_homework: homeworksParte._id, user: res.locals._id, is_delete: false })
+                    
+                    if(a){
+                        const amoutFavourate = await FavourateHomework.countDocuments({ class_homework: a._id, is_delete: false });
+                        a.amountBookMark = amoutFavourate;
+                        const mark = await FavourateHomework.findOne({class_homework: a._id, user: res.locals._id, is_delete: false })
                         if(mark){
-                            homeworksParte.bookMark = true;
+                            a.bookMark = true;
                         }
                         else{
-                            homeworksParte.bookMark = false;
+                            a.bookMark = false;
                         }
                         const comments = await Comment.countDocuments(
                             {
                                 onModel : 'ClassHomework',
-                                ref: homeworksParte._id,
+                                ref: a._id,
                                 is_delete: false
                             }
                         )
-                        homeworksParte.amountComment = comments
+                        a.amountComment = comments
+                        let homeworksParte = JSON.parse(JSON.stringify(a));
                         list.push(homeworksParte)
                     }
                 }

@@ -154,14 +154,15 @@ class ClassHomeworkController{
                         }
                         ]
                     })
+                    let b = JSON.parse(JSON.stringify(a))
                     const amoutFavourate = await FavourateHomework.countDocuments({ class_homework: mongoose.Types.ObjectId(a._id), is_delete: false });
-                    a.amountBookMark = amoutFavourate;
+                    b.amountBookMark = amoutFavourate;
                     const mark = await FavourateHomework.findOne({class_homework: a._id, user: res.locals._id, is_delete: false })
                     if(mark){
-                        a.bookMark = true;
+                        b.bookMark = true;
                     }
                     else{
-                        a.bookMark = false;
+                        b.bookMark = false;
                     }
                     const comments = await Comment.countDocuments(
                         {
@@ -170,8 +171,8 @@ class ClassHomeworkController{
                             is_delete: false
                         }
                     )
-                    a.amountComment = comments
-                    array.push(a);
+                    b.amountComment = comments
+                    array.push(b);
                 }
                 let c = JSON.parse(JSON.stringify(array));
                 arrayHomework = c.sort((a,b) => moment(parseTimeFormMongo(b.createdAt), "YYYY-MM-DD HH:mm:ss") - moment(parseTimeFormMongo(a.createdAt), "YYYY-MM-DD HH:mm:ss"));
