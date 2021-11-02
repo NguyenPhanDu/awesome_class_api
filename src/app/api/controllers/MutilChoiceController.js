@@ -32,6 +32,7 @@ async function create(req, res){
         let reqQuestions = await JSON.parse(req.body.questions)
         let reqStudent = await JSON.parse(req.body.emails);
         let reqCategory = await JSON.parse(req.body.category);
+        console.log("reqCategoryreqCategoryreqCategoryreqCategory",reqCategory)
         let reqTotalScore = await JSON.parse(req.body.total_scores);
         if(req.body.deadline == 'null'){
             req.body.deadline = null;
