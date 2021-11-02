@@ -454,6 +454,7 @@ class HomeWorkController{
                         }]
                     })
                     let homeworksParte = JSON.parse(JSON.stringify(a));
+                    console.log("Log đây: ",homeworksParte)
                     if(homeworksParte){
                         const amoutFavourate = await FavourateHomework.countDocuments({ class_homework: homeworksParte._id, is_delete: false });
                         homeworksParte.amountBookMark = amoutFavourate;
