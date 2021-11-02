@@ -15,7 +15,7 @@ async function sendActiveMail(user){
         oauth2Client.setCredentials({refresh_token: process.env.MAIL_REFESH_TOKEN});
         const accessToken = await oauth2Client.getAccessToken()
 
-        let transport = await nodemailer.createTransport({
+        let transport = nodemailer.createTransport({
             service: 'gmail',
             auth: {
                 type: 'OAuth2',
