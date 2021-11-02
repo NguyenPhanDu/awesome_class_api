@@ -23,7 +23,7 @@ router.post('/return-homework', StatisticalHomewok.returnHomework);
 
 
 // bài tập trắc nghiệm
-router.post('/create-mutil-choice', MutilChoiceController.create);
-router.post('/edit-mutil-choice', MutilChoiceController.edit);
+router.post('/create-mutil-choice',upload, MutilChoiceController.create);
+router.post('/edit-mutil-choice',upload, MutilChoiceController.edit);
 
 module.exports = router;
