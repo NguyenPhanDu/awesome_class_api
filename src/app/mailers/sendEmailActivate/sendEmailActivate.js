@@ -44,10 +44,9 @@ async function sendActiveMail(user){
             subject: 'Awesome Class',
             template: 'email_actived',
             context: {
-                // userId: user.id_user,
-                // activatedCode: user.activated_code,
-                // endpoint: process.env.ENDPOINT
-                url
+                userId: user.id_user,
+                activatedCode: user.activated_code,
+                endpoint: process.env.ENDPOINT
             } 
         }
         const result = await transport.sendMail(mailOptions)
