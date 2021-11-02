@@ -467,7 +467,7 @@ class HomeWorkController{
                         const comments = await Comment.countDocuments(
                             {
                                 onModel : 'ClassHomework',
-                                ref: homeworksParte[i]._id,
+                                ref: a._id,
                                 is_delete: false
                             }
                         )
