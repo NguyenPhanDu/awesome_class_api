@@ -5,7 +5,8 @@ const bcrypt = require('bcrypt');
 const secretKeyJwt = require('../../../config/auth')
 const jwt = require('jsonwebtoken');
 const sendActiveMail = require('../../mailers/sendEmailActivate/sendEmailActivate')
-const generateRandomCode = require('../../../helpers/index')
+const generateRandomCode = require('../../../helpers/index');
+require('dotenv').config();
 class UserController{
     async signUp(req, res){
         try{
@@ -39,6 +40,43 @@ class UserController{
         }
     }
 
+    async verifyEmail(req, res){
+        try{
+            const user = await User.findOne({ id_user: req.query.id });
+            if(!user){
+                return res.json({
+                    success: false,
+                    message: "Email Not found.",
+                    res_code: 403,
+                    res_status: "EMAIL_NOT_FOUND"
+                })
+            }
+            if(user.activated == true){
+                return res.json({
+                    success: false,
+                    message: "Email is activated.",
+                    res_code: 401,
+                    res_status: "EMAIL_IS_ACTIVATED"
+                })
+            }
+            if(req.query.active_code == user.activated_code){
+                User.findOneAndUpdate({id_user: user.id_user},{activated: true}, { new: true })
+                    .then(userUpdated =>{
+                        res.redirect(`${process.env.ENDPOINTFE}`)
+                    })
+            }
+        }
+        catch(err){
+            console.log(err);
+            res.json({
+                success: false,
+                message: 'Server error. Please try again.',
+                error: err,
+                res_code: 500,
+                res_status: "SERVER_ERROR"
+            });
+        }
+    }
     signIn(req, res){
         User.findOne({email : req.body.email})
             .populate('user_type')
