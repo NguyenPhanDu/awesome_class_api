@@ -453,26 +453,25 @@ class HomeWorkController{
                             select: ["-password"],
                         }]
                     })
-                    
-                    if(a){
-                        const amoutFavourate = await FavourateHomework.countDocuments({ class_homework: a._id, is_delete: false });
-                        a.amountBookMark = amoutFavourate;
-                        const mark = await FavourateHomework.findOne({class_homework: a._id, user: res.locals._id, is_delete: false })
+                    let homeworksParte = JSON.parse(JSON.stringify(a));
+                    if(homeworksParte){
+                        const amoutFavourate = await FavourateHomework.countDocuments({ class_homework: homeworksParte._id, is_delete: false });
+                        homeworksParte.amountBookMark = amoutFavourate;
+                        const mark = await FavourateHomework.findOne({class_homework: homeworksParte._id, user: res.locals._id, is_delete: false })
                         if(mark){
-                            a.bookMark = true;
+                            homeworksParte.bookMark = true;
                         }
                         else{
-                            a.bookMark = false;
+                            homeworksParte.bookMark = false;
                         }
                         const comments = await Comment.countDocuments(
                             {
                                 onModel : 'ClassHomework',
-                                ref: a._id,
+                                ref: homeworksParte._id,
                                 is_delete: false
                             }
                         )
-                        a.amountComment = comments
-                        let homeworksParte = JSON.parse(JSON.stringify(a));
+                        homeworksParte.amountComment = comments
                         list.push(homeworksParte)
                     }
                 }
