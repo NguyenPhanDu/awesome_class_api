@@ -49,7 +49,7 @@ async function sendActiveMail(user){
                 url
             } 
         }
-        transport.sendMail(mailOptions)
+        const result = await transport.sendMail(mailOptions)
     }
     catch(err){
         console.log(err)
