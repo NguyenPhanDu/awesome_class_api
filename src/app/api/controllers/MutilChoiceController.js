@@ -28,11 +28,9 @@ const Test = require('../../models/Test')
 // ];
 async function create(req, res){
     try{
-        console.log(req.body)
         let reqQuestions = await JSON.parse(req.body.questions)
         let reqStudent = await JSON.parse(req.body.emails);
         let reqCategory = await JSON.parse(req.body.category);
-        console.log("reqCategoryreqCategoryreqCategoryreqCategory",reqCategory)
         let reqTotalScore = await JSON.parse(req.body.total_scores);
         if(req.body.deadline == 'null'){
             req.body.deadline = null;
@@ -122,6 +120,24 @@ async function create(req, res){
                 });
 
             };
+
+            if(reqCategory != null){
+                if(reqCategory.id_homework_category == -1){
+                  const newCategory = await HomeworkCategory.create(
+                      {
+                        title: reqCategory.title,
+                        user: res.locals._id,
+                        class: classId
+                      }
+                  );
+                  MutilChoiceHomework.findOneAndUpdate({ _id: newHomework._id }, { homework_category: newCategory._id })
+                }
+                else{
+                    const category = await HomeworkCategory.findOne({ id_homework_category: reqCategory.id_homework_category, is_delete: false });
+                    MutilChoiceHomework.findOneAndUpdate({ _id: newHomework._id }, { homework_category: category._id })
+                }
+            }
+
             const homeworkCreated = await MutilChoiceHomework.findById(newHomework._id)
                             .populate("homework_type", "-_id -__v")
                             .populate("create_by", "-_id -__v -password")
