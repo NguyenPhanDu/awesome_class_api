@@ -28,6 +28,7 @@ const Test = require('../../models/Test')
 // ];
 async function create(req, res){
     try{
+        console.log(req.body.questions)
         let reqQuestions = await JSON.parse(req.body.questions)
         let reqStudent = await JSON.parse(req.body.emails);
         let reqCategory = await JSON.parse(req.body.category);
