@@ -320,7 +320,7 @@ class HomeWorkController{
                 homeworkModel = '';
             }
             if(Number(req.body.homework_type) == 3){
-                homeworkModel = '';
+                homeworkModel = MutilChoiceHomework;
             }
             const classHomework = await ClassHomework.findOne({id_class_homework: req.body.id_class_homework, is_delete: false}).populate('class')
             let homeworkId = classHomework.homework;
