@@ -316,7 +316,7 @@ class HomeWorkController{
                     let a = await ClassMember.findOne(
                         { 
                             user: mongoose.Types.ObjectId(user_id), 
-                            class: mongoose.Types.ObjectId(homeworksParte[i].class),
+                            class: mongoose.Types.ObjectId(homeworksParte[i].class._id),
                             is_delete: true
                         })
                     if(!a){
