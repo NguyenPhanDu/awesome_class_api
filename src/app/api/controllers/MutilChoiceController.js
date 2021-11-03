@@ -130,11 +130,11 @@ async function create(req, res){
                         class: classId
                       }
                   );
-                  MutilChoiceHomework.findOneAndUpdate({ _id: newHomework._id }, { homework_category: newCategory._id })
+                  await MutilChoiceHomework.findOneAndUpdate({ _id: newHomework._id }, { homework_category: newCategory._id }, {new :true})
                 }
                 else{
                     const category = await HomeworkCategory.findOne({ id_homework_category: reqCategory.id_homework_category, is_delete: false });
-                    MutilChoiceHomework.findOneAndUpdate({ _id: newHomework._id }, { homework_category: category._id })
+                    await MutilChoiceHomework.findOneAndUpdate({ _id: newHomework._id }, { homework_category: category._id }, { new: true})
                 }
             }
 

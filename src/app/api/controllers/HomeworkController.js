@@ -109,24 +109,19 @@ class HomeWorkController{
                 };
 
                 if(reqCategory != null){
-                    console.log("có category")
                     if(reqCategory.id_homework_category == -1){
-                      const newCategory = await HomeworkCategory.create(
+                        const newCategory = await HomeworkCategory.create(
                           {
                             title: reqCategory.title,
                             user: res.locals._id,
                             class: classId
                           }
                       );
-                      console.log("New catagory", newCategory)
-                      const test = await NormalHomework.findOneAndUpdate({ _id: newHomework._id }, { homework_category: newCategory._id },{ new: true })
-                      console.log(test)
+                        const test = await NormalHomework.findOneAndUpdate({ _id: newHomework._id }, { homework_category: newCategory._id },{ new: true })
                     }
                     else{
-                        console.log("Old category")
                         const category = await HomeworkCategory.findOne({ id_homework_category: reqCategory.id_homework_category, is_delete: false });
                         const test = await NormalHomework.findOneAndUpdate({ _id: newHomework._id }, { homework_category: category._id }, { new: true});
-                        console.log(test)
                     }
                 }
                 
