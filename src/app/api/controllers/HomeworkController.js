@@ -420,6 +420,7 @@ class HomeWorkController{
     async updateNormalHomework(req, res){
         // Req:  id_class, title, description, deadline, start_date, total_scores, category : { title, id_homework_category}, emails[];
         try{
+            console.log(req.body)
             // mảng các receiver nhận notify
             let listReceiver = [];
             let reqAttachments = JSON.parse(req.body.attachments);
