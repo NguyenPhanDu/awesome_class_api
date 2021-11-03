@@ -95,7 +95,11 @@ class ClassHomeworkController{
                         select:['-password']
                     }
                     ]
-                });
+                })
+                .populate({
+                    path: 'class',
+                    select: '-__v -createdAt -updatedAt'
+                })
                 const arr = JSON.parse(JSON.stringify(allClassHomework));
                 for(let i = 0; i< arr.length; i++){
                     const amoutFavourate = await FavourateHomework.countDocuments({ class_homework: mongoose.Types.ObjectId(arr[i]._id), is_delete: false });
@@ -153,6 +157,10 @@ class ClassHomeworkController{
                             select:['-password']
                         }
                         ]
+                    })
+                    .populate({
+                        path: 'class',
+                        select: '-__v -createdAt -updatedAt'
                     })
                     let partes = JSON.parse(JSON.stringify(a))
                     const amoutFavourate = await FavourateHomework.countDocuments({ class_homework: mongoose.Types.ObjectId(a._id), is_delete: false });
