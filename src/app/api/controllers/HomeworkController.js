@@ -117,11 +117,11 @@ class HomeWorkController{
                             class: classId
                           }
                       );
-                      MutilChoiceHomework.findOneAndUpdate({ _id: newHomework._id }, { homework_category: newCategory._id })
+                      NormalHomework.findOneAndUpdate({ _id: newHomework._id }, { homework_category: newCategory._id })
                     }
                     else{
                         const category = await HomeworkCategory.findOne({ id_homework_category: reqCategory.id_homework_category, is_delete: false });
-                        MutilChoiceHomework.findOneAndUpdate({ _id: newHomework._id }, { homework_category: category._id })
+                        NormalHomework.findOneAndUpdate({ _id: newHomework._id }, { homework_category: category._id })
                     }
                 }
                 
