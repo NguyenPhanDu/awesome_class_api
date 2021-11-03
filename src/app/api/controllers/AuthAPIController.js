@@ -42,7 +42,7 @@ class UserController{
 
     async verifyEmail(req, res){
         try{
-            const user = await User.findOne({ id_user: req.query.id });
+            const user = await User.findOne({ id_user: req.body.email });
             if(!user){
                 return res.json({
                     success: false,
@@ -59,11 +59,22 @@ class UserController{
                     res_status: "EMAIL_IS_ACTIVATED"
                 })
             }
-            if(req.query.active_code == user.activated_code){
+            if(req.body.activated_code == user.activated_code){
                 User.findOneAndUpdate({id_user: user.id_user},{activated: true}, { new: true })
-                    .then(userUpdated =>{
-                        res.redirect(`${process.env.ENDPOINTFE}`)
-                    })
+                res.json({
+                    success: true,
+                    message: "Activated your account successfully!",
+                    res_code: 200,
+                    res_status: "REGISTER_SUCCESSFULLY"
+                })
+            }
+            else{
+                return res.json({
+                    success: false,
+                    message: "Wrong activated code",
+                    res_code: 401,
+                    res_status: "EMAIL_IS_ACTIVATED"
+                })
             }
         }
         catch(err){
@@ -77,6 +88,42 @@ class UserController{
             });
         }
     }
+
+    async resendVerifyCode(req, res){
+        try{
+            const user = await User.findOne({ email: req.body.email, activated: false })
+            if(!user){
+                return res.json({
+                    success: false,
+                    message: "Failed! email not found",
+                    res_code: 404,
+                    res_status: "NOT_FOUND"
+                });
+            }
+            else{
+                const newCode = generateRandomCode(8);
+                const data = await User.findOneAndUpdate({ _id: user._id }, { activated_code: generateRandomCode(8) },{ new: true }).populate('user_type')
+                sendActiveMail(data);
+                res.json({
+                    success: true,
+                    message: "Send new active code successfully!",
+                    res_code: 200,
+                    res_status: "REGISTER_SUCCESSFULLY"
+                })
+            }
+        }
+        catch(err){
+            console.log(err);
+                res.json({
+                    success: false,
+                    message: 'Server error. Please try again.',
+                    error: err,
+                    res_code: 500,
+                    res_status: "SERVER_ERROR"
+                });
+        }
+    }
+
     signIn(req, res){
         User.findOne({email : req.body.email})
             .populate('user_type')
