@@ -98,10 +98,7 @@ async function create(req, res){
                 }
             }
             else{
-                console.log("gửi toàn bộ sinh viên trong lớp")
                 let arrStudentInClass = await ClassMember.find({ class: mongoose.Types.ObjectId(classId), role: mongoose.Types.ObjectId(classRoleStudentId), is_delete: false, status: 1 })
-                console.log("danh sách sinh viên: ");
-                console.log(arrStudentInClass)
                 if(arrStudentInClass.length > 0){
                     for(let i =0; i< arrStudentInClass.length; i++){
                         await HomeworkAssign.create({
@@ -195,12 +192,13 @@ async function edit(req, res){
                 path: 'create_by'
             }
         });
+        const classRoleStudent = await ClassRole.findOne({id_class_role : 2})
+        let classRoleStudentId = classRoleStudent._id;
         const classRoleTeacher = await ClassRole.findOne({id_class_role : 1 });
         let classRoleTeacherId = classRoleTeacher._id;
         let classId = classHomeWork.class
         const user = await User.findOne({email: res.locals.email})
         const userId = user._id;
-        let categoryUpdateId;
         if(classHomeWork.homework.create_by.email == res.locals.email){
             let update = { 
                 description: req.body.description,
@@ -209,50 +207,9 @@ async function edit(req, res){
                 total_scores: reqTotalScore,
                 questions: reqQuestions
             }
-            if(reqCategory){
-                let flag = false;
-                if(reqCategory.id_homework_category == -1){
-                    let allCategoryInClass = await HomeworkCategory.find({class: mongoose.Types.ObjectId(classHomeWork.class), is_delete: false})
-                    const allCategoryInClassLengnt = allCategoryInClass.length
-                    if(allCategoryInClassLengnt > 0){
-                        for(let i = 0 ;i< allCategoryInClassLengnt; i++){
-                            if(reqCategory.title.toLowerCase() == allCategoryInClass[0].title.toLowerCase()){
-                                flag = true;
-                                console.log(flag)
-                                res.json({
-                                    success: false,
-                                    message: 'This category already exist!',
-                                    res_code: 422,
-                                    res_status: "SERVER_ERROR"
-                                });
-                                return;
-                            }
-                        }
-                    }
-                    if(flag == false){
-                        const newHomeworkCategory = await HomeworkCategory.create({
-                            title: reqCategory.title,
-                            user: mongoose.Types.ObjectId(userId),
-                            class: mongoose.Types.ObjectId(classHomeWork.class)
-                        });
-                        categoryUpdateId = newHomeworkCategory._id
-                    }
-                }
-                else{
-                    const homeworkCategory = await HomeworkCategory.findOne({id_homework_category: reqCategory.id_homework_category, is_delete: false});
-                    console.log(homeworkCategory);
-                    categoryUpdateId = homeworkCategory._id
-                }
-                update = { 
-                    description: req.body.description,
-                    title: req.body.title,
-                    deadline: req.body.deadline,
-                    total_scores: reqTotalScore,
-                    homework_category: mongoose.Types.ObjectId(categoryUpdateId),
-                    questions: reqQuestions
-                }
-            }  
+            //cập nhật học sinh nhận bài tập
             if(reqStudent.length > 0 ){
+                // tạo mảng người nhận thông báo là các giáo viên
                 // giáo viên trong lớp trừ bản thân
                 const allTeacherInClass = await ClassMember.find({ class: mongoose.Types.ObjectId(classId), role: mongoose.Types.ObjectId(classRoleTeacherId) ,user: { $ne: mongoose.Types.ObjectId(userId) } });
                 JSON.parse(JSON.stringify(allTeacherInClass));
@@ -260,7 +217,7 @@ async function edit(req, res){
                 for(let i = 0; i < allTeacherInClass.length; i++){
                     listReceiver.push(allTeacherInClass[i].user);
                 }
-
+                // đầu tiên xóa hết những assgin liên quan tới bài tập này
                 await HomeworkAssign.updateMany(
                     { 
                         class: mongoose.Types.ObjectId(classHomeWork.class),
@@ -272,21 +229,25 @@ async function edit(req, res){
                         is_delete: true
                     }
                 );
-                
+                // lặp ra mảng học sinh đc nhận sao đó cập nhật lại assgin cho những người có trong mảng
                 let arrLength = reqStudent.length
                 for(let i = 0; i<arrLength;i++ ){
                     let ddd = await User.findOne({email: reqStudent[i]})
                     let userIds = ddd._id;
+                    // tìm kiếm học sinh trong bảng assin
                     let a = await HomeworkAssign.findOne({
                         class: mongoose.Types.ObjectId(classHomeWork.class),
                         homework: mongoose.Types.ObjectId(classHomeWork.homework._id),
                         onModel: "MutilChoiceHomework",
                         user: mongoose.Types.ObjectId(userIds)
                     });
+                    //nếu có cập nhật lại
                     if(a){
                         await HomeworkAssign.findByIdAndUpdate(a._id, { is_delete : false });
+                        // tạo mảng người nhận thông báo là học sinh
                         listReceiver.push(a.user);
                     }
+                    // ko có thì tạo mới
                     else{
                         const b = await HomeworkAssign.create({
                             user: mongoose.Types.ObjectId(userIds),
@@ -294,42 +255,57 @@ async function edit(req, res){
                             homework: mongoose.Types.ObjectId(classHomeWork.homework._id),
                             onModel: 'MutilChoiceHomework'
                         })
+                        // tạo mảng người nhận thông báo là học sinh
                         listReceiver.push(b.user);
                     }
                 }
             }
-            let allMemberInClass = await ClassMember.find({ class: mongoose.Types.ObjectId(classId), user: { $ne: mongoose.Types.ObjectId(userId) } });
-            JSON.parse(JSON.stringify(allMemberInClass));
-            listReceiver  = allMemberInClass.map(item => {
-                return item.user
-            });
-            // else{
-            //     let arrLength = reqStudent.length
-            //     for(let i = 0; i<arrLength;i++ ){
-            //         let ddd = await User.findOne({email: reqStudent[i]})
-            //         let userIds = ddd._id;
-            //         let a = await HomeworkAssign.findOne({
-            //             class: mongoose.Types.ObjectId(classHomeWork.class),
-            //             homework: mongoose.Types.ObjectId(classHomeWork.homework._id),
-            //             onModel: "NormalHomework",
-            //             user: mongoose.Types.ObjectId(userIds)
-            //         });
-            //         if(a){
-            //             await HomeworkAssign.findByIdAndUpdate(a._id, { is_delete : false });
-            //             //await NotificationController.createUpdateHomeworkNotify(classId, classHomework._id, userId, userIds)
-
-            //         }
-            //         else{
-            //             await HomeworkAssign.create({
-            //                 user: mongoose.Types.ObjectId(userIds),
-            //                 class: mongoose.Types.ObjectId(classHomeWork.class),
-            //                 homework: mongoose.Types.ObjectId(classHomeWork.homework._id),
-            //                 onModel: 'NormalHomework'
-            //             })
-            //             //await NotificationController.createUpdateHomeworkNotify(classId, classHomework._id, userId, userIds)
-            //         }
-            //     }
-            // }
+            else{
+                // tìm tất cả học sinh trong lớp
+                let arrStudentInClass = await ClassMember.find({ class: mongoose.Types.ObjectId(classId), role: mongoose.Types.ObjectId(classRoleStudentId), is_delete: false, status: 1 })
+                // đầu tiên xóa hết những assgin liên quan tới bài tập này
+                await HomeworkAssign.updateMany(
+                    { 
+                        class: mongoose.Types.ObjectId(classHomeWork.class),
+                        homework: mongoose.Types.ObjectId(classHomeWork.homework._id),
+                        onModel: "MutilChoiceHomework",
+                        is_delete: false
+                    },
+                    {
+                        is_delete: true
+                    }
+                );
+                // lặp ra mảng học sinh đc nhận sao đó cập nhật lại assgin cho những người có trong mảng
+                let arrLength = arrStudentInClass.length
+                for(let i = 0; i<arrLength;i++ ){
+                    // tìm kiếm học sinh trong bảng assin
+                    let a = await HomeworkAssign.findOne({
+                        class: mongoose.Types.ObjectId(classHomeWork.class),
+                        homework: mongoose.Types.ObjectId(classHomeWork.homework._id),
+                        onModel: "MutilChoiceHomework",
+                        user: mongoose.Types.ObjectId(arrStudentInClass[i].user)
+                    });
+                    //nếu có cập nhật lại
+                    if(a){
+                        await HomeworkAssign.findByIdAndUpdate(a._id, { is_delete : false });
+                    }
+                    // ko có thì tạo mới
+                    else{
+                        const b = await HomeworkAssign.create({
+                            user: mongoose.Types.ObjectId(arrStudentInClass[i].user),
+                            class: mongoose.Types.ObjectId(classHomeWork.class),
+                            homework: mongoose.Types.ObjectId(classHomeWork.homework._id),
+                            onModel: 'MutilChoiceHomework'
+                        })
+                    }
+                }
+                // nếu tất cả học sinh nhận bài tập thì tìm kiếm tất cả thành viên trong lớp học. vào mảng người nhận thông báo
+                let allMemberInClass = await ClassMember.find({ class: mongoose.Types.ObjectId(classId), user: { $ne: mongoose.Types.ObjectId(userId) } });
+                const listListenerParte = JSON.parse(JSON.stringify(allMemberInClass));
+                listReceiver  = listListenerParte.map(item => {
+                    return item.user
+                });
+            }
             if(reqAttachments.length > 0){
                 let newDocument = [];
                 await FolerServices.deleteFileWhenUpdate(classHomeWork._id);
@@ -363,6 +339,24 @@ async function edit(req, res){
                     }
                 }
             }
+
+            if(reqCategory != null){
+                if(reqCategory.id_homework_category == -1){
+                  const newCategory = await HomeworkCategory.create(
+                      {
+                        title: reqCategory.title,
+                        user: res.locals._id,
+                        class: classId
+                      }
+                  );
+                  await MutilChoiceHomework.findOneAndUpdate({ id_mutil_choice: classHomeWork.homework.id_mutil_choice, is_delete: false }, { homework_category: newCategory._id }, {new :true})
+                }
+                else{
+                    const category = await HomeworkCategory.findOne({ id_homework_category: reqCategory.id_homework_category, is_delete: false });
+                    await MutilChoiceHomework.findOneAndUpdate({ id_mutil_choice: classHomeWork.homework.id_mutil_choice, is_delete: false }, { homework_category: category._id }, { new: true})
+                }
+            }
+
             const homeworkUpdate = await MutilChoiceHomework.findOneAndUpdate(
                 { id_mutil_choice: classHomeWork.homework.id_mutil_choice, is_delete: false },
                 update,
@@ -373,6 +367,8 @@ async function edit(req, res){
             .populate("homework_category", "-_id -__v")
             .populate("document", "name viewLink downloadLink size id_files");
             
+            
+
             let arrayStudentAssgined = await HomeworkAssign.find({ homework: mongoose.Types.ObjectId(classHomeWork.homework._id), class: mongoose.Types.ObjectId(classId) })
             .populate('user', '-__v, -password');
             let arrayStudentAssginedEmail = [];
