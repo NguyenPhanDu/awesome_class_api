@@ -18,7 +18,20 @@ class UserController{
                 user_type:  mongoose.Types.ObjectId(user_type_id),
                 activated_code: generateRandomCode(8)
             });
-            const data = await User.findOne({_id : user._id}).populate('user_type')
+
+            const update = {
+                profile: {
+                    avatar: user.profile.avatar,
+                    name: {
+                        first_name: req.body.first_name,
+                        last_name: req.body.last_name
+                    },
+                    phone: user.profile.phone,
+                    address: user.profile.address,
+                    dob: user.profile.dob
+                }
+            }
+            const data = await User.findOneAndUpdate({ _id: user._id }, update, {new: true}).populate('user_type')
             sendActiveMail(data);
             res.json({
                 success: true,

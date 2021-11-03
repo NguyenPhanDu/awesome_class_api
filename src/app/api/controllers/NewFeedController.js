@@ -32,21 +32,27 @@ class NewFeedController{
             let newfeed = [];
             if(classMember.role.id_class_role == 1 || classMember.role.id_class_role == 3){
                 const a = await ClassHomework.find({class: mongoose.Types.ObjectId(classId), is_delete: false})
-                .populate({
-                    path: 'homework',
-                    populate: [{
-                        path: 'homework_type',
-                        select:['name','id_homework_type']
+                .populate([
+                    {
+                        path: 'homework',
+                        populate: [{
+                            path: 'homework_type',
+                            select:['name','id_homework_type']
+                        },
+                        {
+                            path: 'homework_category',
+                            select:['title','id_homework_category']
+                        },
+                        {
+                            path: 'create_by'
+                        }
+                        ]
                     },
                     {
-                        path: 'homework_category',
-                        select:['title','id_homework_category']
-                    },
-                    {
-                        path: 'create_by'
+                        path: 'class',
+                        select: '-__v -createdAt -updatedAt'
                     }
-                    ]
-                });
+                ]);
                 let arrayHomework = JSON.parse(JSON.stringify(a));
                 if(arrayHomework.length > 0){
                     let l = arrayHomework.length;
@@ -72,7 +78,8 @@ class NewFeedController{
                     }
                 }
                 const b = await ClassNews.find({ class: mongoose.Types.ObjectId(classId), is_delete: false }).populate('user', '-password')
-                .populate("document", "name viewLink downloadLink size id_files");
+                .populate("document", "name viewLink downloadLink size id_files")
+                .populate('class', '-__v -createdAt -updatedAt')
                 let arrayNotify =  JSON.parse(JSON.stringify(b));
                 if(arrayNotify.length > 0){
                     let l = arrayNotify.length;
@@ -109,21 +116,27 @@ class NewFeedController{
                     let a = JSON.parse(JSON.stringify(homeworkAssign));
                     for(let i = 0; i < a.length; i++){
                         let classHomework = await ClassHomework.findOne({ homework: mongoose.Types.ObjectId(a[i].homework), is_delete: false })
-                        .populate({
-                            path: 'homework',
-                            populate: [{
-                                path: 'homework_type',
-                                select:['name','id_homework_type']
+                        .populate([
+                            {
+                                path: 'homework',
+                                populate: [{
+                                    path: 'homework_type',
+                                    select:['name','id_homework_type']
+                                },
+                                {
+                                    path: 'homework_category',
+                                    select:['title','id_homework_category']
+                                },
+                                {
+                                    path: 'create_by'
+                                }
+                                ]
                             },
                             {
-                                path: 'homework_category',
-                                select:['title','id_homework_category']
-                            },
-                            {
-                                path: 'create_by'
+                                path: 'class',
+                                select: '-__v -createdAt -updatedAt'
                             }
-                            ]
-                        });
+                        ]);
                         if(classHomework){
                             const amoutFavourate = await FavourateHomework.countDocuments({ class_homework: mongoose.Types.ObjectId(classHomework._id), is_delete: false });
                             classHomework.amountBookMark = amoutFavourate;
@@ -174,7 +187,8 @@ class NewFeedController{
                 //     }
                 // }
                 const b = await ClassNews.find({ class: mongoose.Types.ObjectId(classId), is_delete: false }).populate('user', '-password')
-                .populate("document", "name viewLink downloadLink size id_files");
+                .populate("document", "name viewLink downloadLink size id_files")
+                .populate('class', '-__v -createdAt -updatedAt')
                 let arrayNotify =  JSON.parse(JSON.stringify(b));
                 if(arrayNotify.length > 0){
                     let l = arrayNotify.length;

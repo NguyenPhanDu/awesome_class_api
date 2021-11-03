@@ -302,7 +302,11 @@ class HomeWorkController{
                     select: ["-password"],
                     match: { email : { $eq : res.locals.email } }
                 }]
-            });
+            })
+            .populate({
+                path: 'class',
+                select: '-__v -createdAt -updatedAt'
+            })
             let homeworksParte = JSON.parse(JSON.stringify(arrHomework));
             if(homeworksParte.length > 0){
                 homeworksParte = homeworksParte.filter(homework => {
@@ -363,6 +367,10 @@ class HomeWorkController{
                             path: 'create_by',
                             select: ["-password"],
                         }]
+                    })
+                    .populate({
+                        path: 'class',
+                        select: '-__v -createdAt -updatedAt'
                     })
                     
                     if(a){
