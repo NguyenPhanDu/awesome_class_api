@@ -263,7 +263,6 @@ class ClassNewsController{
             data['comments'] = arrayComment;
             data['amountComment'] = amountComment;
             //data['student_assgined'] = arrayStudentAssginedEmail;
-            console.log(data)
             return res.json({
                 success: true,
                 message: "get detail notification successfully!",

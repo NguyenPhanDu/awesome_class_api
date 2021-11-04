@@ -262,7 +262,6 @@ class HomeWorkController{
             finalResult['amountComment'] = amountComment
             finalResult['id_class_homework'] = classHomework.id_class_homework;
             finalResult['id_class'] = classHomework.class.id_class
-            console.log(finalResult)
             return res.status(200).json({
                 success: true,
                 message: "get detail exercise successfull!",
