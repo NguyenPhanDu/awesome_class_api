@@ -237,6 +237,13 @@ class HomeWorkController{
             let homeworkId = classHomework.homework;
             const arrayCommet = await Comment.find({ onModel: 'ClassHomework', is_delete: false, ref: mongoose.Types.ObjectId(classHomework._id) })
             .populate('user', '-password');
+            const amountComment = await Comment.countDocuments(
+                {
+                    onModel : 'ClassHomework',
+                    ref: classHomework._id,
+                    is_delete: false
+                }
+            )
             let homeworkNoAssigned = await homeworkModel.findOne({_id : mongoose.Types.ObjectId(homeworkId)})
                 .populate('homework_category',"title id_homework_category")
                 .populate('homework_type',"name id_homework_type")
@@ -252,8 +259,10 @@ class HomeWorkController{
             let finalResult = JSON.parse(JSON.stringify(homeworkNoAssigned));
             finalResult['student_assgined'] = arrayStudentAssginedEmail;
             finalResult['comments'] = arrayCommet;
+            finalResult['amountComment'] = amountComment
             finalResult['id_class_homework'] = classHomework.id_class_homework;
             finalResult['id_class'] = classHomework.class.id_class
+            console.log(finalResult)
             return res.status(200).json({
                 success: true,
                 message: "get detail exercise successfull!",

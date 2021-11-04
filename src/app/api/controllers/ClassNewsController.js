@@ -248,6 +248,11 @@ class ClassNewsController{
                 }
             )
             .populate('user', '-password');
+            const amountComment = await Comment.countDocuments({
+                is_delete: false,
+                onModel: 'ClassNews',
+                ref: mongoose.Types.ObjectId(news._id)
+            })
             // let arrayStudentAssgined = await ClassNewsAssign.find({ class: mongoose.Types.ObjectId(news.class), class_news: mongoose.Types.ObjectId(news._id), is_delete: false })
             //                                     .populate('user', '-__v, -password');
             //     let arrayStudentAssginedEmail = [];
@@ -256,7 +261,9 @@ class ClassNewsController{
             //     });
             let data = JSON.parse(JSON.stringify(news));
             data['comments'] = arrayComment;
+            data['amountComment'] = amountComment;
             //data['student_assgined'] = arrayStudentAssginedEmail;
+            console.log(data)
             return res.json({
                 success: true,
                 message: "get detail notification successfully!",
