@@ -106,41 +106,87 @@ class StatisticalHomework{
                 ]
             });
             if(classHomework.homework.create_by.email == res.locals.email){
-                for(let i = 0; i< req.body.students.length; i++){
-                    let user = await User.findOne( { email : req.body.students[i].email } )
-                    const assgin =  await HomeworkAssign.findOneAndUpdate(
-                        {
-                            is_delete: false,
-                            class: mongoose.Types.ObjectId(classHomework.class),
-                            homework: mongoose.Types.ObjectId(classHomework.homework._id),
-                            user: mongoose.Types.ObjectId(user._id),
-                            is_submit: true
-                        },
-                        {
-                            is_signed: true,
-                            scores: req.body.students[i].scores
-                        },
-                        {
-                            new: true
-                        }
-                    );
-                    const submit = await SubmitHomework.findOne(
-                        {
-                            is_delete: false,
-                            user: mongoose.Types.ObjectId(user._id),
-                            assignment: mongoose.Types.ObjectId(assgin._id)
-                        }
-                    );
-                    listReceiver.push(user._id)
-                    await NotificationController.submitNotify(submit._id, sender._id, listReceiver, 1)
+                if(classHomework.onModel == 'NormalHomework'){
+                    for(let i = 0; i< req.body.students.length; i++){
+                        let user = await User.findOne( { email : req.body.students[i].email } )
+                        const assgin =  await HomeworkAssign.findOneAndUpdate(
+                            {
+                                is_delete: false,
+                                class: mongoose.Types.ObjectId(classHomework.class),
+                                homework: mongoose.Types.ObjectId(classHomework.homework._id),
+                                user: mongoose.Types.ObjectId(user._id),
+                                is_submit: true
+                            },
+                            {
+                                is_signed: true,
+                                scores: req.body.students[i].scores
+                            },
+                            {
+                                new: true
+                            }
+                        );
+                        const submit = await SubmitHomework.findOne(
+                            {
+                                is_delete: false,
+                                user: mongoose.Types.ObjectId(user._id),
+                                assignment: mongoose.Types.ObjectId(assgin._id)
+                            }
+                        );
+                        listReceiver.push(user._id)
+                        await NotificationController.submitNotify(submit._id, sender._id, listReceiver, 1)
+                    }
+                    res.json({
+                        success: true,
+                        message: "sign homework submit successfully!",
+                        res_code: 200,
+                        res_status: "GET_SUCCESSFULLY"
+                    });
                 }
-                res.json({
-                    success: true,
-                    message: "sign homework submit successfully!",
-                    res_code: 200,
-                    res_status: "GET_SUCCESSFULLY"
-                });
-                
+                else{
+                    for(let i = 0; i< req.body.students.length; i++){
+                        let user = await User.findOne( { email : req.body.students[i].email } )
+                        const assgin =  await HomeworkAssign.findOne(
+                            {
+                                is_delete: false,
+                                class: mongoose.Types.ObjectId(classHomework.class),
+                                homework: mongoose.Types.ObjectId(classHomework.homework._id),
+                                user: mongoose.Types.ObjectId(user._id),
+                                is_submit: true
+                            },
+                        )
+                        .populate('homework')
+                        const submit = await SubmitHomework.findOne(
+                            {
+                                is_delete: false,
+                                user: mongoose.Types.ObjectId(user._id),
+                                assignment: mongoose.Types.ObjectId(assgin._id)
+                            }
+                        );
+                        let scores = 0;
+                        for(let i = 0; i < assgin.homework.questions; i++ ){
+                            if(assgin.homework.questions[i].answer == submit.answers[i]){
+                                scores = scores + homework.questions[i].scores
+                            }
+                        }
+                        await HomeworkAssign.findOneAndUpdate(
+                            {
+                                _id: assgin._id
+                            },
+                            {
+                                is_signed: true,
+                                scores: scores
+                            }
+                        )
+                        listReceiver.push(user._id)
+                        await NotificationController.submitNotify(submit._id, sender._id, listReceiver, 1)
+                    }
+                    res.json({
+                        success: true,
+                        message: "sign homework submit successfully!",
+                        res_code: 200,
+                        res_status: "GET_SUCCESSFULLY"
+                    });
+                }
             }
             else{
                 return res.json({
