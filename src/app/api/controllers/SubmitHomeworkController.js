@@ -13,9 +13,11 @@ const ClassRole = require('../../models/ClassRole');
 class SubmitHomeworkController{
     // id_class_homework
     // status : 1 là đúng hạn, 2 là trễ, 3 là thiếu, 0 là đã giao;
+    // hàm này xài cho cả bài tập thường và bài tập trắc nghiệm
     async submitNormalHomework (req, res){
         try{
             const now = moment().toDate().toString();
+            const reqAnswers = await JSON.parse(req.body.answers);
             const user = await User.findOne({email: res.locals.email})
             let userId = user._id;
             const classHomework = await ClassHomework.findOne({id_class_homework: Number(req.body.id_class_homework), is_delete: false})
@@ -36,6 +38,7 @@ class SubmitHomeworkController{
                 content: req.body.content,
                 assignment: mongoose.Types.ObjectId(homeworkAssign._id),
                 submit_at: now,
+                answers: reqAnswers
             });
 
             const submit = await submitHomeworkSchema.save();
@@ -280,6 +283,66 @@ class SubmitHomeworkController{
                 message: "Cancel submit homework successfully!",
                 res_code: 200,
                 res_status: "DELETE_SUCCESSFULLY"
+            });
+        }
+        catch(err){
+            console.log(err);
+            res.json({
+                success: false,
+                message: 'Server error. Please try again',
+                error: err,
+                res_code: 500,
+                res_status: "SERVER_ERROR"
+            });
+            return;
+        }
+    }
+
+    // req.body.id_submit
+    async updateMutilSubmit(req, res){
+        try{
+            const reqAnswers = await JSON.parse(req.body.answers);
+            const submit = await SubmitHomework.findOneAndUpdate(
+                {
+                    id_submit_homework: req.body.id_submit,
+                    is_delete: false
+                },
+                {
+                    answers: reqAnswers
+                },
+                {
+                    new: true
+                }
+            )
+            .populate('class_homework')
+            .populate('assignment')
+            .populate('user', '-password')
+            .populate("document", "name viewLink downloadLink size id_files");
+
+            let getSubmitObject = JSON.parse(JSON.stringify(submit));
+
+            delete getSubmitObject.class_homework;
+            delete getSubmitObject.user
+            delete getSubmitObject.is_delete
+            delete getSubmitObject.assignment
+            delete getSubmitObject.updatedAt
+            delete getSubmitObject.createdAt
+
+            const homeworkAssignAfterUpdate = await HomeworkAssign.findOne(
+                {
+                    _id: mongoose.Types.ObjectId(submit.assignment._id)
+                }
+            )
+            .populate('user','-password');
+            let result = JSON.parse(JSON.stringify(homeworkAssignAfterUpdate));
+            result['submitted'] = getSubmitObject
+            result['is_author'] = false;
+            return res.json({
+                success: true,
+                message: "Update your submit homework successfully!",
+                data: result,
+                res_code: 200,
+                res_status: "SUBMIT_SUCCESSFULLY"
             });
         }
         catch(err){

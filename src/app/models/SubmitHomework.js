@@ -32,7 +32,12 @@ const SubmitHomeworkSchema = Schema(
         is_delete: {
             type: Boolean,
             default: false
-        }
+        },
+        answers: [
+            {
+                type: Number
+            }
+        ]
     },
     {
         timestamps :true,
