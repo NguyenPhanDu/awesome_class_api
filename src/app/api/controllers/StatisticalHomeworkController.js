@@ -163,10 +163,9 @@ class StatisticalHomework{
                             }
                         );
                         let scores = 0;
-                        for(let i = 0; i < assgin.homework.questions; i++ ){
-                            console.log('trong nè');
+                        console.log()
+                        for(let i = 0; i < assgin.homework.questions.length; i++ ){
                             if(assgin.homework.questions[i].answer == submit.answers[i]){
-                                console.log('đúng nè nè');
                                 scores = scores + homework.questions[i].scores;
                             }
                         }
