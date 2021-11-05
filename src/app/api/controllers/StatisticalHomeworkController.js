@@ -166,7 +166,7 @@ class StatisticalHomework{
                         console.log()
                         for(let i = 0; i < assgin.homework.questions.length; i++ ){
                             if(assgin.homework.questions[i].answer == submit.answers[i]){
-                                scores = scores + homework.questions[i].scores;
+                                scores = scores + assgin.homework.questions[i].scores;
                             }
                         }
                         await HomeworkAssign.findOneAndUpdate(
