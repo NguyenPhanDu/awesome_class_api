@@ -164,8 +164,10 @@ class StatisticalHomework{
                         );
                         let scores = 0;
                         for(let i = 0; i < assgin.homework.questions; i++ ){
+                            console.log('trong nè');
                             if(assgin.homework.questions[i].answer == submit.answers[i]){
-                                scores = scores + homework.questions[i].scores
+                                console.log('đúng nè nè');
+                                scores = scores + homework.questions[i].scores;
                             }
                         }
                         await HomeworkAssign.findOneAndUpdate(
