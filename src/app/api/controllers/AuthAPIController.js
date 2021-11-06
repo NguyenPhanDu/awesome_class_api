@@ -73,7 +73,8 @@ class UserController{
                 })
             }
             if(req.body.activated_code == user.activated_code){
-                await User.findOneAndUpdate({id_user: user.id_user},{activated: true}, { new: true })
+                await User.findOneAndUpdate({id_user: user.id_user},{activated: true}, { new: true });
+                console.log("đúng code")
                 res.json({
                     success: true,
                     message: "Activated your account successfully!",
@@ -82,6 +83,7 @@ class UserController{
                 })
             }
             else{
+                console.log("sai code code")
                 return res.json({
                     success: false,
                     message: "Wrong activated code",
