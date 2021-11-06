@@ -55,7 +55,7 @@ class UserController{
 
     async verifyEmail(req, res){
         try{
-            const user = await User.findOne({ id_user: req.body.email });
+            const user = await User.findOne({ email: req.body.email });
             if(!user){
                 return res.json({
                     success: false,
@@ -73,7 +73,7 @@ class UserController{
                 })
             }
             if(req.body.activated_code == user.activated_code){
-                User.findOneAndUpdate({id_user: user.id_user},{activated: true}, { new: true })
+                await User.findOneAndUpdate({id_user: user.id_user},{activated: true}, { new: true })
                 res.json({
                     success: true,
                     message: "Activated your account successfully!",
