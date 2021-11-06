@@ -116,8 +116,8 @@ class UserController{
                 });
             }
             else{
-                const newCode = generateRandomCode(8);
-                const data = await User.findOneAndUpdate({ _id: user._id }, { activated_code: generateRandomCode(8) },{ new: true }).populate('user_type')
+                const newCode = await generateRandomCode(8);
+                const data = await User.findOneAndUpdate({ _id: user._id }, { activated_code: newCode },{ new: true }).populate('user_type')
                 sendActiveMail(data);
                 res.json({
                     success: true,
