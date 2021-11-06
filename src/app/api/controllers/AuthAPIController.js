@@ -12,11 +12,12 @@ class UserController{
         try{
             const userType = await UserType.findOne({ id_user_type: 2 });
             const user_type_id = userType._id
+            const code = await generateRandomCode(8)
             const user = await User.create({
                 email: req.body.email,
                 password: bcrypt.hashSync(req.body.password, 8),
                 user_type:  mongoose.Types.ObjectId(user_type_id),
-                activated_code: generateRandomCode(8)
+                activated_code: code
             });
 
             const update = {
