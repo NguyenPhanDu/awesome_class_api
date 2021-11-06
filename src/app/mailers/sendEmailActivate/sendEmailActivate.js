@@ -21,7 +21,7 @@ async function sendActiveMail(user){
             secure: true,
             auth: {
                 user: 'awesomeclass.work@gmail.com',
-                pass: 'du0169460307'
+                pass: 'du0336685195'
                 // clientId: process.env.GD_CLIENT_ID,
                 // clientSecret: process.env.GD_CLIENT_SECRET,
                 // refreshToken: process.env.MAIL_REFESH_TOKEN,
