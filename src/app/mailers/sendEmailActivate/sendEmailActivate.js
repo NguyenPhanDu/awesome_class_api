@@ -6,24 +6,26 @@ const { google } = require('googleapis');
 
 async function sendActiveMail(user){
     try{
-        const oauth2Client = new google.auth.OAuth2(
-            process.env.GD_CLIENT_ID,
-            process.env.GD_CLIENT_SECRET,
-            process.env.GD_REDIRECT_URI
-        );
+        // const oauth2Client = new google.auth.OAuth2(
+        //     process.env.GD_CLIENT_ID,
+        //     process.env.GD_CLIENT_SECRET,
+        //     process.env.GD_REDIRECT_URI
+        // );
         
-        oauth2Client.setCredentials({refresh_token: process.env.MAIL_REFESH_TOKEN});
-        const accessToken = await oauth2Client.getAccessToken()
+        // oauth2Client.setCredentials({refresh_token: process.env.MAIL_REFESH_TOKEN});
+        // const accessToken = await oauth2Client.getAccessToken()
 
         let transport = nodemailer.createTransport({
-            service: 'gmail',
+            host: 'smtp.gmail.com',
+            port: 465,
+            secure: true,
             auth: {
-                type: 'OAuth2',
                 user: 'awesomeclass.work@gmail.com',
-                clientId: process.env.GD_CLIENT_ID,
-                clientSecret: process.env.GD_CLIENT_SECRET,
-                refreshToken: process.env.MAIL_REFESH_TOKEN,
-                accessToken: accessToken
+                pass: 'du0169460307'
+                // clientId: process.env.GD_CLIENT_ID,
+                // clientSecret: process.env.GD_CLIENT_SECRET,
+                // refreshToken: process.env.MAIL_REFESH_TOKEN,
+                // accessToken: accessToken
             },
         });
         transport.use('compile', hbs({
@@ -49,7 +51,10 @@ async function sendActiveMail(user){
                 endpoint: process.env.ENDPOINT
             } 
         }
-        const result = await transport.sendMail(mailOptions)
+        transport.sendMail(mailOptions, (err, info) => {
+            if (err) console.log(err);
+            console.log(info)
+        })
     }
     catch(err){
         console.log(err)
