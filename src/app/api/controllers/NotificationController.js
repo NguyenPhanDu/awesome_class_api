@@ -13,7 +13,6 @@ class NotificationController{
             .populate('sender', '-password')
             .populate({
                 path: 'ref',
-                select: 'name -_id id_class',
                 populate:  [{
                     path: 'class',
                 },
@@ -41,7 +40,6 @@ class NotificationController{
             delete b.createdAt;
             delete b.updatedA;
             delete b.receiver;
-            console.log(b)
             res.json({
                 success: true,
                 message: "get all notify of users successfull!",
@@ -220,6 +218,62 @@ class NotificationController{
             type: type,
             onModel: 'Class'
         })
+    }
+
+    async test(req, res){
+        try{
+            const user = await User.findOne( { email: req.body.email })
+            const amount = Number(req.query.amount) || 10;
+            const a = await Notification.find({ receiver: mongoose.Types.ObjectId(user._id) })
+            .populate('sender', '-password')
+            .populate({
+                path: 'ref',
+                populate:  [{
+                    path: 'class',
+                },
+                {
+                    path: 'homework'
+                },
+                {
+                    path: 'assignment',
+                },
+                {
+                    path: 'class_homework',
+                    populate: {
+                        path: 'homework',
+                        populate: {
+                            path: 'create_by'
+                        }
+                    }
+                }
+                ]
+            })
+            .limit(amount)
+            .sort({ createdAt : -1 });
+            
+            let b = JSON.parse(JSON.stringify(a));
+            delete b.createdAt;
+            delete b.updatedA;
+            delete b.receiver;
+            res.json({
+                success: true,
+                message: "get all notify of users successfull!",
+                data: b,
+                res_code: 200,
+                res_status: "GET_SUCCESSFULLY"
+            })
+        }
+        catch(err){
+            console.log(err)
+                return res.json({
+                    success: false,
+                    message: 'Server error. Please try again.',
+                    error: err,
+                    res_code: 500,
+                    res_status: "SERVER_ERROR"
+                });
+        }
+        
     }
 }
 
