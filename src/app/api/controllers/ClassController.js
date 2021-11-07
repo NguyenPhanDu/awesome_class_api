@@ -34,12 +34,13 @@ class ClassController{
             .then(newClassPermission => {
                 permissionId = newClassPermission._id;
             })
+        const code = await generateRandomCode(6)
         const newClass = new Class({
             admin:  mongoose.Types.ObjectId(user_id),
             name: req.body.name,
             description: req.body.description,
             category: req.body.category,
-            class_code: generateRandomCode(6),
+            class_code: code,
             permission: mongoose.Types.ObjectId(permissionId)
         });
         await newClass.save()
