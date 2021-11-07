@@ -41,6 +41,7 @@ class NotificationController{
             delete b.createdAt;
             delete b.updatedA;
             delete b.receiver;
+            console.log(b)
             res.json({
                 success: true,
                 message: "get all notify of users successfull!",

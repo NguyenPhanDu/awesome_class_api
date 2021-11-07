@@ -278,7 +278,6 @@ class BookmarkController{
                 ,
                 match: { is_delete: { $eq: false} }
             })
-            console.log(c)
             if(c.length > 0){
                 let d = await JSON.parse(JSON.stringify(c));
                 let length = d.length;
