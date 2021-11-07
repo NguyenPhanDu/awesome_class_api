@@ -10,6 +10,7 @@ const HomeworkAssgin = require('../../models/HomeworkAssign');
 const FavourateClass = require('../../models/FavouriteClass');
 const TeacherPermisstion = require('../../models/TeacherPermisstion');
 const StudentPermisstion = require('../../models/StudentPermisstion');
+const SubmitHomework = require('../../models/SubmitHomework');
 const generateRandomCode = require('../../../helpers/index');
 const FolerServices = require('../../services/file_and_folder/index');
 const imgur = require('../../imgur/service');
@@ -184,6 +185,13 @@ class ClassController{
                 const classDelete =  await Class.findOneAndUpdate(query, update, option);
                 await ClassHomework.updateMany({class: mongoose.Types.ObjectId(classFinded._id)}, update);
                 await HomeworkAssgin.updateMany({ class: mongoose.Types.ObjectId(classFinded._id) }, update);
+                const listAssign = await HomeworkAssgin.find({ class: classFinded._id })
+                const listAssignParte = await JSON.parse(JSON.stringify(listAssign))
+                if(listAssignParte.length > 0){
+                    for(let i = 0; i < listAssignParte.length; i++){
+                        await SubmitHomework.updateMany({ assignment: listAssignParte[i]._id }, update);
+                    }
+                }
                 await ClassNews.updateMany({ class: mongoose.Types.ObjectId(classFinded._id)}, update);
                 await FavourateClass.updateMany({ class: mongoose.Types.ObjectId(classFinded._id), update });
                 await TeacherPermisstion.findOneAndUpdate({ class: mongoose.Types.ObjectId(classFinded._id) }, update);
