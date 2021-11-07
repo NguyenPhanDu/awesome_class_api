@@ -280,7 +280,8 @@ class BookmarkController{
             })
             if(c.length > 0){
                 let d = await JSON.parse(JSON.stringify(c));
-                let length = d.length;
+                console.log(d)
+                let length = d.length
                 for(let i = 0; i < length; i++ ){
                     const amountMember = await ClassMember.countDocuments({class: mongoose.Types.ObjectId(d[i].class._id), is_delete: false ,$or: [{ status: 0 }, {status : 1}, {status : 3}]});
                     d[i].class.member = amountMember;
