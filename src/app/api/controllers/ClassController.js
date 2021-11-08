@@ -193,7 +193,7 @@ class ClassController{
                     }
                 }
                 await ClassNews.updateMany({ class: mongoose.Types.ObjectId(classFinded._id)}, update);
-                await FavourateClass.updateMany({ class: mongoose.Types.ObjectId(classFinded._id), update });
+                await FavourateClass.updateMany({ class: mongoose.Types.ObjectId(classFinded._id)}, update);
                 await TeacherPermisstion.findOneAndUpdate({ class: mongoose.Types.ObjectId(classFinded._id) }, update);
                 await StudentPermisstion.findOneAndUpdate({ class: mongoose.Types.ObjectId(classFinded._id) }, update);
                 return res.status(200).json({
