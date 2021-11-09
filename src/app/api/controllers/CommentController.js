@@ -185,6 +185,14 @@ class CommentController{
                     res_status: "UPDATE_SUCCESSFULLY"
                 })  
             }
+            else{
+                return res.json({
+                    success: false,
+                    message: "No access",
+                    res_code: 403,
+                    res_status: "NO_ACCESS"
+                })
+            }
         }
         catch(err){
             console.log(err);
