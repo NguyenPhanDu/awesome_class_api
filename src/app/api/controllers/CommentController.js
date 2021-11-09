@@ -23,20 +23,14 @@ class CommentController{
             const user = await User.findOne({ email : res.locals.email});
             if(req.body.ref == 1){
                 model = 'ClassHomework';
-                ref = await ClassHomework.findOne({ id_class_homework: req.body.id, is_delete : false })
+                ref = await ClassHomework.findOne({ id_class_homework: req.body.id, is_delete : false }).populate('homework')
 
-                // Notify
-                const classRoleTeacher = await ClassRole.findOne({id_class_role : 1 });
-                let classRoleTeacherId = classRoleTeacher._id;
-                const allTeacherInClass = await ClassMember.find({user: { $ne: mongoose.Types.ObjectId(user._id) }, class: mongoose.Types.ObjectId(ref.class), role: mongoose.Types.ObjectId(classRoleTeacherId), is_delete: false});
-                JSON.parse(JSON.stringify(allTeacherInClass));
-                // push vào mảng học sinh
-                allTeacherInClass.forEach(item => {
-                    listIdUser.push(item.user);
-                });
+                // push giáo viên tạo bài tập này vào list
+                listIdUser.push(ref.homework.create_by);
+                
                 let a = await HomeworkAssign.find({
                     class: mongoose.Types.ObjectId(ref.class),
-                    homework: mongoose.Types.ObjectId(ref.homework),
+                    homework: mongoose.Types.ObjectId(ref.homework._id),
                     onModel: "NormalHomework",
                     is_delete: false,
                     user: { $ne: mongoose.Types.ObjectId(user._id) }
