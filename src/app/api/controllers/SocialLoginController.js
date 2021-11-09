@@ -28,6 +28,7 @@ class SocialLogin{
                     .catch((err) => {
                         console.error(err.message);
                     });
+                    const code = await generateRandomCode(8);
                     const user = new User({
                         email: req.body.email,
                         user_type:  mongoose.Types.ObjectId(user_type_id),
@@ -39,7 +40,7 @@ class SocialLogin{
                             avatar: avatar
                         },
                         social: 'Facebook',
-                        activated_code: generateRandomCode(8)
+                        activated_code: code
                     });
                     await user.save()
                         .then(async user => {
@@ -121,6 +122,7 @@ class SocialLogin{
                     .catch((err) => {
                         console.error(err.message);
                     });
+                    const code = await generateRandomCode(8)
                     const user = new User({
                         email: req.body.email,
                         user_type:  mongoose.Types.ObjectId(user_type_id),
@@ -132,7 +134,7 @@ class SocialLogin{
                             avatar: avatar
                         },
                         social: 'Google',
-                        activated_code: generateRandomCode(8)
+                        activated_code: code
                     });
                     await user.save()
                         .then(async user => {
