@@ -295,9 +295,9 @@ class ClassMemberController {
                 classId = result._id
             });
         let role;
-        await ClassMember.findOne({ user: mongoose.Types.ObjectId(userId), class: mongoose.Types.ObjectId(classId) })
+        await ClassMember.findOne({ user: mongoose.Types.ObjectId(userId), class: mongoose.Types.ObjectId(classId) }).populate('role')
             .then(async classMember => {
-                role = classMember.status;
+                role = classMember.id_class_role.id_class_role;
                 await User.findOne({ _id: mongoose.Types.ObjectId(userId) })
                     .populate('user_type')
                     .then(user => {
