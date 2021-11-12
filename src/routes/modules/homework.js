@@ -15,7 +15,7 @@ router.get('/get-all-homework',HomeWorkController.getAllHomewworkOfUser);
 router.post('/update-normal-homework',upload, HomeWorkController.updateNormalHomework);
 router.post('/submit-normal-homework',upload, SubmitHomeworkController.submitNormalHomework);
 router.post('/cancel-submit', SubmitHomeworkController.cancelSubmit);
-router.post('/update-submit', SubmitHomeworkController.updateMutilSubmit);
+router.post('/update-submit', SubmitHomeworkController.updateSubmit);
 router.post('/display-assignment/', SubmitHomeworkController.displaySubmitInDetailHomework);
 
 router.post('/display-statistical-homework', StatisticalHomewok.statisticalHomework);

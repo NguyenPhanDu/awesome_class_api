@@ -10,6 +10,8 @@ const TimeHelper = require('../../../helpers/parse_date');
 const Comment = require('../../models/Comment');
 const ClassMember = require('../../models/ClassMember');
 const ClassRole = require('../../models/ClassRole');
+const HistorySubmit = require('../../models/HistorySubmit');
+
 class SubmitHomeworkController{
     // id_class_homework
     // status : 1 là đúng hạn, 2 là trễ, 3 là thiếu, 0 là đã giao;
@@ -299,8 +301,21 @@ class SubmitHomeworkController{
     }
 
     // req.body.id_submit
-    async updateMutilSubmit(req, res){
+    async updateSubmit(req, res){
         try{
+            const presentSubmit = await SubmitHomework.findOne({ id_submit_homework: req.body.id_submit, is_delete: false });
+            const history = await HistorySubmit.create(
+                {
+                    user: presentSubmit.user,
+                    class_homework: presentSubmit.presentSubmit,
+                    content: presentSubmit.content,
+                    assignment: presentSubmit.assignment,
+                    submit_at: presentSubmit.submit_at,
+                    document: presentSubmit.document,
+                    answers: presentSubmit.answers,
+                    id_submit_homework: presentSubmit.id_submit_homework
+                }
+            )
             const reqAnswers = await JSON.parse(req.body.answers);
             const submit = await SubmitHomework.findOneAndUpdate(
                 {
@@ -356,6 +371,10 @@ class SubmitHomeworkController{
             });
             return;
         }
+    }
+    // req.body.id_history_submit
+    async viewHistory(req, res){
+        
     }
 }
 
