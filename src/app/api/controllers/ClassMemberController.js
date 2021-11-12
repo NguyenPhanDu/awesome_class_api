@@ -297,7 +297,7 @@ class ClassMemberController {
         let role;
         await ClassMember.findOne({ user: mongoose.Types.ObjectId(userId), class: mongoose.Types.ObjectId(classId) }).populate('role')
             .then(async classMember => {
-                role = classMember.id_class_role.id_class_role;
+                role = classMember.role.id_class_role;
                 await User.findOne({ _id: mongoose.Types.ObjectId(userId) })
                     .populate('user_type')
                     .then(user => {
@@ -323,6 +323,7 @@ class ClassMemberController {
                     })
             })
             .catch(err => {
+                console.log(err)
                 return res.json({
                     success: false,
                     message: 'Server error. Please try again. get class member fail',
