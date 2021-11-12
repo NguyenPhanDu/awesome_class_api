@@ -372,10 +372,6 @@ class SubmitHomeworkController{
             return;
         }
     }
-    // req.body.id_history_submit
-    async viewHistory(req, res){
-        
-    }
 }
 
 module.exports = new SubmitHomeworkController

@@ -6,6 +6,8 @@ const SubmitHomework = require('../../models/SubmitHomework');
 const moment = require('moment');
 const Comment = require('../../models/Comment');
 const NotificationController = require('./NotificationController');
+const HistorySubmit = require('../../models/HistorySubmit');
+
 class StatisticalHomework{
     // id_class_homework
     async statisticalHomework(req, res){
@@ -247,9 +249,13 @@ class StatisticalHomework{
                 submitted = null;
                 comments = []
             }
-            
+            const history = await HistorySubmit.find({ id_submit_homework: submit.submit })
+            .populate('user', '-password')
+            .populate("document", "name viewLink downloadLink size id_files")
+            .select('-id -__v -class_homework -assignment')
             result['submitted'] = submitted;
             result['comments'] = comments;
+            result['history'] = history
             res.json({
                 success: true,
                 message: "Get detail submit successfully!",
