@@ -39,6 +39,9 @@ const HistorySubmit = Schema(
             }
         ],
         id_submit_homework: Number,
+        submit_at: {
+            type: String
+        },
     },
     {
         timestamps :true,

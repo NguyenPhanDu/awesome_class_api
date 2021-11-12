@@ -303,27 +303,68 @@ class SubmitHomeworkController{
     // req.body.id_submit
     async updateSubmit(req, res){
         try{
-            const presentSubmit = await SubmitHomework.findOne({ id_submit_homework: req.body.id_submit, is_delete: false });
+            const now = moment().toDate().toString();
+            const presentSubmit = await SubmitHomework.findOne({ id_submit_homework: req.body.id_submit, is_delete: false })
+            .populate('class_homework')
+
             const history = await HistorySubmit.create(
                 {
                     user: presentSubmit.user,
-                    class_homework: presentSubmit.presentSubmit,
+                    class_homework: presentSubmit.class_homework._id,
                     content: presentSubmit.content,
                     assignment: presentSubmit.assignment,
                     submit_at: presentSubmit.submit_at,
                     document: presentSubmit.document,
                     answers: presentSubmit.answers,
-                    id_submit_homework: presentSubmit.id_submit_homework
+                    id_submit_homework: presentSubmit.id_submit_homework,
+                    submit_at: now
                 }
             )
+            
+            if(reqAttachments.length > 0){
+                let newDocument = [];
+                await FolerServices.deleteFileWhenUpdate(presentSubmit._id);
+                let length = reqAttachments.length
+                for(let i = 0; i < length; i++){
+                    const file = await File.findOneAndUpdate({ id_files: reqAttachments[i].id_files}, { is_delete: false }, { new: true});
+                    newDocument.push(file._id);
+                }
+                await SubmitHomework.findOneAndUpdate(
+                    {_id: mongoose.Types.ObjectId(presentSubmit._id)},
+                    {
+                        document: newDocument
+                    },
+                    {new: true}
+                );
+            }
+            else{
+                //await FolerServices.deleteFileWhenUpdate(classHomeWork._id);
+                await SubmitHomework.findOneAndUpdate(
+                    {_id: mongoose.Types.ObjectId(presentSubmit._id)},
+                    {
+                        document: []
+                    },
+                    {new: true}
+                );
+            }
+            if(req.files){
+                if(req.files.length> 0){
+                    for(let i = 0; i < req.files.length; i++){
+                        await FolerSer.uploadFileSubmit(presentSubmit.class_homework.class,presentSubmit.user, req.files[i],presentSubmit._id);
+                    }
+                }
+            }
+
             const reqAnswers = await JSON.parse(req.body.answers);
+            const reqContent = await JSON.parse(req.body.content)
             const submit = await SubmitHomework.findOneAndUpdate(
                 {
                     id_submit_homework: req.body.id_submit,
                     is_delete: false
                 },
                 {
-                    answers: reqAnswers
+                    answers: reqAnswers,
+                    content: reqContent
                 },
                 {
                     new: true
