@@ -326,7 +326,7 @@ class SubmitHomeworkController{
             
             if(reqAttachments.length > 0){
                 let newDocument = [];
-                await FolerServices.deleteFileWhenUpdate(presentSubmit._id);
+                await FolerSer.deleteFileWhenUpdate(presentSubmit._id);
                 let length = reqAttachments.length
                 for(let i = 0; i < length; i++){
                     const file = await File.findOneAndUpdate({ id_files: reqAttachments[i].id_files}, { is_delete: false }, { new: true});
