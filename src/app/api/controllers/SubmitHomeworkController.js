@@ -303,6 +303,7 @@ class SubmitHomeworkController{
     // req.body.id_submit
     async updateSubmit(req, res){
         try{
+            reqAttachments = JSON.parse(req.body.attachments);
             const now = moment().toDate().toString();
             const presentSubmit = await SubmitHomework.findOne({ id_submit_homework: req.body.id_submit, is_delete: false })
             .populate('class_homework')
