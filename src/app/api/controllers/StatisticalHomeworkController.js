@@ -253,7 +253,7 @@ class StatisticalHomework{
             .populate('user', '-password')
             .populate("document", "name viewLink downloadLink size id_files")
             .select('-id -__v -class_homework -assignment')
-            .sort('createdAt', -1)
+            .sort({ createdAt: 'desc'})
             result['submitted'] = submitted;
             result['comments'] = comments;
             result['history'] = history
