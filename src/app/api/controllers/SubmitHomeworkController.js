@@ -318,7 +318,6 @@ class SubmitHomeworkController{
                     document: presentSubmit.document,
                     answers: presentSubmit.answers,
                     id_submit_homework: presentSubmit.id_submit_homework,
-                    submit_at: now
                 }
             )
             
@@ -364,7 +363,8 @@ class SubmitHomeworkController{
                 },
                 {
                     answers: reqAnswers,
-                    content: req.body.content
+                    content: req.body.content,
+                    submit_at: now
                 },
                 {
                     new: true
