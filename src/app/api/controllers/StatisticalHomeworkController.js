@@ -249,7 +249,7 @@ class StatisticalHomework{
                 submitted = null;
                 comments = []
             }
-            const history = await HistorySubmit.find({ id_submit_homework: submit.id_submit_homework })
+            const history = await HistorySubmit.find({ id_submit_homework: submit.id_submit_homework },{}, sort({createdAt: -1}))
             .populate('user', '-password')
             .populate("document", "name viewLink downloadLink size id_files")
             .select('-id -__v -class_homework -assignment')
