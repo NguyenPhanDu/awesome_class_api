@@ -305,8 +305,9 @@ class SubmitHomeworkController{
         try{
             console.log(req.body)
             const reqAttachments = JSON.parse(req.body.attachments);
+            const reqIdSubmit = Number(JSON.parse(req.body.id_submit))
             const now = moment().toDate().toString();
-            const presentSubmit = await SubmitHomework.findOne({ id_submit_homework: req.body.id_submit, is_delete: false })
+            const presentSubmit = await SubmitHomework.findOne({ id_submit_homework: reqIdSubmit, is_delete: false })
             .populate('class_homework')
             console.log("vvvvvvvv",presentSubmit)
             const history = await HistorySubmit.create(
@@ -361,7 +362,7 @@ class SubmitHomeworkController{
             const reqContent = await JSON.parse(req.body.content)
             const submit = await SubmitHomework.findOneAndUpdate(
                 {
-                    id_submit_homework: req.body.id_submit,
+                    id_submit_homework: reqIdSubmit,
                     is_delete: false
                 },
                 {
