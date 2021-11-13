@@ -359,7 +359,6 @@ class SubmitHomeworkController{
             }
 
             const reqAnswers = await JSON.parse(req.body.answers);
-            const reqContent = await JSON.parse(req.body.content)
             const submit = await SubmitHomework.findOneAndUpdate(
                 {
                     id_submit_homework: reqIdSubmit,
@@ -367,7 +366,7 @@ class SubmitHomeworkController{
                 },
                 {
                     answers: reqAnswers,
-                    content: reqContent
+                    content: req.body.content
                 },
                 {
                     new: true
