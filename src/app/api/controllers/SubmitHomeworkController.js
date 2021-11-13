@@ -303,7 +303,6 @@ class SubmitHomeworkController{
     // req.body.id_submit
     async updateSubmit(req, res){
         try{
-            const reqAttachments = await JSON.parse(req.body.attachments);
             const reqIdSubmit = await JSON.parse(req.body.id_submit)
             const now = moment().toDate().toString();
             const presentSubmit = await SubmitHomework.findOne({ id_submit_homework: Number(reqIdSubmit), is_delete: false })
@@ -320,33 +319,36 @@ class SubmitHomeworkController{
                     id_submit_homework: presentSubmit.id_submit_homework,
                 }
             )
-            
-            if(reqAttachments.length > 0){
-                let newDocument = [];
-                await FolerSer.deleteFileWhenUpdate(presentSubmit._id);
-                let length = reqAttachments.length
-                for(let i = 0; i < length; i++){
-                    const file = await File.findOneAndUpdate({ id_files: reqAttachments[i].id_files}, { is_delete: false }, { new: true});
-                    newDocument.push(file._id);
+            if(req.body.attachments){
+                const reqAttachments = await JSON.parse(req.body.attachments);
+                if(reqAttachments.length > 0){
+                    let newDocument = [];
+                    await FolerSer.deleteFileWhenUpdate(presentSubmit._id);
+                    let length = reqAttachments.length
+                    for(let i = 0; i < length; i++){
+                        const file = await File.findOneAndUpdate({ id_files: reqAttachments[i].id_files}, { is_delete: false }, { new: true});
+                        newDocument.push(file._id);
+                    }
+                    await SubmitHomework.findOneAndUpdate(
+                        {_id: mongoose.Types.ObjectId(presentSubmit._id)},
+                        {
+                            document: newDocument
+                        },
+                        {new: true}
+                    );
                 }
-                await SubmitHomework.findOneAndUpdate(
-                    {_id: mongoose.Types.ObjectId(presentSubmit._id)},
-                    {
-                        document: newDocument
-                    },
-                    {new: true}
-                );
+                else{
+                    //await FolerServices.deleteFileWhenUpdate(classHomeWork._id);
+                    await SubmitHomework.findOneAndUpdate(
+                        {_id: mongoose.Types.ObjectId(presentSubmit._id)},
+                        {
+                            document: []
+                        },
+                        {new: true}
+                    );
+                }
             }
-            else{
-                //await FolerServices.deleteFileWhenUpdate(classHomeWork._id);
-                await SubmitHomework.findOneAndUpdate(
-                    {_id: mongoose.Types.ObjectId(presentSubmit._id)},
-                    {
-                        document: []
-                    },
-                    {new: true}
-                );
-            }
+            
             if(req.files){
                 if(req.files.length> 0){
                     for(let i = 0; i < req.files.length; i++){
