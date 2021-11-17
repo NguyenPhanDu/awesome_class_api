@@ -156,6 +156,7 @@ class NewFeedController{
                             )
                             classHomework.amountComment = comments;
                             classHomework.haha = 2;
+                            console.log(classHomework)
                             newfeed.push(classHomework);
                         }
                     }
