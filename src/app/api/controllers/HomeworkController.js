@@ -437,13 +437,17 @@ class HomeWorkController{
     async updateNormalHomework(req, res){
         // Req:  id_class, title, description, deadline, start_date, total_scores, category : { title, id_homework_category}, emails[];
         try{
-            console.log(req.body)
             // mảng các receiver nhận notify
             let listReceiver = [];
             let reqAttachments = JSON.parse(req.body.attachments);
             let reqStudent = await JSON.parse(req.body.emails);
             let reqCategory = await JSON.parse(req.body.category);
-            let reqTotalScore = await JSON.parse(req.body.total_scores);
+            if(req.body.total_scores == 'null'){
+                reqTotalScore = null;
+            }
+            else{
+                reqTotalScore = Number(req.body.total_scores);
+            }
             if(req.body.deadline == 'null'){
                 req.body.deadline = null;
             }

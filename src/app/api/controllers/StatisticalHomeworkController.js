@@ -30,7 +30,7 @@ class StatisticalHomework{
                 }
             ).populate('user', '-password')
             .populate('homework');
-            
+            console.log(allAssignHomework)
             let assignment = allAssignHomework;
             let amount_submitted = await HomeworkAssign.countDocuments(
                 { 
