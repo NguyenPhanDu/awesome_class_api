@@ -138,14 +138,15 @@ class NewFeedController{
                             }
                         ]);
                         if(classHomework){
+                            let homworkData = await JSON.parse(JSON.stringify(classHomework));
                             const amoutFavourate = await FavourateHomework.countDocuments({ class_homework: mongoose.Types.ObjectId(classHomework._id), is_delete: false });
-                            classHomework.amountBookMark = amoutFavourate;
+                            homworkData.amountBookMark = amoutFavourate;
                             const mark = await FavourateHomework.findOne({class_homework: classHomework._id, user: res.locals._id, is_delete: false })
                             if(mark){
-                                classHomework.bookMark = true;
+                                homworkData.bookMark = true;
                             }
                             else{
-                                classHomework.bookMark = false;
+                                homworkData.bookMark = false;
                             }
                             const comments = await Comment.countDocuments(
                                 {
@@ -154,10 +155,8 @@ class NewFeedController{
                                     is_delete: false
                                 }
                             )
-                            classHomework.amountComment = comments;
-                            classHomework.haha = 2;
-                            console.log(classHomework)
-                            newfeed.push(classHomework);
+                            homworkData.amountComment = comments;
+                            newfeed.push(homworkData);
                         }
                     }
                 }
