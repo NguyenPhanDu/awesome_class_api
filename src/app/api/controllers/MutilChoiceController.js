@@ -56,7 +56,7 @@ async function create(req, res){
                 description: req.body.description,
                 start_date: req.body.start_date,
                 deadline: req.body.deadline,
-                total_scores: reqTotalScore,
+                total_scores: Number(reqTotalScore),
                 homework_type: mongoose.Types.ObjectId(homeWorkTypeId),
                 create_by: mongoose.Types.ObjectId(userId),
                 questions: reqQuestions
