@@ -386,16 +386,16 @@ class HomeWorkController{
                         path: 'class',
                         select: '-__v -createdAt -updatedAt'
                     })
-                    
                     if(a){
+                        let data = JSON.parse(JSON.stringify(a))
                         const amoutFavourate = await FavourateHomework.countDocuments({ class_homework: a._id, is_delete: false });
-                        a.amountBookMark = amoutFavourate;
+                        data.amountBookMark = amoutFavourate;
                         const mark = await FavourateHomework.findOne({class_homework: a._id, user: res.locals._id, is_delete: false })
                         if(mark){
-                            a.bookMark = true;
+                            data.bookMark = true;
                         }
                         else{
-                            a.bookMark = false;
+                            data.bookMark = false;
                         }
                         const comments = await Comment.countDocuments(
                             {
@@ -404,13 +404,12 @@ class HomeWorkController{
                                 is_delete: false
                             }
                         )
-                        a.amountComment = comments
-                        let homeworksParte = JSON.parse(JSON.stringify(a));
-                        list.push(homeworksParte)
+                        data.amountComment = comments
+                        // let homeworksParte = JSON.parse(JSON.stringify(a));
+                        list.push(data)
                     }
                 }
             }
-
             const sortListHomework  = list.sort((a,b) => moment(parseTimeFormMongo(b.createdAt), "YYYY-MM-DD HH:mm:ss") - moment(parseTimeFormMongo(a.createdAt), "YYYY-MM-DD HH:mm:ss"));
             return res.json({
                 success: true,
