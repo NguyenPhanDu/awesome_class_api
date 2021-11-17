@@ -22,9 +22,9 @@ class HomeWorkController{
         try{
             let reqStudent = await JSON.parse(req.body.emails);
             let reqCategory = await JSON.parse(req.body.category);
-            let reqTotalScore = await JSON.parse(req.body.total_scores);
-            console.log(reqTotalScore);
-            console.log(typeof(reqTotalScore));
+            //let reqTotalScore = await JSON.parse(req.body.total_scores);
+            console.log(req.body.total_scores);
+            console.log(typeof(req.body.total_scores));
             if(req.body.deadline == 'null'){
                 req.body.deadline = null;
             }
