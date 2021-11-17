@@ -19,14 +19,14 @@ class CommentController{
             let model;
             let listIdUser = [];
             let submitSenderComment;
-            let submitReceiverComment;
             const user = await User.findOne({ email : res.locals.email});
             if(req.body.ref == 1){
                 model = 'ClassHomework';
                 ref = await ClassHomework.findOne({ id_class_homework: req.body.id, is_delete : false }).populate('homework')
-
-                // push giáo viên tạo bài tập này vào list
-                listIdUser.push(ref.homework.create_by);
+                if(res.locals._id != ref.homework.create_by){
+                    // push giáo viên tạo bài tập này vào list
+                    listIdUser.push(ref.homework.create_by);
+                }
                 
                 let a = await HomeworkAssign.find({
                     class: mongoose.Types.ObjectId(ref.class),
