@@ -40,6 +40,17 @@ class CommentController{
                     listIdUser.push(item.user);
                 });
 
+                let b = await HomeworkAssign.find({
+                    class: mongoose.Types.ObjectId(ref.class),
+                    homework: mongoose.Types.ObjectId(ref.homework._id),
+                    onModel: "MutilChoiceHomework",
+                    is_delete: false,
+                    user: { $ne: mongoose.Types.ObjectId(user._id) }
+                });
+                JSON.parse(JSON.stringify(b));
+                b.forEach(item => {
+                    listIdUser.push(item.user);
+                });
                 //listIdUser = listIdUser.filter(item => {
                 //     return item != user._id
                 // })
