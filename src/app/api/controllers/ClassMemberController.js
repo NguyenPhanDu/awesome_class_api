@@ -226,7 +226,7 @@ class ClassMemberController {
                     res_status: "NO_ACCESS"
                 })
             }
-            if (memberWantDelete.role.id_class_role == 1) {
+            if (memberWantDelete.role.id_class_role == 2) {
                 await ClassMember.findOneAndUpdate(query, update, option);
                 res.status(200).json({
                     success: true,
@@ -363,7 +363,7 @@ class ClassMemberController {
                     res_status: "FAILED"
                 })
             }
-            if (classMember.role.id_class_role == 1) {
+            if (classMember.role.id_class_role == 2) {
                 await ClassMember.findOneAndUpdate(query, update, option)
                 res.status(200).json({
                     success: true,
