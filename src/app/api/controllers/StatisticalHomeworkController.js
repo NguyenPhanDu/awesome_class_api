@@ -7,11 +7,12 @@ const moment = require('moment');
 const Comment = require('../../models/Comment');
 const NotificationController = require('./NotificationController');
 const HistorySubmit = require('../../models/HistorySubmit');
-
+const { changeTimeInDBToISOString } = require('../../../helpers/parse_date');
 class StatisticalHomework{
     // id_class_homework
     async statisticalHomework(req, res){
         try{
+            const now = moment().toDate().toString();
             const classHomework = await ClassHomework.findOne({id_class_homework: Number(req.body.id_class_homework), is_delete: false})
             .populate({
                 path: 'homework',
@@ -30,8 +31,29 @@ class StatisticalHomework{
                 }
             ).populate('user', '-password')
             .populate('homework');
-            console.log(allAssignHomework)
-            let assignment = allAssignHomework;
+            
+            // đổi trạng thái nếu nộp muộn
+            for(let i = 0; i < allAssignHomework.length; i++){
+                if(allAssignHomework[i].homework.deadline && moment(changeTimeInDBToISOString(now)).isAfter(changeTimeInDBToISOString(allAssignHomework[i].homework.deadline)) && allAssignHomework[i].is_submit == false){
+                    await HomeworkAssign.findOneAndUpdate(
+                        {
+                            _id : mongoose.Types.ObjectId(allAssignHomework[i]._id)
+                        },
+                        {
+                            status: 3
+                        }
+                    );
+                }
+            }
+            const allAssignHomework2 = await HomeworkAssign.find(
+                { 
+                    class: mongoose.Types.ObjectId(classHomework.class._id),
+                    homework: mongoose.Types.ObjectId(classHomework.homework._id),
+                    is_delete: false
+                }
+            ).populate('user', '-password')
+            .populate('homework');
+            let assignment = allAssignHomework2;
             let amount_submitted = await HomeworkAssign.countDocuments(
                 { 
                     is_delete: false,
