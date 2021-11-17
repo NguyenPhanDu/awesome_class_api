@@ -17,6 +17,8 @@ const imgur = require('../../imgur/service');
 const Image = require('../../models/Image');
 const File = require('../../models/File');
 const Folder = require('../../models/FolderClass');
+const moment = require('moment');
+const { parseTimeFormMongo, changeTimeInDBToISOString } = require('../../../helpers/parse_date');
 class ClassController{
     async creteClass(req, res){
         let user_id;
@@ -286,6 +288,7 @@ class ClassController{
                 return newClassArray
             })
             .then(newClassArray => {
+                const sortClass  = newClassArray.sort((a,b) => moment(changeTimeInDBToISOString(b.createdAt), "YYYY-MM-DD HH:mm:ss") - moment(changeTimeInDBToISOString(a.createdAt), "YYYY-MM-DD HH:mm:ss"));
                 res.json({
                     success: true,
                     message: "get all class successfull!",
