@@ -154,7 +154,8 @@ class NewFeedController{
                                     is_delete: false
                                 }
                             )
-                            classHomework.amountComment = comments
+                            classHomework.amountComment = comments;
+                            classHomework.haha = 2;
                             newfeed.push(classHomework);
                         }
                     }
